@@ -1,0 +1,1 @@
+export { VirtualDrumKit } from './VirtualDrumKit';

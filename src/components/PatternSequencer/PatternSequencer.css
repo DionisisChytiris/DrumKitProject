@@ -1,0 +1,207 @@
+.pattern-sequencer {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 1.5rem;
+  color: #fff;
+}
+
+.sequencer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.sequencer-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.sequencer-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.play-button {
+  padding: 0.5rem 1.5rem;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.play-button:hover {
+  background: #45a049;
+  transform: scale(1.05);
+}
+
+.play-button.playing {
+  background: #f44336;
+}
+
+.play-button.playing:hover {
+  background: #da190b;
+}
+
+.clear-button {
+  padding: 0.5rem 1rem;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-button:hover {
+  background: #777;
+}
+
+.bpm-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bpm-control label {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.bpm-control input {
+  width: 60px;
+  padding: 0.4rem;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #fff;
+  text-align: center;
+}
+
+.sequencer-grid {
+  overflow-x: auto;
+}
+
+.sequencer-row-header {
+  margin-bottom: 0.5rem;
+}
+
+.step-numbers {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 120px;
+}
+
+.step-number {
+  width: 40px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #888;
+  background: #252525;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.step-number.active {
+  background: #4caf50;
+  color: #fff;
+  font-weight: 700;
+}
+
+.sequencer-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sequencer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.drum-label {
+  width: 110px;
+  font-size: 0.85rem;
+  color: #ccc;
+  text-align: right;
+  font-weight: 500;
+}
+
+.step-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.step-button {
+  width: 40px;
+  height: 40px;
+  background: #252525;
+  border: 2px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.step-button:hover {
+  background: #333;
+  border-color: #555;
+}
+
+.step-button.active {
+  background: #4caf50;
+  border-color: #66bb6a;
+}
+
+.step-button.active.current {
+  background: #66bb6a;
+  border-color: #81c784;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+  transform: scale(1.1);
+}
+
+.step-button.current:not(.active) {
+  border-color: #4caf50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+@media (max-width: 768px) {
+  .sequencer-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .drum-label {
+    width: 80px;
+    font-size: 0.75rem;
+  }
+
+  .step-button {
+    width: 35px;
+    height: 35px;
+  }
+
+  .step-numbers {
+    margin-left: 90px;
+  }
+
+  .step-number {
+    width: 35px;
+    height: 25px;
+  }
+}

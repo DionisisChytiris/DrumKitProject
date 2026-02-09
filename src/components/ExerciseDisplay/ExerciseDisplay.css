@@ -1,0 +1,225 @@
+.exercise-display {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.exercise-main {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.exercise-title {
+  margin: 0;
+  font-size: 2rem;
+  color: #333;
+  flex: 1;
+}
+
+.exercise-difficulty {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.exercise-description {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.exercise-bpm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.bpm-label {
+  font-weight: 600;
+  color: #666;
+}
+
+.bpm-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2a5298;
+}
+
+.exercise-pattern {
+  margin-top: 1.5rem;
+}
+
+.music-score-section {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.exercise-pattern h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.pattern-visualization {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pattern-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  min-width: 80px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pattern-drum {
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: capitalize;
+}
+
+.pattern-number {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.exercise-list {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-list h3 {
+  margin: 0 0 1.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.exercise-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.exercise-item {
+  padding: 1.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.exercise-item:hover {
+  border-color: #2a5298;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-item-active {
+  border-color: #2a5298;
+  background: #f0f4ff;
+}
+
+.exercise-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.exercise-item-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+  flex: 1;
+}
+
+.exercise-item-difficulty {
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.exercise-item-description {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.exercise-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .exercise-display {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .exercise-main,
+  .exercise-list {
+    padding: 1.5rem;
+  }
+
+  .exercise-title {
+    font-size: 1.5rem;
+  }
+
+  .pattern-visualization {
+    gap: 0.75rem;
+  }
+
+  .pattern-step {
+    min-width: 70px;
+    padding: 0.75rem;
+  }
+}

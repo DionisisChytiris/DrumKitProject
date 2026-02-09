@@ -1,0 +1,1 @@
+export { DrumKitCustomizer } from './DrumKitCustomizer';

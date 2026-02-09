@@ -1,0 +1,110 @@
+.music-score-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 1.5rem;
+}
+
+.music-score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.music-score-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.time-signature {
+  background: #667eea;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.music-score-content {
+  width: 100%;
+  overflow-x: auto;
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.vexflow-container {
+  width: 100%;
+  min-width: 1200px;
+  overflow-x: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.vexflow-container svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.no-exercise {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.music-legend {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.legend-item svg {
+  flex-shrink: 0;
+}
+
+.clef {
+  opacity: 0.9;
+}
+
+.time-signature-svg {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .music-score-container {
+    padding: 1rem;
+  }
+
+  .music-staff {
+    min-width: 900px;
+    height: 220px;
+  }
+
+  .music-legend {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding-left: 1rem;
+  }
+}

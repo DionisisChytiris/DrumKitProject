@@ -1,0 +1,709 @@
+/* ===== CONTAINER ===== */
+.virtual-drum-kit {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.drum-kit-container {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  height: 650px;
+  background: 
+    radial-gradient(ellipse at center, #2a2a2a 0%, #1a1a1a 100%),
+    linear-gradient(135deg, #1e1e1e 0%, #0f0f0f 100%);
+  border-radius: 12px;
+  box-shadow: 
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    inset 0 0 150px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* ===== DRUM PIECE BASE ===== */
+.drum-piece {
+  position: absolute;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, filter 0.1s ease;
+  user-select: none;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+}
+
+.drum-piece:hover {
+  transform: translate(-50%, -50%) scale(1.03);
+  z-index: 10;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+}
+
+.drum-piece:active,
+.drum-piece.drum-active {
+  transform: translate(-50%, -50%) scale(0.97);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.drum-piece:focus {
+  outline: 3px solid #4a90e2;
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
+.drum-piece-inner {
+  position: absolute;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.drum-key {
+  font-size: 0.7rem;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  font-weight: 700;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+}
+
+/* ===== DRUM SHADOWS ===== */
+.drum-shadow {
+  position: absolute;
+  width: 110%;
+  height: 110%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -45%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, 
+    rgba(0, 0, 0, 0.4) 0%, 
+    rgba(0, 0, 0, 0.2) 40%, 
+    transparent 70%);
+  z-index: 0;
+  filter: blur(8px);
+}
+
+.drum-kick .drum-shadow {
+  border-radius: 20px;
+  transform: translate(-50%, -40%);
+}
+
+/* ===== DRUM SHELL (Wood Texture) ===== */
+.drum-shell {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: 
+    /* Wood grain texture */
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(101, 67, 33, 0.1) 2px,
+      rgba(101, 67, 33, 0.1) 4px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(139, 69, 19, 0.15) 3px,
+      rgba(139, 69, 19, 0.15) 6px
+    ),
+    /* Base wood color with variation */
+    radial-gradient(
+      ellipse at 35% 25%,
+      rgba(160, 82, 45, 0.4) 0%,
+      rgba(139, 69, 19, 0.3) 20%,
+      rgba(101, 67, 33, 0.2) 50%,
+      transparent 80%
+    ),
+    linear-gradient(
+      135deg,
+      #8b4513 0%,
+      #654321 15%,
+      #8b4513 30%,
+      #7a3f1a 45%,
+      #8b4513 60%,
+      #654321 75%,
+      #8b4513 90%,
+      #7a3f1a 100%
+    );
+  background-size: 100% 100%, 100% 100%, 100% 100%, 200% 200%;
+  box-shadow: 
+    inset 0 0 40px rgba(0, 0, 0, 0.6),
+    inset 0 0 80px rgba(0, 0, 0, 0.4),
+    inset -20px 0 30px rgba(0, 0, 0, 0.3),
+    0 12px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(0, 0, 0, 0.3);
+  border: 10px solid #3a3a3a;
+  z-index: 1;
+}
+
+/* Shell highlight for 3D effect */
+.drum-shell-highlight {
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  top: 15%;
+  left: 15%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 30% 20%,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    transparent 60%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Snare - Chrome/silver finish */
+.drum-snare .drum-shell {
+  background: 
+    radial-gradient(
+      ellipse at 35% 25%,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(220, 220, 220, 0.2) 20%,
+      rgba(180, 180, 180, 0.15) 50%,
+      transparent 80%
+    ),
+    linear-gradient(
+      135deg,
+      #d0d0d0 0%,
+      #b0b0b0 15%,
+      #c8c8c8 30%,
+      #a8a8a8 45%,
+      #c0c0c0 60%,
+      #b8b8b8 75%,
+      #c8c8c8 90%,
+      #a0a0a0 100%
+    );
+  border-color: #4a4a4a;
+  box-shadow: 
+    inset 0 0 40px rgba(0, 0, 0, 0.4),
+    inset 0 0 80px rgba(0, 0, 0, 0.2),
+    inset -20px 0 30px rgba(0, 0, 0, 0.2),
+    0 12px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.drum-snare .drum-shell-highlight {
+  background: radial-gradient(
+    ellipse at 30% 20%,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.2) 30%,
+    transparent 60%
+  );
+}
+
+/* Tom - Red/mahogany finish */
+.drum-tom .drum-shell {
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 0, 0, 0.1) 2px,
+      rgba(139, 0, 0, 0.1) 4px
+    ),
+    radial-gradient(
+      ellipse at 35% 25%,
+      rgba(180, 20, 20, 0.4) 0%,
+      rgba(139, 0, 0, 0.3) 20%,
+      rgba(101, 0, 0, 0.2) 50%,
+      transparent 80%
+    ),
+    linear-gradient(
+      135deg,
+      #b22222 0%,
+      #8b0000 15%,
+      #a02020 30%,
+      #7a0000 45%,
+      #b22222 60%,
+      #8b0000 75%,
+      #a02020 90%,
+      #7a0000 100%
+    );
+  border-color: #3a3a3a;
+}
+
+/* ===== DRUM HEAD ===== */
+.drum-head {
+  position: absolute;
+  width: 82%;
+  height: 82%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: 
+    /* Subtle texture */
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(250, 250, 250, 0.9) 25%,
+      rgba(245, 245, 245, 0.85) 50%,
+      rgba(240, 240, 240, 0.8) 75%,
+      rgba(235, 235, 235, 0.75) 100%
+    ),
+    /* Base white */
+    linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+  box-shadow: 
+    inset 0 0 25px rgba(0, 0, 0, 0.08),
+    inset 0 0 50px rgba(0, 0, 0, 0.04),
+    0 3px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(200, 200, 200, 0.5);
+  border: 2px solid #d8d8d8;
+  z-index: 3;
+}
+
+.drum-piece.drum-active .drum-head {
+  background: 
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(240, 240, 240, 0.9) 0%,
+      rgba(230, 230, 230, 0.85) 25%,
+      rgba(220, 220, 220, 0.8) 50%,
+      rgba(210, 210, 210, 0.75) 75%,
+      rgba(200, 200, 200, 0.7) 100%
+    ),
+    linear-gradient(135deg, #e8e8e8 0%, #d8d8d8 100%);
+  box-shadow: 
+    inset 0 0 35px rgba(0, 0, 0, 0.15),
+    inset 0 0 60px rgba(0, 0, 0, 0.08),
+    0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Stick marks on snare (realistic wear) */
+.drum-stick-marks {
+  position: absolute;
+  width: 82%;
+  height: 82%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: 
+    radial-gradient(
+      circle at 45% 50%,
+      rgba(200, 200, 200, 0.3) 0%,
+      transparent 8%
+    ),
+    radial-gradient(
+      circle at 55% 50%,
+      rgba(200, 200, 200, 0.25) 0%,
+      transparent 7%
+    ),
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(180, 180, 180, 0.2) 0%,
+      transparent 6%
+    );
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ===== DRUM RIM (Chrome) ===== */
+.drum-rim {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 8px solid;
+  border-color: 
+    #e0e0e0 
+    #b0b0b0 
+    #808080 
+    #c8c8c8;
+  background: linear-gradient(
+    135deg,
+    #e8e8e8 0%,
+    #d0d0d0 25%,
+    #b8b8b8 50%,
+    #a0a0a0 75%,
+    #b8b8b8 100%
+  );
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    inset 0 3px 8px rgba(255, 255, 255, 0.4),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 0, 0, 0.2);
+  z-index: 5;
+}
+
+/* Rim highlight for metallic shine */
+.drum-rim-highlight {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.6) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* ===== KICK DRUM SPECIAL ===== */
+.drum-kick {
+  border-radius: 18px;
+}
+
+.drum-kick .drum-shell {
+  border-radius: 18px;
+  border-width: 12px;
+}
+
+.drum-kick .drum-head {
+  border-radius: 14px;
+  width: 88%;
+  height: 75%;
+}
+
+.drum-kick .drum-rim {
+  border-radius: 18px;
+  border-width: 10px;
+}
+
+.drum-kick-front {
+  position: absolute;
+  width: 72%;
+  height: 58%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 12px;
+  background: 
+    radial-gradient(
+      ellipse at 30% 30%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(250, 250, 250, 0.9) 40%,
+      rgba(245, 245, 245, 0.85) 100%
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+  box-shadow: 
+    inset 0 0 20px rgba(0, 0, 0, 0.06),
+    inset 0 0 40px rgba(0, 0, 0, 0.03),
+    0 3px 10px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(200, 200, 200, 0.5);
+  border: 2px solid #d8d8d8;
+  z-index: 2;
+}
+
+.drum-kick-logo {
+  position: absolute;
+  width: 30%;
+  height: 8%;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: 
+    linear-gradient(90deg, 
+      transparent 0%,
+      rgba(139, 69, 19, 0.3) 20%,
+      rgba(139, 69, 19, 0.4) 50%,
+      rgba(139, 69, 19, 0.3) 80%,
+      transparent 100%
+    );
+  border-radius: 2px;
+  z-index: 3;
+  opacity: 0.6;
+}
+
+/* Drum lugs (tension rods) */
+.drum-lugs {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.drum-lugs::before,
+.drum-lugs::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 12px;
+  background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
+  border-radius: 2px;
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Position lugs around the rim */
+.drum-lugs::before {
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.drum-lugs::after {
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ===== CYMBAL STYLES ===== */
+.cymbal-shadow {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.3) 30%,
+    rgba(0, 0, 0, 0.1) 60%,
+    transparent 80%
+  );
+  z-index: 0;
+  filter: blur(12px);
+}
+
+.cymbal-bottom {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: 
+    radial-gradient(
+      circle at 70% 70%,
+      rgba(101, 67, 33, 0.4) 0%,
+      rgba(139, 69, 19, 0.5) 30%,
+      rgba(101, 67, 33, 0.6) 60%,
+      rgba(80, 50, 20, 0.7) 100%
+    );
+  box-shadow: 
+    inset 0 0 30px rgba(0, 0, 0, 0.4),
+    inset 0 0 60px rgba(0, 0, 0, 0.2),
+    0 -6px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.cymbal-top {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: 
+    /* Main brass color with variation */
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 220, 100, 0.95) 0%,
+      rgba(255, 200, 80, 0.9) 15%,
+      rgba(218, 165, 32, 0.85) 30%,
+      rgba(184, 134, 11, 0.8) 45%,
+      rgba(139, 100, 20, 0.75) 60%,
+      rgba(101, 75, 15, 0.7) 75%,
+      rgba(80, 60, 10, 0.65) 90%,
+      rgba(60, 45, 8, 0.6) 100%
+    );
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    inset 0 0 50px rgba(255, 215, 0, 0.3),
+    inset 0 0 100px rgba(255, 200, 0, 0.2),
+    inset -30px -30px 60px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.cymbal-center {
+  position: absolute;
+  width: 88%;
+  height: 88%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: 
+    radial-gradient(
+      circle at 40% 40%,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 240, 180, 0.4) 20%,
+      rgba(255, 215, 0, 0.3) 40%,
+      rgba(218, 165, 32, 0.2) 60%,
+      transparent 80%
+    );
+  box-shadow: 
+    inset 0 0 40px rgba(255, 255, 255, 0.4),
+    inset 0 0 80px rgba(255, 215, 0, 0.3);
+  z-index: 3;
+}
+
+.cymbal-hole {
+  position: absolute;
+  width: 10%;
+  height: 10%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: 
+    radial-gradient(
+      circle,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.95) 50%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  box-shadow: 
+    inset 0 0 15px rgba(0, 0, 0, 0.9),
+    0 3px 6px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(60, 45, 8, 0.8);
+  z-index: 4;
+}
+
+/* Cymbal wear/patina (realistic aging) */
+.cymbal-wear {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: 
+    radial-gradient(
+      circle at 60% 40%,
+      rgba(101, 75, 15, 0.2) 0%,
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(80, 60, 10, 0.15) 0%,
+      transparent 20%
+    );
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Active state for cymbals */
+.drum-piece.drum-active .cymbal-top {
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    inset 0 0 70px rgba(255, 255, 255, 0.6),
+    inset 0 0 120px rgba(255, 240, 200, 0.5),
+    inset -30px -30px 60px rgba(0, 0, 0, 0.2);
+}
+
+.drum-piece.drum-active .cymbal-center {
+  box-shadow: 
+    inset 0 0 50px rgba(255, 255, 255, 0.7),
+    inset 0 0 100px rgba(255, 240, 200, 0.5);
+}
+
+/* Hi-hat specific (silver/chrome) */
+.drum-hihat .cymbal-top {
+  background: 
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(240, 240, 240, 0.95) 0%,
+      rgba(220, 220, 220, 0.9) 15%,
+      rgba(200, 200, 200, 0.85) 30%,
+      rgba(180, 180, 180, 0.8) 45%,
+      rgba(160, 160, 160, 0.75) 60%,
+      rgba(140, 140, 140, 0.7) 75%,
+      rgba(120, 120, 120, 0.65) 90%,
+      rgba(100, 100, 100, 0.6) 100%
+    );
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    inset 0 0 50px rgba(255, 255, 255, 0.3),
+    inset 0 0 100px rgba(240, 240, 240, 0.2),
+    inset -30px -30px 60px rgba(0, 0, 0, 0.2);
+}
+
+.drum-hihat .cymbal-center {
+  background: 
+    radial-gradient(
+      circle at 40% 40%,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(240, 240, 240, 0.4) 20%,
+      rgba(220, 220, 220, 0.3) 40%,
+      rgba(200, 200, 200, 0.2) 60%,
+      transparent 80%
+    );
+}
+
+.drum-hihat .cymbal-bottom {
+  background: 
+    radial-gradient(
+      circle at 70% 70%,
+      rgba(120, 120, 120, 0.4) 0%,
+      rgba(100, 100, 100, 0.5) 30%,
+      rgba(80, 80, 80, 0.6) 60%,
+      rgba(60, 60, 60, 0.7) 100%
+    );
+}
+
+.drum-hihat .cymbal-wear {
+  background: 
+    radial-gradient(
+      circle at 60% 40%,
+      rgba(100, 100, 100, 0.2) 0%,
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(80, 80, 80, 0.15) 0%,
+      transparent 20%
+    );
+}
+
+/* ===== INSTRUCTIONS ===== */
+.drum-kit-instructions {
+  margin-top: 1.5rem;
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .drum-kit-container {
+    height: 550px;
+    max-width: 100%;
+  }
+
+  .drum-key {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.55rem;
+  }
+
+  .drum-rim {
+    border-width: 6px;
+  }
+
+  .drum-shell {
+    border-width: 8px;
+  }
+
+  .drum-kick .drum-shell {
+    border-width: 10px;
+  }
+
+  .drum-kick .drum-rim {
+    border-width: 8px;
+  }
+}
