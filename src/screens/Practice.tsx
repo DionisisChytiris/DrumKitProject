@@ -155,7 +155,7 @@ const Practice: React.FC = () => {
         const heightScale = viewportSize.height / BASE_HEIGHT;
         
         // Determine screen size category
-        const isSmallScreen = viewportSize.width < 1600 || viewportSize.height < 900;
+        const isSmallScreen = viewportSize.width < 1600 || viewportSize.height < 500;
         const isMediumScreen = viewportSize.width >= 1600 && viewportSize.width < 2400;
         
         // Calculate adjustments to compensate for scaling differences
@@ -168,7 +168,7 @@ const Practice: React.FC = () => {
             // For small screens (like 15" laptop), adjust positions more
             // Compensate for the fact that viewport units scale differently
             xAdjustment = (widthScale - 1) * 3; // More X adjustment for small screens
-            yAdjustment = (heightScale - 1) * 2; // Y adjustment for small screens
+            yAdjustment = (heightScale - 1) * 22; // Y adjustment for small screens
         } else if (isMediumScreen) {
             // For medium screens, smaller adjustments
             xAdjustment = (widthScale - 1) * 1;
