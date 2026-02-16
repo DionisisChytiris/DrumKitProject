@@ -17,6 +17,12 @@ export const Navigation: React.FC = () => {
           🏠 Home
         </NavLink>
         <NavLink
+          to="/hometest"
+          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+        >
+          🏠 HomeTest
+        </NavLink>
+        <NavLink
           to="/about"
           className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
         >

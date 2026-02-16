@@ -9,6 +9,7 @@ import DrumTest from './DrumTest'
 import { DrumPiece } from '../types';
 import { defaultDrumKit } from '../utils/drumConfig';
 import { sampleExercises } from '../utils/drumConfig';
+import {Navigation} from '../components/Navigation'
 
 type TabType = 'kit' | 'mixer' | 'sequencer' | 'customize';
 
@@ -33,6 +34,7 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <div className="home-screen">
+      <Navigation/>
       <div className="screen-content">
         <div className="app-top-section">
           <ExerciseDisplay

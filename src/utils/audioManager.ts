@@ -28,27 +28,55 @@ class AudioManager {
   playSound(soundId: string, audioUrl?: string): void {
     try {
       if (audioUrl) {
+        console.log(`[AudioManager] Playing ${soundId} from: ${audioUrl}`); // Debug log
         // Use audio file if provided
         let audio = this.audioCache.get(soundId);
         
-        if (!audio) {
-          audio = new Audio(audioUrl);
-          this.audioCache.set(soundId, audio);
+        // Check if cached audio URL matches the new URL, if not, create new audio
+        if (!audio || (audio.src && audio.src !== audioUrl && !audioUrl.startsWith('blob:'))) {
+          // For blob URLs, we need to check differently since they're unique
+          if (audio && audioUrl.startsWith('blob:')) {
+            // Always create new audio for blob URLs (custom uploads)
+            audio = new Audio(audioUrl);
+            this.audioCache.set(soundId, audio);
+          } else if (!audio || audio.src !== audioUrl) {
+            audio = new Audio(audioUrl);
+            this.audioCache.set(soundId, audio);
+          }
         }
+
+        // Add error handler to detect loading failures
+        audio.addEventListener('error', (e) => {
+          console.error(`[AudioManager] Failed to load audio for ${soundId} from ${audioUrl}:`, e);
+          console.warn(`[AudioManager] Falling back to generated tone for ${soundId}`);
+          // Fall back to generated tone if audio fails to load
+          this.generateTone(soundId);
+        });
 
         // Clone and play to allow overlapping sounds
         const audioClone = audio.cloneNode() as HTMLAudioElement;
         audioClone.volume = this.volume;
         audioClone.play().catch((error) => {
-          console.warn('Audio play failed:', error);
+          console.error(`[AudioManager] Audio play failed for ${soundId}:`, error);
+          console.warn(`[AudioManager] Falling back to generated tone for ${soundId}`);
+          // Fall back to generated tone if play fails
+          this.generateTone(soundId);
         });
       } else {
+        console.log(`[AudioManager] No audioUrl provided for ${soundId}, using generated tone`); // Debug log
         // Generate a simple tone using Web Audio API
         this.generateTone(soundId);
       }
     } catch (error) {
       console.error('Error playing sound:', error);
     }
+  }
+
+  /**
+   * Clear cache for a specific sound (useful when audioUrl changes)
+   */
+  clearSoundCache(soundId: string): void {
+    this.audioCache.delete(soundId);
   }
 
   /**

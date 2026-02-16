@@ -1,0 +1,321 @@
+.practice-container {
+  position: fixed;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.practice-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background-image: url('../../assets/DrumStudio1.png');
+  background-size: 100%; /* Zoom in by scaling up */
+  background-position: 40% center; /* Move drum kit closer to center (from right) */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  
+  /* No blur - fully visible and clear */
+  filter: none;
+}
+
+.practice-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: 100vh;
+  /* padding: 2rem; */
+  color: #ffffff;
+}
+
+.practice-back-button {
+    margin:2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.practice-back-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateX(-4px);
+}
+
+.practice-main {
+  width: 100%;
+  min-height: calc(100vh - 100px);
+  position: relative;
+}
+
+/* Invisible clickable drum kit overlay */
+.practice-drum-kit-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.practice-drum-hit-zone {
+  position: absolute;
+  cursor: pointer;
+  pointer-events: all;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Transform is handled inline for custom positioning */
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.practice-drum-hit-zone:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.practice-drum-hit-zone.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+  /* Scale animation is handled inline */
+}
+
+.practice-drum-key-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.practice-drum-hit-zone:hover .practice-drum-key-hint {
+  opacity: 1;
+}
+
+.practice-instructions {
+  position: absolute;
+  bottom: 16rem;
+  left: 10rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 3;
+  max-width: 500px;
+}
+
+.practice-instructions p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.practice-instructions p:first-child {
+  font-weight: 600;
+  margin-top: 0;
+}
+
+.practice-key-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem !important;
+}
+
+.key-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.key-hint kbd {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-family: monospace;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .practice-background {
+    background-size: 150%; /* More zoom on mobile */
+    background-position: 55% center;
+  }
+
+  .practice-content {
+    padding: 1.5rem;
+  }
+
+  .practice-instructions {
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+    padding: 0.75rem 1rem;
+  }
+
+  .practice-key-hints {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .practice-background {
+    background-size: 180%;
+    background-position: 50% center;
+  }
+
+  .practice-content {
+    padding: 1rem;
+  }
+
+  .practice-instructions {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .key-hint {
+    font-size: 0.75rem;
+  }
+}
+
+/* Fullscreen overlay */
+.practice-fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.practice-fullscreen-message {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 3rem 4rem;
+  text-align: center;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.practice-fullscreen-message h2 {
+  color: #ffffff;
+  font-size: 2rem;
+  margin: 0 0 1rem 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.practice-fullscreen-message p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin: 1rem 0;
+  line-height: 1.6;
+}
+
+.practice-fullscreen-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2.5rem;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 1.5rem 0;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.practice-fullscreen-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
+}
+
+.practice-fullscreen-button:active {
+  transform: translateY(0);
+}
+
+.practice-fullscreen-hint {
+  font-size: 0.9rem !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-top: 1rem !important;
+}
+
+.practice-fullscreen-hint kbd {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-family: monospace;
+  font-weight: 600;
+  margin: 0 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .practice-fullscreen-message {
+    padding: 2rem 2.5rem;
+    margin: 1rem;
+  }
+
+  .practice-fullscreen-message h2 {
+    font-size: 1.5rem;
+  }
+
+  .practice-fullscreen-message p {
+    font-size: 1rem;
+  }
+
+  .practice-fullscreen-button {
+    padding: 0.875rem 2rem;
+    font-size: 1.1rem;
+  }
+}

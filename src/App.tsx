@@ -4,15 +4,19 @@ import { HomeScreen } from './screens/Home';
 import { AboutScreen } from './screens/About';
 import { SettingsScreen } from './screens/Settings';
 import './App.css';
+import HomeTest from './screens/HomeTest';
+import Practice from './screens/Practice';
 
 function App() {
   return (
     <div className="app">
-      <Navigation />
+      {/* <Navigation /> */}
       
       <main className="app-main">
         <Routes>
           <Route path="/" element={<HomeScreen />} />
+          <Route path="/hometest" element={<HomeTest />} />
+          <Route path="/practice" element={<Practice />} />
           <Route path="/about" element={<AboutScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
         </Routes>

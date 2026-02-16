@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { enhancedAudioManager } from '../utils/enhancedAudioManager';
-import './Settings.css';
+import './styles/Settings.css';
 
 export const SettingsScreen: React.FC = () => {
   const [masterVolume, setMasterVolume] = useState(0.7);

@@ -1,4 +1,4 @@
-.drum-kit-customizer {
+/* .drum-kit-customizer {
   background: #1a1a1a;
   border-radius: 8px;
   padding: 1rem;
@@ -94,7 +94,7 @@
   left: 0;
   right: 0;
   margin-top: 0.5rem;
-  background: #2a2a2a;
+  background: #208341;
   border: 1px solid #444;
   border-radius: 6px;
   padding: 0.5rem;
@@ -112,7 +112,7 @@
 .sample-item {
   width: 100%;
   padding: 0.75rem;
-  background: #333;
+  background: #127e48;
   border: 1px solid #444;
   border-radius: 4px;
   color: #fff;
@@ -152,4 +152,4 @@
   .drum-selector-grid {
     grid-template-columns: 1fr;
   }
-}
+} */

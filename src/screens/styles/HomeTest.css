@@ -1,0 +1,186 @@
+.hometest-container {
+  position: fixed;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.hometest-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background-image: url('../../assets/DrumStudio.png');
+  background-size: cover;
+  background-position: right center; /* Position drum kit on right side */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  
+  /* Blur and desaturation effects */
+  filter: blur(2px) saturate(0.3);
+  backdrop-filter: blur(1px);
+}
+
+/* Optional: Add subtle rim lighting effect overlay */
+.hometest-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse 60% 50% at 70% 50%, rgba(120, 100, 80, 0.1) 0%, transparent 60%);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.hometest-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.35); /* 75% dark overlay (between 70-85%) */
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hometest-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  width: 100%;
+  padding-bottom: 3rem;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+/* Navigation Tiles */
+.navigation-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.nav-tile {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 200px;
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-tile:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.nav-tile:hover::before {
+  opacity: 1;
+}
+
+.nav-tile:active {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+}
+
+.nav-tile-icon {
+  font-size: 3.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+}
+
+.nav-tile:hover .nav-tile-icon {
+  transform: scale(1.1);
+}
+
+.nav-tile-text {
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hometest-content {
+    padding: 1.5rem;
+  }
+
+  .navigation-tiles {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2rem 0;
+  }
+
+  .nav-tile {
+    min-height: 160px;
+    padding: 2rem 1.5rem;
+  }
+
+  .nav-tile-icon {
+    font-size: 3rem;
+  }
+
+  .nav-tile-text {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navigation-tiles {
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+
+  .nav-tile {
+    min-height: 140px;
+    padding: 1.5rem 1rem;
+  }
+
+  .nav-tile-icon {
+    font-size: 2.5rem;
+  }
+
+  .nav-tile-text {
+    font-size: 1.1rem;
+  }
+}

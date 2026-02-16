@@ -11,8 +11,10 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^6.21.0",
     "tone": "^15.1.22",
     "vexflow": "^4.2.5"
