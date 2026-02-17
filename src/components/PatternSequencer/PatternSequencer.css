@@ -100,8 +100,8 @@
 }
 
 .step-number {
-  width: 40px;
-  height: 30px;
+  width: 30px;
+  height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,8 +144,8 @@
 }
 
 .step-button {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   background: #252525;
   border: 2px solid #333;
   border-radius: 4px;

@@ -1,4 +1,6 @@
 import React from 'react';
+import {PatternSequencer} from '../components/PatternSequencer/PatternSequencer'
+import { useAppSelector } from '@/store/hooks';
 import './SequencerModal.css';
 
 interface SequencerModalProps {
@@ -7,6 +9,7 @@ interface SequencerModalProps {
 }
 
 export const SequencerModal: React.FC<SequencerModalProps> = ({ isOpen, onClose }) => {
+  const { drumKit } = useAppSelector((state) => state.drumKit);
 
   if (!isOpen) return null;
 
@@ -16,26 +19,21 @@ export const SequencerModal: React.FC<SequencerModalProps> = ({ isOpen, onClose 
     <div className="sequencer-modal-overlay">
       <div className="sequencer-modal-content">
         <div className="sequencer-modal-header">
-          <h2>sequencerModal Kit</h2>
+          <h2>Create your own Groove</h2>
           <button className="sequencer-modal-close" onClick={onClose}>
             ×
           </button>
         </div>
         <div className="sequencer-modal-body">
-          <p>sequencer your drum kit settings here.</p>
+          {/* <p>sequencer your drum kit settings here.</p> */}
           {/* Add your customization options here */}
           
-          <div className="sequencer-panel">
-          <h3>🎨 Drum Kit Customization</h3>
-         
-
-        
-          </div>
+        <PatternSequencer drumKit={drumKit}/>
 
           
         </div>
       
-        <div className="sequencer-modal-footer">
+        {/* <div className="sequencer-modal-footer">
           <button 
             className="sequencer-modal-button reset-button" 
             onClick={()=>{}}
@@ -43,7 +41,7 @@ export const SequencerModal: React.FC<SequencerModalProps> = ({ isOpen, onClose 
           >
             🔄 Reset to Default Drum Kit
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
