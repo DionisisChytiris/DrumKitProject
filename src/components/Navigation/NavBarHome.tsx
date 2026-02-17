@@ -2,9 +2,19 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { CustomizeModal } from '../../Modals/CustomizeModal';
 import './NavBarHome.css';
+import { PracticeSoundSettingsModal } from '@/Modals/PracticeSoundSettings';
+import {MixerModal} from '../../Modals/MixerModal'
 
 export const NavBarHome: React.FC = () => {
+  const [isMixerModalOpen, setIsMixerModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPracticeSoundSettingsModalOpen, setIsPracticeSoundSettingsModalOpen] = useState(false)
+
+  const handleMixerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsMixerModalOpen(true);
+  };
 
   const handleCustomizeClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -12,8 +22,28 @@ export const NavBarHome: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handlePracticeSoundClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPracticeSoundSettingsModalOpen(true);
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleMixerCloseModal = () => {
+    setIsMixerModalOpen(false);
+  };
+
+  const handleClosePracticeSoundSettingsModal = () => {
+    setIsPracticeSoundSettingsModalOpen(false);
+  };
+
+  const handleCloseAllModals = () => {
+    setIsMixerModalOpen(false);
+    setIsModalOpen(false);
+    setIsPracticeSoundSettingsModalOpen(false);
   };
 
   return (
@@ -32,30 +62,34 @@ export const NavBarHome: React.FC = () => {
           >
             🏠 Home
           </NavLink> */}
-          <NavLink
-            to="/hometest"
-            className='nav-link1'
-          //   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+          <div 
+            className='nav-link1' 
+            onClick={handleMixerClick}
+            onMouseEnter={handleCloseAllModals}
           >
             Mixer
-          </NavLink>
+          </div>
           <div 
             className='nav-link1' 
             onClick={handleCustomizeClick}
+            onMouseEnter={handleCloseAllModals}
           >
             Customize
           </div>
-          <NavLink
-            to="/setting"
-            className='nav-link1'
-          //   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+          <div 
+            className='nav-link1' 
+            onClick={handlePracticeSoundClick}
+            onMouseEnter={handleCloseAllModals}
           >
             Settings
-          </NavLink>
+          </div>
+
           <div className='nav-link2'></div>
         </div>
       </nav>
+      <MixerModal isOpen={isMixerModalOpen} onClose={handleMixerCloseModal}/>
       <CustomizeModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      <PracticeSoundSettingsModal isOpen={isPracticeSoundSettingsModalOpen} onClose={handleClosePracticeSoundSettingsModal}/>
     </>
   );
 };

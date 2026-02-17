@@ -1,0 +1,289 @@
+.key-binding-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.0);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.key-binding-modal-content {
+  background: 
+  radial-gradient(ellipse 60% 50% at 70% 50%, rgba(120, 100, 80, 0.1) 0%, transparent 60%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 60vh;
+  margin-top: 0%;
+  margin-left: 20%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.key-binding-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.key-binding-modal-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.key-binding-modal-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.key-binding-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+.key-binding-modal-body {
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.9);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.key-binding-description {
+  margin: 0 0 1.5rem 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.key-binding-list {
+  /* display: flex;
+  flex-direction: column;
+  gap: 1rem; */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 3 equal columns */
+  gap: 1rem;
+}
+
+.key-binding-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* align-items: center; */
+  padding: 0.8rem;
+  background: #252525;
+  border: 2px solid #333;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.key-binding-item:hover {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.key-binding-drum-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 1rem;
+  flex: 1;
+  padding-bottom: 0.5rem;
+}
+
+.key-binding-display {
+  display: flex;
+  align-items: center;
+}
+
+
+.key-binding-edit {
+  /* background: #4caf50; */
+  background: 'transparent';
+  /* border: 1px solid #66bb6a; */
+  border-radius: 4px;
+  margin-left: 0.8rem;
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.key-binding-key {
+  background: #1a1a1a;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-family: monospace;
+  font-size: 1rem;
+  color: #fff;
+  min-width: 80px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.key-binding-edit:hover {
+  background: #66bb6a;
+  border-color: #81c784;
+}
+
+.key-binding-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.key-binding-input {
+  background: #1a1a1a;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  font-family: monospace;
+  font-size: 1rem;
+  text-align: center;
+  text-transform: uppercase;
+  width: 80px;
+}
+
+.key-binding-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.key-binding-cancel {
+  background: #f44336;
+  border: 1px solid #e57373;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.key-binding-cancel:hover {
+  background: #e57373;
+  border-color: #ef5350;
+}
+
+.key-binding-modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.key-binding-modal-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.key-binding-modal-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.key-binding-modal-button:active {
+  transform: translateY(0);
+}
+
+.key-binding-modal-button.reset-button {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+}
+
+.key-binding-modal-button.reset-button:hover {
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .key-binding-modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .key-binding-modal-header,
+  .key-binding-modal-body,
+  .key-binding-modal-footer {
+    padding: 1rem 1.5rem;
+  }
+
+  .key-binding-modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .key-binding-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .key-binding-display {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

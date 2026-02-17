@@ -1,0 +1,183 @@
+.mixer-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    
+    /* backdrop-filter: blur(5px); */
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+    padding-top: 5rem; /* Space below navbar */
+    padding-left: 2rem; /* Left padding */
+    pointer-events: none; /* Allow clicks to pass through to practice page */
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .mixer-modal-content {
+    background: 
+      radial-gradient(ellipse 60% 50% at 70% 50%, rgba(120, 100, 80, 0.1) 0%, transparent 60%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 700px;
+    max-height: calc(100vh - 7rem); /* Account for navbar and padding */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    animation: slideInLeft 0.3s ease;
+    overflow: visible; /* Allow popups to overflow */
+    pointer-events: auto; /* Enable clicks on modal content */
+  }
+  
+  @keyframes slideInLeft {
+    from {
+      transform: translateX(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .mixer-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .mixer-modal-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .mixer-modal-close {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    line-height: 1;
+  }
+  
+  .mixer-modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(90deg);
+  }
+  
+  .mixer-modal-body {
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.9);
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: visible; /* Allow horizontal overflow for popups */
+    position: relative;
+  }
+  
+  .mixer-modal-body p {
+    margin: 0;
+    line-height: 1.6;
+  }
+  
+  .mixer-modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .mixer-modal-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  .mixer-modal-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  .mixer-modal-button:active {
+    transform: translateY(0);
+  }
+  
+  .mixer-modal-button.reset-button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+  }
+  
+  .mixer-modal-button.reset-button:hover {
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+  }
+  
+  /* mixer Panel Styles */
+  .mixer-panel {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+  }
+  
+  .mixer-panel h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    color: #fff;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .mixer-modal-overlay {
+      padding-top: 4rem;
+      padding-left: 1rem;
+    }
+  
+    .PracticeSoundSettings-modal-content {
+      width: 90%;
+      max-width: 400px;
+      max-height: calc(100vh - 6rem);
+    }
+  
+    .PracticeSoundSettings-modal-header,
+    .PracticeSoundSettings-modal-body,
+    .PracticeSoundSettings-modal-footer {
+      padding: 1rem 1.5rem;
+    }
+  
+    .PracticeSoundSettings-modal-header h2 {
+      font-size: 1.25rem;
+    }
+  }
+  

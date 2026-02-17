@@ -58,7 +58,7 @@ export const audioFilesConfig: Record<string, AudioFileConfig[]> = {
   ],
   tom: [
     // Add tom files here (works for high-tom, mid-tom, floor-tom, low-floor-tom):
-    // { id: 'tom-1', name: 'Tom 1', file: 'tom1.wav', type: 'tom' },
+    { id: 'tom-1', name: 'Tom 1', file: 'tom1.wav', type: 'tom' },
     // { id: 'tom-2', name: 'Tom 2', file: 'tom2.wav', type: 'tom' },
   ],
   cymbal: [

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { audioManager } from '../utils/audioManager';
 import { DrumPiece } from '../types';
 import { useAppSelector } from '@/store/hooks';
+import { KeyBindingModal } from '@/Modals/KeyBindingModal';
 import './styles/Practice.css';
 import { NavBarHome } from '@/components/Navigation/NavBarHome';
 
@@ -17,6 +18,7 @@ const Practice: React.FC = () => {
     const [activeDrums, setActiveDrums] = useState<Set<string>>(new Set());
     const [viewportSize, setViewportSize] = useState({ width: window.innerWidth, height: window.innerHeight });
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isKeyBindingModalOpen, setIsKeyBindingModalOpen] = useState(false);
 
     // Check if currently in fullscreen
     const checkFullscreen = useCallback(() => {
@@ -113,9 +115,23 @@ const Practice: React.FC = () => {
         if (!isFullscreen) return;
 
         const handleKeyPress = (event: KeyboardEvent) => {
-            const key = event.key.toUpperCase();
+            // Handle Space key specially
+            let key = event.key;
+            if (key === ' ') {
+                key = 'Space';
+            } else {
+                key = key.toUpperCase();
+            }
+            
             const drumPiece = drumKit.find(
-                (drum) => drum.keyBinding?.toUpperCase() === key
+                (drum) => {
+                    const binding = drum.keyBinding?.toUpperCase();
+                    // Handle Space key binding
+                    if (binding === 'SPACE' && event.key === ' ') {
+                        return true;
+                    }
+                    return binding === key;
+                }
             );
 
             if (drumPiece) {
@@ -126,7 +142,7 @@ const Practice: React.FC = () => {
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [handleDrumClick, isFullscreen]);
+    }, [handleDrumClick, isFullscreen, drumKit]);
 
     // Custom positions to match the actual drum kit in DrumStudio1.png background
     // Positions are relative to the right-side overlay (50% width, positioned on right)
@@ -396,7 +412,16 @@ const Practice: React.FC = () => {
                         })}
                     </div>
                     <div className="practice-instructions">
-                        <p>Click on the drum kit or use keyboard keys to play</p>
+                        <div className="practice-instructions-header">
+                            <p>Click on the drum kit or use keyboard keys to play</p>
+                            <button 
+                                className="practice-edit-keys-button"
+                                onClick={() => setIsKeyBindingModalOpen(true)}
+                                title="Customize keyboard keys"
+                            >
+                                ✏️ Edit Keys
+                            </button>
+                        </div>
                         <p className="practice-key-hints">
                             {drumKit.map(d => d.keyBinding && (
                                 <span key={d.id} className="key-hint">
@@ -405,6 +430,10 @@ const Practice: React.FC = () => {
                             ))}
                         </p>
                     </div>
+                    <KeyBindingModal 
+                        isOpen={isKeyBindingModalOpen} 
+                        onClose={() => setIsKeyBindingModalOpen(false)} 
+                    />
                 </div>
             </div>
         </div>
