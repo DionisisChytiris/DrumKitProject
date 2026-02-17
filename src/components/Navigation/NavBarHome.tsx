@@ -4,10 +4,12 @@ import { CustomizeModal } from '../../Modals/CustomizeModal';
 import './NavBarHome.css';
 import { PracticeSoundSettingsModal } from '@/Modals/PracticeSoundSettings';
 import {MixerModal} from '../../Modals/MixerModal'
+import {SequencerModal} from '../../Modals/SequencerModal'
 
 export const NavBarHome: React.FC = () => {
   const [isMixerModalOpen, setIsMixerModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSequencerModalOpen, setIsSequencerModalOpen] = useState(false)
   const [isPracticeSoundSettingsModalOpen, setIsPracticeSoundSettingsModalOpen] = useState(false)
 
   const handleMixerClick = (e: React.MouseEvent) => {
@@ -28,8 +30,17 @@ export const NavBarHome: React.FC = () => {
     setIsPracticeSoundSettingsModalOpen(true);
   };
 
+  const handleSequencerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsSequencerModalOpen(true);
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+  const handleSequencerCloseModal = () => {
+    setIsSequencerModalOpen(false);
   };
 
   const handleMixerCloseModal = () => {
@@ -43,6 +54,7 @@ export const NavBarHome: React.FC = () => {
   const handleCloseAllModals = () => {
     setIsMixerModalOpen(false);
     setIsModalOpen(false);
+    setIsSequencerModalOpen(false);
     setIsPracticeSoundSettingsModalOpen(false);
   };
 
@@ -78,6 +90,13 @@ export const NavBarHome: React.FC = () => {
           </div>
           <div 
             className='nav-link1' 
+            onClick={handleSequencerClick}
+            onMouseEnter={handleCloseAllModals}
+          >
+            Sequencer
+          </div>
+          <div 
+            className='nav-link1' 
             onClick={handlePracticeSoundClick}
             onMouseEnter={handleCloseAllModals}
           >
@@ -89,6 +108,7 @@ export const NavBarHome: React.FC = () => {
       </nav>
       <MixerModal isOpen={isMixerModalOpen} onClose={handleMixerCloseModal}/>
       <CustomizeModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      <SequencerModal isOpen={isSequencerModalOpen} onClose={handleSequencerCloseModal}/>
       <PracticeSoundSettingsModal isOpen={isPracticeSoundSettingsModalOpen} onClose={handleClosePracticeSoundSettingsModal}/>
     </>
   );
