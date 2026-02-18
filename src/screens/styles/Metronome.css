@@ -1,0 +1,40 @@
+.metronome-container {
+  position: fixed;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.metronome-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background-image: url('../../assets/DrumStudio1.png');
+  background-size: 100%; /* Zoom in by scaling up */
+  background-position: 40% center; /* Move drum kit closer to center (from right) */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  
+  /* No blur - fully visible and clear */
+  filter: none;
+}
+
+.metronome-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.metronome-title {
+    flex:1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 3rem;
+    font-size: 5rem;
+}

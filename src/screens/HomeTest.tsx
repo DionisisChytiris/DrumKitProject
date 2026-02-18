@@ -21,19 +21,19 @@ const HomeTest: React.FC = ()=>{
                         <span className="nav-tile-icon">▶</span>
                         <span className="nav-tile-text">Start Practice</span>
                     </button>
-                    <button className="nav-tile">
+                    <button className="nav-tile"  onClick={() => navigate('/exercises')}>
                         <span className="nav-tile-icon">🥁</span>
                         <span className="nav-tile-text">Exercises</span>
                     </button>
-                    <button className="nav-tile">
+                    <button className="nav-tile" onClick={() => navigate('/connectmidi')}>
                         <span className="nav-tile-icon">🎧</span>
                         <span className="nav-tile-text">Connect MIDI</span>
                     </button>
-                    <button className="nav-tile">
+                    <button className="nav-tile" onClick={() => navigate('/metronome')}>
                         <span className="nav-tile-icon">⏱</span>
                         <span className="nav-tile-text">Metronome</span>
                     </button>
-                    <button className="nav-tile">
+                    <button className="nav-tile" onClick={() => navigate('/progress')}>
                         <span className="nav-tile-icon">📈</span>
                         <span className="nav-tile-text">Progress</span>
                     </button>

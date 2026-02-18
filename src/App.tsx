@@ -6,6 +6,10 @@ import { SettingsScreen } from './screens/Settings';
 import './App.css';
 import HomeTest from './screens/HomeTest';
 import Practice from './screens/Practice';
+import Metronome from './screens/Metronome';
+import Exercises from './screens/Exercises';
+import Progress from './screens/Progress';
+import ConnectMIDI from './screens/ConnectMIDI'
 
 function App() {
   return (
@@ -17,6 +21,10 @@ function App() {
           <Route path="/" element={<HomeScreen />} />
           <Route path="/hometest" element={<HomeTest />} />
           <Route path="/practice" element={<Practice />} />
+          <Route path="/metronome" element={<Metronome />} />
+          <Route path="/exercises" element={<Exercises />} />
+          <Route path="/progress" element={<Progress />} />
+          <Route path="/connectmidi" element={<ConnectMIDI />} />
           <Route path="/about" element={<AboutScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
         </Routes>
