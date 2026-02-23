@@ -350,6 +350,17 @@ const Metronome: React.FC = () => {
                                     +
                                 </button>
                             </div>
+                            <div className="bpm-slider-container">
+                                <input
+                                    type="range"
+                                    className="bpm-slider"
+                                    min="30"
+                                    max="300"
+                                    step="1"
+                                    value={bpm}
+                                    onChange={(e) => handleBpmChange(parseInt(e.target.value, 10))}
+                                />
+                            </div>
                         </div>
 
                         {/* Visual Beat Indicator */}

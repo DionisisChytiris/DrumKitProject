@@ -190,6 +190,112 @@
   appearance: textfield;
 }
 
+.bpm-slider-container {
+  width: 60%;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.bpm-slider {
+  width: 100% !important;
+  min-width: 100%;
+  height: 4px;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  cursor: pointer;
+  flex: 1;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  transform: translateY(-1px);
+}
+
+.bpm-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 1px;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bpm-slider::-moz-range-track {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 1px;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bpm-slider::-webkit-slider-container {
+  background: transparent !important;
+  border: none !important;
+  padding: 0;
+  margin: 0;
+}
+
+.bpm-slider::-ms-track {
+  background: transparent;
+  border-color: transparent;
+  border-width: 0;
+  color: transparent;
+  height: 2px;
+  width: 100%;
+}
+
+.bpm-slider::-ms-fill-lower,
+.bpm-slider::-ms-fill-upper {
+  background: transparent;
+}
+
+.bpm-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: rgba(76, 175, 80, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: -6px;
+  position: relative;
+}
+
+.bpm-slider::-webkit-slider-thumb:hover {
+  background: rgba(76, 175, 80, 1);
+  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+}
+
+.bpm-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: rgba(76, 175, 80, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: -6px;
+}
+
+.bpm-slider::-moz-range-thumb:hover {
+  background: rgba(76, 175, 80, 1);
+  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+}
+
 /* Subdivision Control */
 .subdivision-control {
   display: flex;
