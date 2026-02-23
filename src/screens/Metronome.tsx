@@ -371,7 +371,7 @@ const Metronome: React.FC = () => {
                                         <button
                                             className={`subdivision-button ${subdivision === 'quarters' ? 'active' : ''}`}
                                             onClick={() => setSubdivision('quarters')}
-                                            disabled={isPlaying}
+                                            disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
                                         >
                                              ♩
 
@@ -379,21 +379,21 @@ const Metronome: React.FC = () => {
                                         <button
                                             className={`subdivision-button ${subdivision === 'eighths' ? 'active' : ''}`}
                                             onClick={() => setSubdivision('eighths')}
-                                            disabled={isPlaying}
+                                            disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
                                         >
                                             ♫
                                         </button>
                                         <button
                                             className={`subdivision-button ${subdivision === 'sixteenths' ? 'active' : ''}`}
                                             onClick={() => setSubdivision('sixteenths')}
-                                            disabled={isPlaying}
+                                            disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
                                         >
                                             ♬♬
                                         </button>
                                         <button
                                             className={`subdivision-button ${subdivision === 'triplets' ? 'active' : ''} `}
                                             onClick={() => setSubdivision('triplets')}
-                                            disabled={isPlaying}
+                                            disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
                                         >
                                             <div className="triplet-notation">
                                                 <div className="triplet-line"></div>
@@ -401,6 +401,11 @@ const Metronome: React.FC = () => {
                                             </div>
                                         </button>
                                     </div>
+                                    {(timeSignatureDenom === 8 || timeSignatureDenom === 16) && (
+                                        <div className="subdivision-disabled-hint">
+                                            Subdivision is automatically set based on denominator
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="time-signature-control">
@@ -462,9 +467,17 @@ const Metronome: React.FC = () => {
                                 <div className="advanced-control">
                                     <label>Advanced Settings</label>
                                     
-                                    {/* Denominator */}
+                                    {/* Time Signature Display & Denominator */}
                                     <div className="advanced-setting">
-                                        <label className="advanced-label">Denominator</label>
+                                        <label className="advanced-label">Time Signature</label>
+                                        <div className="advanced-time-signature-display">
+                                            <span className="advanced-time-signature-numerator">{timeSignature}</span>
+                                            <span className="advanced-time-signature-slash">/</span>
+                                            <span className="advanced-time-signature-denominator">{timeSignatureDenom}</span>
+                                        </div>
+                                        <div className="advanced-denominator-hint">
+                                            Change denominator below
+                                        </div>
                                         <div className="time-signature-denominator-buttons">
                                             <button
                                                 className={`time-signature-denom-button ${timeSignatureDenom === 2 ? 'active' : ''}`}
@@ -519,7 +532,7 @@ const Metronome: React.FC = () => {
                                     </div>
 
                                     {/* Swing/Shuffle */}
-                                    <div className="advanced-setting">
+                                    {/* <div className="advanced-setting">
                                         <label className="advanced-label">Swing / Shuffle: {swing}%</label>
                                         <input
                                             type="range"
@@ -531,10 +544,10 @@ const Metronome: React.FC = () => {
                                             onChange={(e) => setSwing(parseInt(e.target.value, 10))}
                                             disabled={isPlaying}
                                         />
-                                    </div>
+                                    </div> */}
 
                                     {/* Visual Flash Intensity */}
-                                    <div className="advanced-setting">
+                                    {/* <div className="advanced-setting">
                                         <label className="advanced-label">Visual Flash: {Math.round(visualFlashIntensity * 100)}%</label>
                                         <input
                                             type="range"
@@ -545,7 +558,7 @@ const Metronome: React.FC = () => {
                                             value={visualFlashIntensity}
                                             onChange={(e) => setVisualFlashIntensity(parseFloat(e.target.value))}
                                         />
-                                    </div>
+                                    </div> */}
 
                                     {/* Back to Basic Button */}
                                     <button
