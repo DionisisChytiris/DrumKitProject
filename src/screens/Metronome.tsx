@@ -10,40 +10,43 @@ const Metronome: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [beat, setBeat] = useState<number>(0);
     const [subdivision, setSubdivision] = useState<Subdivision>('quarters');
+    const [timeSignature, setTimeSignature] = useState<number>(4); // Numerator
+    const [timeSignatureDenom, setTimeSignatureDenom] = useState<number>(4); // Denominator
     const [volume, setVolume] = useState<number>(0.7);
     const [clickSound, setClickSound] = useState<ClickSound>('tick');
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
 
-    // Calculate beats per measure and interval timing based on subdivision
-    const getSubdivisionConfig = (sub: Subdivision) => {
+    // Calculate beats per measure and interval timing based on subdivision and time signature
+    const getSubdivisionConfig = (sub: Subdivision, ts: number) => {
+        const beatsPerMeasure = ts; // Time signature numerator determines main beats
         switch (sub) {
             case 'quarters':
-                return { beatsPerMeasure: 4, intervalMultiplier: 1 };
+                return { beatsPerMeasure: beatsPerMeasure, intervalMultiplier: 1 };
             case 'eighths':
-                return { beatsPerMeasure: 8, intervalMultiplier: 0.5 };
+                return { beatsPerMeasure: beatsPerMeasure * 2, intervalMultiplier: 0.5 };
             case 'sixteenths':
-                return { beatsPerMeasure: 16, intervalMultiplier: 0.25 };
+                return { beatsPerMeasure: beatsPerMeasure * 4, intervalMultiplier: 0.25 };
             case 'triplets':
-                return { beatsPerMeasure: 12, intervalMultiplier: 1 / 3 };
+                return { beatsPerMeasure: beatsPerMeasure * 3, intervalMultiplier: 1 / 3 };
             default:
-                return { beatsPerMeasure: 4, intervalMultiplier: 1 };
+                return { beatsPerMeasure: beatsPerMeasure, intervalMultiplier: 1 };
         }
     };
 
-    // Calculate the main beat number (1-4) based on current beat and subdivision
-    const getMainBeatNumber = (currentBeat: number, sub: Subdivision): number => {
+    // Calculate the main beat number (1 to timeSignature) based on current beat, subdivision, and time signature
+    const getMainBeatNumber = (currentBeat: number, sub: Subdivision, ts: number): number => {
         switch (sub) {
             case 'quarters':
-                return currentBeat + 1; // 0->1, 1->2, 2->3, 3->4
+                return (currentBeat % ts) + 1;
             case 'eighths':
-                return Math.floor(currentBeat / 2) + 1; // 0,1->1, 2,3->2, 4,5->3, 6,7->4
+                return Math.floor(currentBeat / 2) % ts + 1;
             case 'sixteenths':
-                return Math.floor(currentBeat / 4) + 1; // 0-3->1, 4-7->2, 8-11->3, 12-15->4
+                return Math.floor(currentBeat / 4) % ts + 1;
             case 'triplets':
-                return Math.floor(currentBeat / 3) + 1; // 0-2->1, 3-5->2, 6-8->3, 9-11->4
+                return Math.floor(currentBeat / 3) % ts + 1;
             default:
-                return currentBeat + 1;
+                return (currentBeat % ts) + 1;
         }
     };
 
@@ -58,7 +61,14 @@ const Metronome: React.FC = () => {
     }, []);
 
     // Determine if current beat should be a main click or ghost click
-    const isMainClick = (currentBeat: number, sub: Subdivision): boolean => {
+    const isMainClick = (currentBeat: number, sub: Subdivision, tsDenom: number): boolean => {
+        // If denominator is not 4, only the very first beat (beat 0) of the measure is a main click
+        // All other beats are ghost clicks (same quieter level)
+        if (tsDenom !== 4) {
+            return currentBeat === 0; // Only the first beat of the measure is a main click
+        }
+        
+        // Original logic for 4/4 time
         switch (sub) {
             case 'quarters':
                 return true; // All beats are main clicks
@@ -85,8 +95,8 @@ const Metronome: React.FC = () => {
         const gainNode = audioContext.createGain();
 
         // Determine if this is a main click or ghost click
-        const mainClick = isMainClick(beat, subdivision);
-        const mainBeatNumber = getMainBeatNumber(beat, subdivision);
+        const mainClick = isMainClick(beat, subdivision, timeSignatureDenom);
+        const mainBeatNumber = getMainBeatNumber(beat, subdivision, timeSignature);
         const isDownbeat = mainBeatNumber === 1 && mainClick;
 
         // Different pitches and base volumes: downbeat (highest), main clicks (medium), ghost clicks (lowest)
@@ -141,7 +151,7 @@ const Metronome: React.FC = () => {
 
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.1);
-    }, [beat, subdivision, volume, clickSound]);
+    }, [beat, subdivision, timeSignature, timeSignatureDenom, volume, clickSound]);
 
     // Start/Stop metronome
     const toggleMetronome = useCallback(() => {
@@ -155,7 +165,7 @@ const Metronome: React.FC = () => {
             setBeat(0);
         } else {
             // Start - play first click immediately, then set up interval
-            const config = getSubdivisionConfig(subdivision);
+            const config = getSubdivisionConfig(subdivision, timeSignature);
             setIsPlaying(true);
             setBeat(0);
             
@@ -210,14 +220,14 @@ const Metronome: React.FC = () => {
 
             intervalRef.current = interval;
         }
-    }, [isPlaying, bpm, subdivision, volume, clickSound]);
+    }, [isPlaying, bpm, subdivision, timeSignature, volume, clickSound]);
 
     // Update interval when BPM or subdivision changes
     useEffect(() => {
         if (isPlaying && intervalRef.current) {
             clearInterval(intervalRef.current);
             setBeat(0);
-            const config = getSubdivisionConfig(subdivision);
+            const config = getSubdivisionConfig(subdivision, timeSignature);
 
             const interval = setInterval(() => {
                 setBeat((prevBeat) => {
@@ -228,7 +238,7 @@ const Metronome: React.FC = () => {
 
             intervalRef.current = interval;
         }
-    }, [bpm, isPlaying, subdivision]);
+    }, [bpm, isPlaying, subdivision, timeSignature]);
 
     // Play click on beat change
     useEffect(() => {
@@ -293,29 +303,110 @@ const Metronome: React.FC = () => {
                                     onClick={() => setSubdivision('quarters')}
                                     disabled={isPlaying}
                                 >
-                                    ¼
+                                     ♩
+
                                 </button>
                                 <button
                                     className={`subdivision-button ${subdivision === 'eighths' ? 'active' : ''}`}
                                     onClick={() => setSubdivision('eighths')}
                                     disabled={isPlaying}
                                 >
-                                    ⅛
+                                    ♫
                                 </button>
                                 <button
                                     className={`subdivision-button ${subdivision === 'sixteenths' ? 'active' : ''}`}
                                     onClick={() => setSubdivision('sixteenths')}
                                     disabled={isPlaying}
                                 >
-                                    1/16
+                                    ♬♬
                                 </button>
                                 <button
-                                    className={`subdivision-button ${subdivision === 'triplets' ? 'active' : ''}`}
+                                    className={`subdivision-button ${subdivision === 'triplets' ? 'active' : ''} `}
                                     onClick={() => setSubdivision('triplets')}
                                     disabled={isPlaying}
                                 >
-                                    ♫
+                                    <div className="triplet-notation">
+                                        <div className="triplet-line"></div>
+                                        <span>♩♩♩</span>
+                                    </div>
                                 </button>
+                            </div>
+                        </div>
+
+                        <div className="time-signature-control">
+                            <label>Time Signature</label>
+                            <div className="time-signature-input-group">
+                                <button
+                                    className="time-signature-button"
+                                    onClick={() => {
+                                        if (timeSignature > 2) {
+                                            setTimeSignature(timeSignature - 1);
+                                        }
+                                    }}
+                                    disabled={isPlaying || timeSignature <= 2}
+                                >
+                                    −
+                                </button>
+                                <input
+                                    type="number"
+                                    className="time-signature-input"
+                                    min="2"
+                                    max="19"
+                                    value={timeSignature}
+                                    onChange={(e) => {
+                                        const value = parseInt(e.target.value, 10);
+                                        if (!isNaN(value) && value >= 2 && value <= 19) {
+                                            setTimeSignature(value);
+                                        }
+                                    }}
+                                    disabled={isPlaying}
+                                />
+                                <span className="time-signature-slash">/</span>
+                                <div className="time-signature-denominator-display">{timeSignatureDenom}</div>
+                                <button
+                                    className="time-signature-button"
+                                    onClick={() => {
+                                        if (timeSignature < 19) {
+                                            setTimeSignature(timeSignature + 1);
+                                        }
+                                    }}
+                                    disabled={isPlaying || timeSignature >= 19}
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <div className="time-signature-denominator-control">
+                                <label className="time-signature-label">Denominator</label>
+                                <div className="time-signature-denominator-buttons">
+                                    <button
+                                        className={`time-signature-denom-button ${timeSignatureDenom === 2 ? 'active' : ''}`}
+                                        onClick={() => setTimeSignatureDenom(2)}
+                                        disabled={isPlaying}
+                                    >
+                                        2
+                                    </button>
+                                    <button
+                                        className={`time-signature-denom-button ${timeSignatureDenom === 4 ? 'active' : ''}`}
+                                        onClick={() => setTimeSignatureDenom(4)}
+                                        disabled={isPlaying}
+                                    >
+                                        4
+                                    </button>
+                                    <button
+                                        className={`time-signature-denom-button ${timeSignatureDenom === 8 ? 'active' : ''}`}
+                                        onClick={() => setTimeSignatureDenom(8)}
+                                        disabled={isPlaying}
+                                    >
+                                        8
+                                    </button>
+                                    <button
+                                        className={`time-signature-denom-button ${timeSignatureDenom === 16 ? 'active' : ''}`}
+                                        onClick={() => setTimeSignatureDenom(16)}
+                                        disabled={isPlaying}
+                                    >
+                                        16
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -365,8 +456,8 @@ const Metronome: React.FC = () => {
 
                         {/* Visual Beat Indicator */}
                         <div className="beat-indicator">
-                            <div className={`beat-circle ${isPlaying ? 'active' : ''} ${getMainBeatNumber(beat, subdivision) === 1 ? 'downbeat' : ''}`}>
-                                <div className="beat-number">{getMainBeatNumber(beat, subdivision)}</div>
+                            <div className={`beat-circle ${isPlaying ? 'active' : ''} ${getMainBeatNumber(beat, subdivision, timeSignature) === 1 ? 'downbeat' : ''}`}>
+                                <div className="beat-number">{getMainBeatNumber(beat, subdivision, timeSignature)}</div>
                                 <div className="beat-subdivision">
                                     {subdivision === 'quarters' ? '¼' : 
                                      subdivision === 'eighths' ? '⅛' : 
