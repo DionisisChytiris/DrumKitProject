@@ -14,11 +14,29 @@ const Metronome: React.FC = () => {
     const [timeSignatureDenom, setTimeSignatureDenom] = useState<number>(4); // Denominator
     const [volume, setVolume] = useState<number>(0.7);
     const [clickSound, setClickSound] = useState<ClickSound>('tick');
+    const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+    const [swing, setSwing] = useState<number>(0); // Swing/shuffle feel (0-100%)
+    const [accentPattern, setAccentPattern] = useState<boolean[]>(() => {
+        // Initialize with 4 beats (default 4/4 time)
+        const pattern = new Array(4).fill(false);
+        pattern[0] = true; // First beat always accented
+        return pattern;
+    }); // Which beats to accent
+    const [visualFlashIntensity, setVisualFlashIntensity] = useState<number>(0.5); // Visual flash intensity
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
 
     // Calculate beats per measure and interval timing based on subdivision and time signature
-    const getSubdivisionConfig = (sub: Subdivision, ts: number) => {
+    const getSubdivisionConfig = (sub: Subdivision, ts: number, tsDenom: number) => {
+        // If denominator is not 4, play only the numerator beats (no subdivisions)
+        if (tsDenom !== 4) {
+            // Calculate interval multiplier based on denominator
+            // 2 = half notes (2x longer), 8 = eighth notes (0.5x), 16 = sixteenth notes (0.25x)
+            const intervalMultiplier = tsDenom === 2 ? 2 : tsDenom === 8 ? 0.5 : tsDenom === 16 ? 0.25 : 1;
+            return { beatsPerMeasure: ts, intervalMultiplier };
+        }
+        
+        // For 4/4 time, use subdivisions
         const beatsPerMeasure = ts; // Time signature numerator determines main beats
         switch (sub) {
             case 'quarters':
@@ -35,7 +53,13 @@ const Metronome: React.FC = () => {
     };
 
     // Calculate the main beat number (1 to timeSignature) based on current beat, subdivision, and time signature
-    const getMainBeatNumber = (currentBeat: number, sub: Subdivision, ts: number): number => {
+    const getMainBeatNumber = (currentBeat: number, sub: Subdivision, ts: number, tsDenom: number): number => {
+        // If denominator is not 4, each beat is a main beat (no subdivisions)
+        if (tsDenom !== 4) {
+            return (currentBeat % ts) + 1;
+        }
+        
+        // For 4/4 time, use subdivision logic
         switch (sub) {
             case 'quarters':
                 return (currentBeat % ts) + 1;
@@ -62,10 +86,9 @@ const Metronome: React.FC = () => {
 
     // Determine if current beat should be a main click or ghost click
     const isMainClick = (currentBeat: number, sub: Subdivision, tsDenom: number): boolean => {
-        // If denominator is not 4, only the very first beat (beat 0) of the measure is a main click
-        // All other beats are ghost clicks (same quieter level)
+        // If denominator is not 4, all beats are main clicks (no subdivisions, no ghost notes)
         if (tsDenom !== 4) {
-            return currentBeat === 0; // Only the first beat of the measure is a main click
+            return true; // All beats are main clicks
         }
         
         // Original logic for 4/4 time
@@ -96,10 +119,14 @@ const Metronome: React.FC = () => {
 
         // Determine if this is a main click or ghost click
         const mainClick = isMainClick(beat, subdivision, timeSignatureDenom);
-        const mainBeatNumber = getMainBeatNumber(beat, subdivision, timeSignature);
+        const mainBeatNumber = getMainBeatNumber(beat, subdivision, timeSignature, timeSignatureDenom);
         const isDownbeat = mainBeatNumber === 1 && mainClick;
+        
+        // Check if this beat should be accented (based on accent pattern)
+        const beatIndex = (mainBeatNumber - 1) % accentPattern.length;
+        const isAccented = accentPattern[beatIndex] && mainClick;
 
-        // Different pitches and base volumes: downbeat (highest), main clicks (medium), ghost clicks (lowest)
+        // Different pitches and base volumes: downbeat (highest), accented beats (high), main clicks (medium), ghost clicks (lowest)
         let frequency = 600;
         let baseVolume = 0.2;
         let oscillatorType: OscillatorType = 'sine';
@@ -108,6 +135,9 @@ const Metronome: React.FC = () => {
         if (isDownbeat) {
             frequency = 800;
             baseVolume = 0.3;
+        } else if (isAccented) {
+            frequency = 700;
+            baseVolume = 0.28;
         } else if (mainClick) {
             frequency = 600;
             baseVolume = 0.25;
@@ -151,7 +181,7 @@ const Metronome: React.FC = () => {
 
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.1);
-    }, [beat, subdivision, timeSignature, timeSignatureDenom, volume, clickSound]);
+    }, [beat, subdivision, timeSignature, timeSignatureDenom, volume, clickSound, accentPattern]);
 
     // Start/Stop metronome
     const toggleMetronome = useCallback(() => {
@@ -165,7 +195,7 @@ const Metronome: React.FC = () => {
             setBeat(0);
         } else {
             // Start - play first click immediately, then set up interval
-            const config = getSubdivisionConfig(subdivision, timeSignature);
+            const config = getSubdivisionConfig(subdivision, timeSignature, timeSignatureDenom);
             setIsPlaying(true);
             setBeat(0);
             
@@ -220,14 +250,14 @@ const Metronome: React.FC = () => {
 
             intervalRef.current = interval;
         }
-    }, [isPlaying, bpm, subdivision, timeSignature, volume, clickSound]);
+    }, [isPlaying, bpm, subdivision, timeSignature, volume, clickSound, swing]);
 
     // Update interval when BPM or subdivision changes
     useEffect(() => {
         if (isPlaying && intervalRef.current) {
             clearInterval(intervalRef.current);
             setBeat(0);
-            const config = getSubdivisionConfig(subdivision, timeSignature);
+            const config = getSubdivisionConfig(subdivision, timeSignature, timeSignatureDenom);
 
             const interval = setInterval(() => {
                 setBeat((prevBeat) => {
@@ -238,7 +268,7 @@ const Metronome: React.FC = () => {
 
             intervalRef.current = interval;
         }
-    }, [bpm, isPlaying, subdivision, timeSignature]);
+    }, [bpm, isPlaying, subdivision, timeSignature, timeSignatureDenom, swing]);
 
     // Play click on beat change
     useEffect(() => {
@@ -246,6 +276,44 @@ const Metronome: React.FC = () => {
             playClick();
         }
     }, [beat, isPlaying, playClick]);
+
+    // Update accent pattern to match time signature numerator
+    useEffect(() => {
+        setAccentPattern((prevPattern) => {
+            // If the length already matches, don't change
+            if (prevPattern.length === timeSignature) {
+                return prevPattern;
+            }
+            
+            // Create a new pattern array with length matching the numerator
+            const newPattern = new Array(timeSignature).fill(false);
+            
+            // Preserve existing accents where possible
+            const minLength = Math.min(prevPattern.length, timeSignature);
+            for (let i = 0; i < minLength; i++) {
+                newPattern[i] = prevPattern[i];
+            }
+            
+            // Ensure at least the first beat is accented
+            if (!newPattern.some(acc => acc)) {
+                newPattern[0] = true;
+            }
+            
+            return newPattern;
+        });
+    }, [timeSignature]);
+
+    // Auto-change subdivision when denominator changes
+    useEffect(() => {
+        if (timeSignatureDenom === 8) {
+            setSubdivision('eighths');
+        } else if (timeSignatureDenom === 16) {
+            setSubdivision('sixteenths');
+        } else if (timeSignatureDenom === 2 || timeSignatureDenom === 4) {
+            // For 2/4 or 4/4, default to quarters
+            setSubdivision('quarters');
+        }
+    }, [timeSignatureDenom]);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -295,120 +363,201 @@ const Metronome: React.FC = () => {
                 <div className="metronome-wrapper">
                     {/* Subdivision Selector - Left Side */}
                     <div className="subdivision-container">
-                        <div className="subdivision-control">
-                            <label>Subdivision</label>
-                            <div className="subdivision-buttons">
-                                <button
-                                    className={`subdivision-button ${subdivision === 'quarters' ? 'active' : ''}`}
-                                    onClick={() => setSubdivision('quarters')}
-                                    disabled={isPlaying}
-                                >
-                                     ♩
+                        {!showAdvanced ? (
+                            <>
+                                <div className="subdivision-control">
+                                    <label>Subdivision</label>
+                                    <div className="subdivision-buttons">
+                                        <button
+                                            className={`subdivision-button ${subdivision === 'quarters' ? 'active' : ''}`}
+                                            onClick={() => setSubdivision('quarters')}
+                                            disabled={isPlaying}
+                                        >
+                                             ♩
 
-                                </button>
-                                <button
-                                    className={`subdivision-button ${subdivision === 'eighths' ? 'active' : ''}`}
-                                    onClick={() => setSubdivision('eighths')}
-                                    disabled={isPlaying}
-                                >
-                                    ♫
-                                </button>
-                                <button
-                                    className={`subdivision-button ${subdivision === 'sixteenths' ? 'active' : ''}`}
-                                    onClick={() => setSubdivision('sixteenths')}
-                                    disabled={isPlaying}
-                                >
-                                    ♬♬
-                                </button>
-                                <button
-                                    className={`subdivision-button ${subdivision === 'triplets' ? 'active' : ''} `}
-                                    onClick={() => setSubdivision('triplets')}
-                                    disabled={isPlaying}
-                                >
-                                    <div className="triplet-notation">
-                                        <div className="triplet-line"></div>
-                                        <span>♩♩♩</span>
+                                        </button>
+                                        <button
+                                            className={`subdivision-button ${subdivision === 'eighths' ? 'active' : ''}`}
+                                            onClick={() => setSubdivision('eighths')}
+                                            disabled={isPlaying}
+                                        >
+                                            ♫
+                                        </button>
+                                        <button
+                                            className={`subdivision-button ${subdivision === 'sixteenths' ? 'active' : ''}`}
+                                            onClick={() => setSubdivision('sixteenths')}
+                                            disabled={isPlaying}
+                                        >
+                                            ♬♬
+                                        </button>
+                                        <button
+                                            className={`subdivision-button ${subdivision === 'triplets' ? 'active' : ''} `}
+                                            onClick={() => setSubdivision('triplets')}
+                                            disabled={isPlaying}
+                                        >
+                                            <div className="triplet-notation">
+                                                <div className="triplet-line"></div>
+                                                <span>♩♩♩</span>
+                                            </div>
+                                        </button>
                                     </div>
-                                </button>
-                            </div>
-                        </div>
+                                </div>
 
-                        <div className="time-signature-control">
-                            <label>Time Signature</label>
-                            <div className="time-signature-input-group">
+                                <div className="time-signature-control">
+                                    <label>Time Signature</label>
+                                    <div className="time-signature-input-group">
+                                        <button
+                                            className="time-signature-button"
+                                            onClick={() => {
+                                                if (timeSignature > 2) {
+                                                    setTimeSignature(timeSignature - 1);
+                                                }
+                                            }}
+                                            disabled={isPlaying || timeSignature <= 2}
+                                        >
+                                            −
+                                        </button>
+                                        <input
+                                            type="number"
+                                            className="time-signature-input"
+                                            min="2"
+                                            max="19"
+                                            value={timeSignature}
+                                            onChange={(e) => {
+                                                const value = parseInt(e.target.value, 10);
+                                                if (!isNaN(value) && value >= 2 && value <= 19) {
+                                                    setTimeSignature(value);
+                                                }
+                                            }}
+                                            disabled={isPlaying}
+                                        />
+                                        <span className="time-signature-slash">/</span>
+                                        <div className="time-signature-denominator-display">{timeSignatureDenom}</div>
+                                        <button
+                                            className="time-signature-button"
+                                            onClick={() => {
+                                                if (timeSignature < 19) {
+                                                    setTimeSignature(timeSignature + 1);
+                                                }
+                                            }}
+                                            disabled={isPlaying || timeSignature >= 19}
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Advanced Button */}
                                 <button
-                                    className="time-signature-button"
-                                    onClick={() => {
-                                        if (timeSignature > 2) {
-                                            setTimeSignature(timeSignature - 1);
-                                        }
-                                    }}
-                                    disabled={isPlaying || timeSignature <= 2}
-                                >
-                                    −
-                                </button>
-                                <input
-                                    type="number"
-                                    className="time-signature-input"
-                                    min="2"
-                                    max="19"
-                                    value={timeSignature}
-                                    onChange={(e) => {
-                                        const value = parseInt(e.target.value, 10);
-                                        if (!isNaN(value) && value >= 2 && value <= 19) {
-                                            setTimeSignature(value);
-                                        }
-                                    }}
+                                    className="advanced-button"
+                                    onClick={() => setShowAdvanced(!showAdvanced)}
                                     disabled={isPlaying}
-                                />
-                                <span className="time-signature-slash">/</span>
-                                <div className="time-signature-denominator-display">{timeSignatureDenom}</div>
-                                <button
-                                    className="time-signature-button"
-                                    onClick={() => {
-                                        if (timeSignature < 19) {
-                                            setTimeSignature(timeSignature + 1);
-                                        }
-                                    }}
-                                    disabled={isPlaying || timeSignature >= 19}
                                 >
-                                    +
+                                    Advanced ►
                                 </button>
-                            </div>
-                            <div className="time-signature-denominator-control">
-                                <label className="time-signature-label">Denominator</label>
-                                <div className="time-signature-denominator-buttons">
+                            </>
+                        ) : (
+                            <>
+                                {/* Advanced Section */}
+                                <div className="advanced-control">
+                                    <label>Advanced Settings</label>
+                                    
+                                    {/* Denominator */}
+                                    <div className="advanced-setting">
+                                        <label className="advanced-label">Denominator</label>
+                                        <div className="time-signature-denominator-buttons">
+                                            <button
+                                                className={`time-signature-denom-button ${timeSignatureDenom === 2 ? 'active' : ''}`}
+                                                onClick={() => setTimeSignatureDenom(2)}
+                                                disabled={isPlaying}
+                                            >
+                                                2
+                                            </button>
+                                            <button
+                                                className={`time-signature-denom-button ${timeSignatureDenom === 4 ? 'active' : ''}`}
+                                                onClick={() => setTimeSignatureDenom(4)}
+                                                disabled={isPlaying}
+                                            >
+                                                4
+                                            </button>
+                                            <button
+                                                className={`time-signature-denom-button ${timeSignatureDenom === 8 ? 'active' : ''}`}
+                                                onClick={() => setTimeSignatureDenom(8)}
+                                                disabled={isPlaying}
+                                            >
+                                                8
+                                            </button>
+                                            <button
+                                                className={`time-signature-denom-button ${timeSignatureDenom === 16 ? 'active' : ''}`}
+                                                onClick={() => setTimeSignatureDenom(16)}
+                                                disabled={isPlaying}
+                                            >
+                                                16
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Accent Pattern */}
+                                    <div className="advanced-setting">
+                                        <label className="advanced-label">Accent Pattern</label>
+                                        <div className="accent-pattern-buttons">
+                                            {accentPattern.map((accented, index) => (
+                                                <button
+                                                    key={index}
+                                                    className={`accent-pattern-button ${accented ? 'active' : ''}`}
+                                                    onClick={() => {
+                                                        const newPattern = [...accentPattern];
+                                                        newPattern[index] = !newPattern[index];
+                                                        setAccentPattern(newPattern);
+                                                    }}
+                                                    disabled={isPlaying}
+                                                >
+                                                    {index + 1}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Swing/Shuffle */}
+                                    <div className="advanced-setting">
+                                        <label className="advanced-label">Swing / Shuffle: {swing}%</label>
+                                        <input
+                                            type="range"
+                                            className="swing-slider"
+                                            min="0"
+                                            max="100"
+                                            step="1"
+                                            value={swing}
+                                            onChange={(e) => setSwing(parseInt(e.target.value, 10))}
+                                            disabled={isPlaying}
+                                        />
+                                    </div>
+
+                                    {/* Visual Flash Intensity */}
+                                    <div className="advanced-setting">
+                                        <label className="advanced-label">Visual Flash: {Math.round(visualFlashIntensity * 100)}%</label>
+                                        <input
+                                            type="range"
+                                            className="swing-slider"
+                                            min="0"
+                                            max="1"
+                                            step="0.01"
+                                            value={visualFlashIntensity}
+                                            onChange={(e) => setVisualFlashIntensity(parseFloat(e.target.value))}
+                                        />
+                                    </div>
+
+                                    {/* Back to Basic Button */}
                                     <button
-                                        className={`time-signature-denom-button ${timeSignatureDenom === 2 ? 'active' : ''}`}
-                                        onClick={() => setTimeSignatureDenom(2)}
+                                        className="advanced-button"
+                                        onClick={() => setShowAdvanced(false)}
                                         disabled={isPlaying}
                                     >
-                                        2
-                                    </button>
-                                    <button
-                                        className={`time-signature-denom-button ${timeSignatureDenom === 4 ? 'active' : ''}`}
-                                        onClick={() => setTimeSignatureDenom(4)}
-                                        disabled={isPlaying}
-                                    >
-                                        4
-                                    </button>
-                                    <button
-                                        className={`time-signature-denom-button ${timeSignatureDenom === 8 ? 'active' : ''}`}
-                                        onClick={() => setTimeSignatureDenom(8)}
-                                        disabled={isPlaying}
-                                    >
-                                        8
-                                    </button>
-                                    <button
-                                        className={`time-signature-denom-button ${timeSignatureDenom === 16 ? 'active' : ''}`}
-                                        onClick={() => setTimeSignatureDenom(16)}
-                                        disabled={isPlaying}
-                                    >
-                                        16
+                                        ◄ Basic
                                     </button>
                                 </div>
-                            </div>
-                        </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Main Controls - Center/Right */}
@@ -456,8 +605,15 @@ const Metronome: React.FC = () => {
 
                         {/* Visual Beat Indicator */}
                         <div className="beat-indicator">
-                            <div className={`beat-circle ${isPlaying ? 'active' : ''} ${getMainBeatNumber(beat, subdivision, timeSignature) === 1 ? 'downbeat' : ''}`}>
-                                <div className="beat-number">{getMainBeatNumber(beat, subdivision, timeSignature)}</div>
+                            <div 
+                                className={`beat-circle ${isPlaying ? 'active' : ''} ${getMainBeatNumber(beat, subdivision, timeSignature, timeSignatureDenom) === 1 ? 'downbeat' : ''}`}
+                                style={{
+                                    boxShadow: isPlaying && visualFlashIntensity > 0 
+                                        ? `0 0 ${30 * visualFlashIntensity}px rgba(76, 175, 80, ${0.6 * visualFlashIntensity})` 
+                                        : undefined
+                                }}
+                            >
+                                <div className="beat-number">{getMainBeatNumber(beat, subdivision, timeSignature, timeSignatureDenom)}</div>
                                 <div className="beat-subdivision">
                                     {subdivision === 'quarters' ? '¼' : 
                                      subdivision === 'eighths' ? '⅛' : 
