@@ -13,8 +13,8 @@
   height: 100%;
   z-index: 0;
   background-image: url('../../assets/DrumStudio1.png');
-  background-size: 100%; /* Zoom in by scaling up */
-  background-position: 40% center; /* Move drum kit closer to center (from right) */
+  background-size: cover; /* Fully cover the viewport on all screen sizes */
+  background-position: center center; /* Center the background */
   background-repeat: no-repeat;
   background-attachment: fixed;
   

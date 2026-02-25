@@ -4,6 +4,7 @@ import { audioManager } from '../utils/audioManager';
 import { DrumPiece } from '../types';
 import { useAppSelector } from '@/store/hooks';
 import { KeyBindingModal } from '@/Modals/KeyBindingModal';
+import MetronomeDisplay from '@/components/MetronomeDisplay/MetronomeDisplay';
 import './styles/Practice.css';
 import { NavBarHome } from '@/components/Navigation/NavBarHome';
 
@@ -294,6 +295,7 @@ const Practice: React.FC = () => {
     return (
         <div className="practice-container">
             <NavBarHome/>
+            <MetronomeDisplay />
             <div className="practice-background"></div>
             <div className="practice-content">
                 <button 

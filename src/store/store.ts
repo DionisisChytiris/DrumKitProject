@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import drumKitReducer from './slices/drumKitSlice';
+import metronomeReducer from './slices/metronomeSlice';
 import { defaultDrumKit } from '@/utils/drumConfig';
 
 // Load state from localStorage on store creation
@@ -46,6 +47,7 @@ const preloadedState = loadState();
 export const store = configureStore({
   reducer: {
     drumKit: drumKitReducer,
+    metronome: metronomeReducer,
   },
   preloadedState: preloadedState || undefined,
 });

@@ -1,28 +1,36 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { NavBarHome } from '@/components/Navigation/NavBarHome';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import {
+    setBpm,
+    setIsPlaying,
+    setSubdivision,
+    setTimeSignature,
+    setTimeSignatureDenom,
+    setVolume,
+    setClickSound,
+    setAccentPattern,
+    type Subdivision,
+} from '@/store/slices/metronomeSlice';
 import './styles/Metronome.css';
 
-type Subdivision = 'quarters' | 'eighths' | 'sixteenths' | 'triplets';
-type ClickSound = 'tick' | 'beep' | 'wood' | 'metallic';
-
 const Metronome: React.FC = () => {
-    const [bpm, setBpm] = useState<number>(120);
-    const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const dispatch = useAppDispatch();
+    const {
+        bpm,
+        isPlaying,
+        subdivision,
+        timeSignature,
+        timeSignatureDenom,
+        volume,
+        clickSound,
+        swing,
+        accentPattern,
+        visualFlashIntensity,
+    } = useAppSelector((state) => state.metronome);
+    
     const [beat, setBeat] = useState<number>(0);
-    const [subdivision, setSubdivision] = useState<Subdivision>('quarters');
-    const [timeSignature, setTimeSignature] = useState<number>(4); // Numerator
-    const [timeSignatureDenom, setTimeSignatureDenom] = useState<number>(4); // Denominator
-    const [volume, setVolume] = useState<number>(0.7);
-    const [clickSound, setClickSound] = useState<ClickSound>('tick');
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
-    const [swing, setSwing] = useState<number>(0); // Swing/shuffle feel (0-100%)
-    const [accentPattern, setAccentPattern] = useState<boolean[]>(() => {
-        // Initialize with 4 beats (default 4/4 time)
-        const pattern = new Array(4).fill(false);
-        pattern[0] = true; // First beat always accented
-        return pattern;
-    }); // Which beats to accent
-    const [visualFlashIntensity, setVisualFlashIntensity] = useState<number>(0.5); // Visual flash intensity
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -191,12 +199,12 @@ const Metronome: React.FC = () => {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
-            setIsPlaying(false);
+            dispatch(setIsPlaying(false));
             setBeat(0);
         } else {
             // Start - play first click immediately, then set up interval
             const config = getSubdivisionConfig(subdivision, timeSignature, timeSignatureDenom);
-            setIsPlaying(true);
+            dispatch(setIsPlaying(true));
             setBeat(0);
             
             // Play first click immediately using current settings
@@ -277,43 +285,7 @@ const Metronome: React.FC = () => {
         }
     }, [beat, isPlaying, playClick]);
 
-    // Update accent pattern to match time signature numerator
-    useEffect(() => {
-        setAccentPattern((prevPattern) => {
-            // If the length already matches, don't change
-            if (prevPattern.length === timeSignature) {
-                return prevPattern;
-            }
-            
-            // Create a new pattern array with length matching the numerator
-            const newPattern = new Array(timeSignature).fill(false);
-            
-            // Preserve existing accents where possible
-            const minLength = Math.min(prevPattern.length, timeSignature);
-            for (let i = 0; i < minLength; i++) {
-                newPattern[i] = prevPattern[i];
-            }
-            
-            // Ensure at least the first beat is accented
-            if (!newPattern.some(acc => acc)) {
-                newPattern[0] = true;
-            }
-            
-            return newPattern;
-        });
-    }, [timeSignature]);
-
-    // Auto-change subdivision when denominator changes
-    useEffect(() => {
-        if (timeSignatureDenom === 8) {
-            setSubdivision('eighths');
-        } else if (timeSignatureDenom === 16) {
-            setSubdivision('sixteenths');
-        } else if (timeSignatureDenom === 2 || timeSignatureDenom === 4) {
-            // For 2/4 or 4/4, default to quarters
-            setSubdivision('quarters');
-        }
-    }, [timeSignatureDenom]);
+    // Note: Accent pattern and subdivision updates are now handled in Redux slice
 
     // Cleanup on unmount
     useEffect(() => {
@@ -325,11 +297,7 @@ const Metronome: React.FC = () => {
     }, []);
 
     const handleBpmChange = (newBpm: number) => {
-        // Allow any value while typing, but clamp to valid range
-        const clampedBpm = Math.max(30, Math.min(300, newBpm));
-        if (!isNaN(clampedBpm) && clampedBpm >= 30 && clampedBpm <= 300) {
-            setBpm(clampedBpm);
-        }
+        dispatch(setBpm(newBpm));
     };
 
     const handleBpmInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -347,11 +315,11 @@ const Metronome: React.FC = () => {
     const handleBpmBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         const value = parseInt(e.target.value, 10);
         if (isNaN(value) || value < 30) {
-            setBpm(30);
+            dispatch(setBpm(30));
         } else if (value > 300) {
-            setBpm(300);
+            dispatch(setBpm(300));
         } else {
-            setBpm(value);
+            dispatch(setBpm(value));
         }
     };
 
@@ -370,7 +338,7 @@ const Metronome: React.FC = () => {
                                     <div className="subdivision-buttons">
                                         <button
                                             className={`subdivision-button ${subdivision === 'quarters' ? 'active' : ''}`}
-                                            onClick={() => setSubdivision('quarters')}
+                                            onClick={() => dispatch(setSubdivision('quarters'))}
                                             disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
                                         >
                                              ♩
@@ -378,21 +346,21 @@ const Metronome: React.FC = () => {
                                         </button>
                                         <button
                                             className={`subdivision-button ${subdivision === 'eighths' ? 'active' : ''}`}
-                                            onClick={() => setSubdivision('eighths')}
+                                            onClick={() => dispatch(setSubdivision('eighths'))}
                                             disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
                                         >
                                             ♫
                                         </button>
                                         <button
                                             className={`subdivision-button ${subdivision === 'sixteenths' ? 'active' : ''}`}
-                                            onClick={() => setSubdivision('sixteenths')}
+                                            onClick={() => dispatch(setSubdivision('sixteenths'))}
                                             disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
                                         >
                                             ♬♬
                                         </button>
                                         <button
                                             className={`subdivision-button ${subdivision === 'triplets' ? 'active' : ''} `}
-                                            onClick={() => setSubdivision('triplets')}
+                                            onClick={() => dispatch(setSubdivision('triplets'))}
                                             disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
                                         >
                                             <div className="triplet-notation">
@@ -415,7 +383,7 @@ const Metronome: React.FC = () => {
                                             className="time-signature-button"
                                             onClick={() => {
                                                 if (timeSignature > 2) {
-                                                    setTimeSignature(timeSignature - 1);
+                                                    dispatch(setTimeSignature(timeSignature - 1));
                                                 }
                                             }}
                                             disabled={isPlaying || timeSignature <= 2}
@@ -431,7 +399,7 @@ const Metronome: React.FC = () => {
                                             onChange={(e) => {
                                                 const value = parseInt(e.target.value, 10);
                                                 if (!isNaN(value) && value >= 2 && value <= 19) {
-                                                    setTimeSignature(value);
+                                                    dispatch(setTimeSignature(value));
                                                 }
                                             }}
                                             disabled={isPlaying}
@@ -442,7 +410,7 @@ const Metronome: React.FC = () => {
                                             className="time-signature-button"
                                             onClick={() => {
                                                 if (timeSignature < 19) {
-                                                    setTimeSignature(timeSignature + 1);
+                                                    dispatch(setTimeSignature(timeSignature + 1));
                                                 }
                                             }}
                                             disabled={isPlaying || timeSignature >= 19}
@@ -481,28 +449,28 @@ const Metronome: React.FC = () => {
                                         <div className="time-signature-denominator-buttons">
                                             <button
                                                 className={`time-signature-denom-button ${timeSignatureDenom === 2 ? 'active' : ''}`}
-                                                onClick={() => setTimeSignatureDenom(2)}
+                                                onClick={() => dispatch(setTimeSignatureDenom(2))}
                                                 disabled={isPlaying}
                                             >
                                                 2
                                             </button>
                                             <button
                                                 className={`time-signature-denom-button ${timeSignatureDenom === 4 ? 'active' : ''}`}
-                                                onClick={() => setTimeSignatureDenom(4)}
+                                                onClick={() => dispatch(setTimeSignatureDenom(4))}
                                                 disabled={isPlaying}
                                             >
                                                 4
                                             </button>
                                             <button
                                                 className={`time-signature-denom-button ${timeSignatureDenom === 8 ? 'active' : ''}`}
-                                                onClick={() => setTimeSignatureDenom(8)}
+                                                onClick={() => dispatch(setTimeSignatureDenom(8))}
                                                 disabled={isPlaying}
                                             >
                                                 8
                                             </button>
                                             <button
                                                 className={`time-signature-denom-button ${timeSignatureDenom === 16 ? 'active' : ''}`}
-                                                onClick={() => setTimeSignatureDenom(16)}
+                                                onClick={() => dispatch(setTimeSignatureDenom(16))}
                                                 disabled={isPlaying}
                                             >
                                                 16
@@ -521,7 +489,7 @@ const Metronome: React.FC = () => {
                                                     onClick={() => {
                                                         const newPattern = [...accentPattern];
                                                         newPattern[index] = !newPattern[index];
-                                                        setAccentPattern(newPattern);
+                                                        dispatch(setAccentPattern(newPattern));
                                                     }}
                                                     disabled={isPlaying}
                                                 >
@@ -656,7 +624,7 @@ const Metronome: React.FC = () => {
                                     max="1"
                                     step="0.01"
                                     value={volume}
-                                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                                    onChange={(e) => dispatch(setVolume(parseFloat(e.target.value)))}
                                 />
                                 <span className="volume-value">{Math.round(volume * 100)}%</span>
                             </div>
@@ -667,25 +635,25 @@ const Metronome: React.FC = () => {
                             <div className="click-sound-buttons">
                                 <button
                                     className={`click-sound-button ${clickSound === 'tick' ? 'active' : ''}`}
-                                    onClick={() => setClickSound('tick')}
+                                    onClick={() => dispatch(setClickSound('tick'))}
                                 >
                                     Tick
                                 </button>
                                 <button
                                     className={`click-sound-button ${clickSound === 'beep' ? 'active' : ''}`}
-                                    onClick={() => setClickSound('beep')}
+                                    onClick={() => dispatch(setClickSound('beep'))}
                                 >
                                     Beep
                                 </button>
                                 <button
                                     className={`click-sound-button ${clickSound === 'wood' ? 'active' : ''}`}
-                                    onClick={() => setClickSound('wood')}
+                                    onClick={() => dispatch(setClickSound('wood'))}
                                 >
                                     Wood
                                 </button>
                                 <button
                                     className={`click-sound-button ${clickSound === 'metallic' ? 'active' : ''}`}
-                                    onClick={() => setClickSound('metallic')}
+                                    onClick={() => dispatch(setClickSound('metallic'))}
                                 >
                                     Metallic
                                 </button>
