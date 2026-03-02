@@ -49,7 +49,10 @@
   background: #da190b;
 }
 
-.clear-button {
+.clear-button,
+.save-button,
+.load-button,
+.new-button {
   padding: 0.5rem 1rem;
   background: #666;
   color: white;
@@ -58,10 +61,39 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 0.9rem;
 }
 
-.clear-button:hover {
+.clear-button:hover,
+.save-button:hover,
+.load-button:hover,
+.new-button:hover {
   background: #777;
+  transform: translateY(-1px);
+}
+
+.save-button {
+  background: #2196f3;
+}
+
+.save-button:hover {
+  background: #1976d2;
+}
+
+.load-button {
+  background: #ff9800;
+}
+
+.load-button:hover {
+  background: #f57c00;
+}
+
+.new-button {
+  background: #9c27b0;
+}
+
+.new-button:hover {
+  background: #7b1fa2;
 }
 
 .bpm-control {
@@ -180,10 +212,207 @@
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
 }
 
+.pattern-name-section {
+  margin-bottom: 1rem;
+}
+
+.pattern-name-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.5rem 1rem;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.pattern-name-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+/* Dialog Styles */
+.sequencer-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.sequencer-dialog {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.sequencer-dialog h3 {
+  margin: 0 0 1.5rem 0;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.dialog-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dialog-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+.dialog-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.dialog-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dialog-button.save {
+  background: #4caf50;
+  color: white;
+}
+
+.dialog-button.save:hover {
+  background: #45a049;
+}
+
+.dialog-button.cancel {
+  background: #666;
+  color: white;
+}
+
+.dialog-button.cancel:hover {
+  background: #777;
+}
+
+/* Pattern List */
+.pattern-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.pattern-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #333;
+  border-radius: 8px;
+  border: 1px solid #444;
+  transition: all 0.2s;
+}
+
+.pattern-list-item:hover {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+.pattern-list-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.pattern-list-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.pattern-list-meta {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.pattern-list-date {
+  color: #888;
+}
+
+.pattern-list-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pattern-list-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.pattern-list-button.load {
+  background: #4caf50;
+  color: white;
+}
+
+.pattern-list-button.load:hover {
+  background: #45a049;
+}
+
+.pattern-list-button.delete {
+  background: #f44336;
+  color: white;
+}
+
+.pattern-list-button.delete:hover {
+  background: #da190b;
+}
+
+.no-patterns {
+  color: #aaa;
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
+}
+
 @media (max-width: 768px) {
   .sequencer-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .sequencer-controls {
+    flex-wrap: wrap;
   }
 
   .drum-label {
@@ -203,5 +432,21 @@
   .step-number {
     width: 35px;
     height: 25px;
+  }
+
+  .sequencer-dialog {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .pattern-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .pattern-list-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }

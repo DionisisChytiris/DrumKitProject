@@ -1,17 +1,26 @@
 .hometest-container {
   position: fixed;
-  width: 100%;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   min-height: 100vh;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
+  /* background: #34c009; */
+  background: #000000;
 }
 
 .hometest-background {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
+  /* background-color: #1ea830; */
+  background-color: #000000;
   background-image: url('../../assets/DrumStudio.png');
   background-size: cover;
   background-position: right center; /* Position drum kit on right side */

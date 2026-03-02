@@ -13,11 +13,12 @@ export const SequencerModal: React.FC<SequencerModalProps> = ({ isOpen, onClose 
 
   if (!isOpen) return null;
 
-  
+  // Debug: Log when modal opens
+  console.log('SequencerModal isOpen:', isOpen, 'drumKit length:', drumKit?.length);
 
   return (
-    <div className="sequencer-modal-overlay">
-      <div className="sequencer-modal-content">
+    <div className="sequencer-modal-overlay" onClick={onClose} style={{ zIndex: 10000 }}>
+      <div className="sequencer-modal-content" onClick={(e) => e.stopPropagation()} style={{ zIndex: 10001 }}>
         <div className="sequencer-modal-header">
           <h2>Create your own Groove</h2>
           <button className="sequencer-modal-close" onClick={onClose}>
@@ -25,23 +26,14 @@ export const SequencerModal: React.FC<SequencerModalProps> = ({ isOpen, onClose 
           </button>
         </div>
         <div className="sequencer-modal-body">
-          {/* <p>sequencer your drum kit settings here.</p> */}
-          {/* Add your customization options here */}
-          
-        <PatternSequencer drumKit={drumKit}/>
-
-          
+          {drumKit && drumKit.length > 0 ? (
+            <PatternSequencer drumKit={drumKit} />
+          ) : (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#fff' }}>
+              <p>Loading drum kit... (drumKit: {drumKit ? 'exists' : 'null'}, length: {drumKit?.length || 0})</p>
+            </div>
+          )}
         </div>
-      
-        {/* <div className="sequencer-modal-footer">
-          <button 
-            className="sequencer-modal-button reset-button" 
-            onClick={()=>{}}
-            title="Reset all drums to default sounds"
-          >
-            🔄 Reset to Default Drum Kit
-          </button>
-        </div> */}
       </div>
     </div>
   );

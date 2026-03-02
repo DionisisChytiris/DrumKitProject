@@ -62,7 +62,7 @@ export const NavBarHome: React.FC = () => {
     <>
       <nav className="main-navigation1">
         <div className="nav-brand">
-          <NavLink to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <NavLink to="/hometest" style={{ textDecoration: 'none', color: 'inherit' }}>
             {/* <h1>🥁 Drum Kit Learning Platform</h1> */}
             <div className='nav-brand-text'>🥁  <span style={{ marginRight: '0.3rem' }}>Drum</span> <span style={{ marginRight: '0.3rem' }}>Kit</span> <span style={{ marginRight: '0.3rem' }}> Learning</span> <span style={{ marginRight: '0.3rem' }}>Platform</span></div>
           </NavLink>

@@ -294,16 +294,23 @@ const Practice: React.FC = () => {
 
     return (
         <div className="practice-container">
-            <NavBarHome/>
-            <MetronomeDisplay />
+            {/* Only show navbar when in fullscreen, otherwise show simple back button */}
+            {isFullscreen ? (
+                <NavBarHome/>
+            ) : (
+                <div className="practice-back-home-button">
+                    <button 
+                        className="practice-back-home-link"
+                        onClick={() => navigate('/hometest')}
+                    >
+                        🥁 Drum Kit Learning Platform
+                    </button>
+                </div>
+            )}
+            {/* Only show metronome when in fullscreen */}
+            {isFullscreen && <MetronomeDisplay />}
             <div className="practice-background"></div>
             <div className="practice-content">
-                <button 
-                    className="practice-back-button"
-                    onClick={() => navigate('/hometest')}
-                >
-                    ← Back
-                </button>
                 {!isFullscreen && (
                     <div className="practice-fullscreen-overlay">
                         <div className="practice-fullscreen-message">

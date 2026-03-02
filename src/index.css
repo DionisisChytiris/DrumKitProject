@@ -5,6 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
+  /* background-color: #26ad1a; */
   background-color: #242424;
 
   font-synthesis: none;
@@ -13,8 +14,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+html, body {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
   display: flex;
   place-items: center;
   min-width: 320px;
@@ -24,6 +32,8 @@ body {
 #root {
   width: 100%;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 button {

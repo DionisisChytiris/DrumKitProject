@@ -27,3 +27,19 @@ export interface DrumHit {
   drumPieceId: string;
   timestamp: number;
 }
+
+export interface PatternStep {
+  drumId: string;
+  velocity: number;
+  active: boolean;
+}
+
+export interface Pattern {
+  id: string;
+  name: string;
+  steps: PatternStep[][];
+  bpm: number;
+  length: number;
+  createdAt?: string;
+  updatedAt?: string;
+}

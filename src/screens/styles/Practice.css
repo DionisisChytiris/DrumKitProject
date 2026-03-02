@@ -3,6 +3,7 @@
   width: 100%;
   min-height: 100vh;
   overflow: hidden;
+  z-index: 999;
 }
 
 .practice-background {
@@ -53,10 +54,43 @@
   transform: translateX(-4px);
 }
 
+/* Back home button (shown when not in fullscreen) */
+.practice-back-home-button {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1001;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  pointer-events: auto;
+}
+
+.practice-back-home-link {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  padding: 0;
+  letter-spacing: -0.2rem;
+}
+
+.practice-back-home-link:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
 .practice-main {
   width: 100%;
   min-height: calc(100vh - 100px);
   position: relative;
+  margin-top: 110px
 }
 
 /* Invisible clickable drum kit overlay */
@@ -270,6 +304,7 @@
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease;
+  pointer-events: auto;
 }
 
 @keyframes fadeIn {
