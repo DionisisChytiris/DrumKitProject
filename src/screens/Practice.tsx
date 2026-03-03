@@ -104,7 +104,7 @@ const Practice: React.FC = () => {
         window.addEventListener('resize', handleResize);
         // Also handle orientation changes
         window.addEventListener('orientationchange', handleResize);
-        
+
         return () => {
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('orientationchange', handleResize);
@@ -123,7 +123,7 @@ const Practice: React.FC = () => {
             } else {
                 key = key.toUpperCase();
             }
-            
+
             const drumPiece = drumKit.find(
                 (drum) => {
                     const binding = drum.keyBinding?.toUpperCase();
@@ -170,17 +170,17 @@ const Practice: React.FC = () => {
         // Calculate scale factors relative to base resolution
         const widthScale = viewportSize.width / BASE_WIDTH;
         const heightScale = viewportSize.height / BASE_HEIGHT;
-        
+
         // Determine screen size category
         const isSmallScreen = viewportSize.width < 1600 || viewportSize.height < 500;
         const isMediumScreen = viewportSize.width >= 1600 && viewportSize.width < 2400;
-        
+
         // Calculate adjustments to compensate for scaling differences
         // On smaller screens, positions need more adjustment
         // The adjustment is based on how much the viewport differs from base
         let xAdjustment = 0;
         let yAdjustment = 0;
-        
+
         if (isSmallScreen) {
             // For small screens (like 15" laptop), adjust positions more
             // Compensate for the fact that viewport units scale differently
@@ -192,7 +192,7 @@ const Practice: React.FC = () => {
             yAdjustment = (heightScale - 1) * 0.5;
         }
         // Large screens (27"+) don't need adjustments
-        
+
         return {
             xAdjustment,
             yAdjustment,
@@ -204,77 +204,77 @@ const Practice: React.FC = () => {
 
     const getDrumPosition = (drumId: string): DrumPosition => {
         const customPositions: Record<string, DrumPosition> = {
-            'kick': { 
+            'kick': {
                 x: 38, y: 60, width: 160, height: 160,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
                 rotation: 0,
                 transformOrigin: 'center center'
             },
-            'snare': { 
+            'snare': {
                 x: 49.8, y: 49.5, width: 210, height: 75,
                 offsetXPercent: 0.2, offsetYPercent: 0, scale: 1.0,
                 borderRadius: '70%',
                 rotation: 16,
                 transformOrigin: 'center center'
             },
-            'hihat': { 
+            'hihat': {
                 x: 31.8, y: 40.9, width: 225, height: 67,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
                 rotation: 8,
                 transformOrigin: 'center center'
             },
-            'high-tom': { 
+            'high-tom': {
                 x: 38.5, y: 35.3, width: 138, height: 60,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '49%',
                 rotation: 30,
                 transformOrigin: 'center center'
             },
-            'mid-tom': { 
+            'mid-tom': {
                 x: 47.5, y: 33.3, width: 138, height: 64,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
                 rotation: 30,
                 transformOrigin: 'center center'
             },
-            'floor-tom': { 
+            'floor-tom': {
                 x: 63, y: 42, width: 178, height: 60,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
                 rotation: 10,
                 transformOrigin: 'center center'
             },
-            'low-floor-tom': { 
+            'low-floor-tom': {
                 x: 84.5, y: 43.5, width: 215, height: 70,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
                 rotation: 10,
                 transformOrigin: 'center center'
             },
-            'crash': { 
+            'crash': {
                 x: 25.2, y: 24.8, width: 225, height: 48,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
                 rotation: 14,
                 transformOrigin: 'center center'
             },
-            'crash-2': { 
+            'crash-2': {
                 x: 51.4, y: 20.8, width: 205, height: 55,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
                 rotation: 10,
                 transformOrigin: 'center center'
             },
-            'ride': { 
+            'ride': {
                 x: 61.6, y: 30.5, width: 235, height: 85,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
                 rotation: 12,
                 transformOrigin: 'center center'
             },
-            'china': { 
+            'china': {
                 x: 79.5, y: 23.1, width: 227, height: 75,
                 offsetX: 0, offsetY: 0, scale: 1.0,
                 borderRadius: '50%',
@@ -282,8 +282,8 @@ const Practice: React.FC = () => {
                 transformOrigin: 'center center'
             },
         };
-        
-        return customPositions[drumId] || { 
+
+        return customPositions[drumId] || {
             x: 50, y: 50, width: 100, height: 100,
             offsetX: 0, offsetY: 0, scale: 1.0,
             borderRadius: '50%',
@@ -296,10 +296,10 @@ const Practice: React.FC = () => {
         <div className="practice-container">
             {/* Only show navbar when in fullscreen, otherwise show simple back button */}
             {isFullscreen ? (
-                <NavBarHome/>
+                <NavBarHome />
             ) : (
                 <div className="practice-back-home-button">
-                    <button 
+                    <button
                         className="practice-back-home-link"
                         onClick={() => navigate('/hometest')}
                     >
@@ -316,7 +316,7 @@ const Practice: React.FC = () => {
                         <div className="practice-fullscreen-message">
                             <h2>🎵 Fullscreen Required</h2>
                             <p>Please enter fullscreen mode to play the drum kit</p>
-                            <button 
+                            <button
                                 className="practice-fullscreen-button"
                                 onClick={requestFullscreen}
                             >
@@ -335,28 +335,28 @@ const Practice: React.FC = () => {
                             const customPos = getDrumPosition(drumPiece.id);
                             const isActive = activeDrums.has(drumPiece.id);
                             const adjustments = getResponsiveAdjustments();
-                            
+
                             // Convert base pixel sizes to viewport-relative units (vw/vh)
                             // This ensures consistent sizing across all screen sizes and aspect ratios
                             // Base width (1920px) = 100vw, so: widthInVw = (baseWidth / 1920) * 100
                             // Base height (1080px) = 100vh, so: heightInVh = (baseHeight / 1080) * 100
                             const widthInVw = (customPos.width / BASE_WIDTH) * 100;
                             const heightInVh = (customPos.height / BASE_HEIGHT) * 100;
-                            
+
                             // Apply responsive position adjustments
                             const adjustedX = customPos.x + adjustments.xAdjustment;
                             const adjustedY = customPos.y + adjustments.yAdjustment;
-                            
+
                             // Calculate offsets - prefer percentage offsets over pixel offsets
                             let offsetX = 0;
                             let offsetY = 0;
-                            
+
                             if (customPos.offsetXPercent !== undefined || customPos.offsetYPercent !== undefined) {
                                 // Use percentage-based offsets (relative to viewport)
-                                offsetX = customPos.offsetXPercent !== undefined 
+                                offsetX = customPos.offsetXPercent !== undefined
                                     ? (viewportSize.width * customPos.offsetXPercent / 100)
                                     : 0;
-                                offsetY = customPos.offsetYPercent !== undefined 
+                                offsetY = customPos.offsetYPercent !== undefined
                                     ? (viewportSize.height * customPos.offsetYPercent / 100)
                                     : 0;
                             } else {
@@ -364,30 +364,30 @@ const Practice: React.FC = () => {
                                 offsetX = (customPos.offsetX || 0) / BASE_WIDTH * viewportSize.width;
                                 offsetY = (customPos.offsetY || 0) / BASE_HEIGHT * viewportSize.height;
                             }
-                            
+
                             // Build transform string with offsets, scale, and rotation
                             const transforms: string[] = ['translate(-50%, -50%)'];
-                            
+
                             // Apply offsets using translate
                             if (offsetX !== 0 || offsetY !== 0) {
                                 transforms.push(`translate(${offsetX}px, ${offsetY}px)`);
                             }
-                            
+
                             // Apply scale
                             if (customPos.scale && customPos.scale !== 1.0) {
                                 transforms.push(`scale(${customPos.scale})`);
                             }
-                            
+
                             // Apply rotation
                             if (customPos.rotation && customPos.rotation !== 0) {
                                 transforms.push(`rotate(${customPos.rotation}deg)`);
                             }
-                            
+
                             // Active state scale (applied last)
                             if (isActive) {
                                 transforms.push('scale(1.1)');
                             }
-                            
+
                             return (
                                 <div
                                     key={drumPiece.id}
@@ -423,7 +423,7 @@ const Practice: React.FC = () => {
                     <div className="practice-instructions">
                         <div className="practice-instructions-header">
                             <p>Click on the drum kit or use keyboard keys to play</p>
-                            <button 
+                            <button
                                 className="practice-edit-keys-button"
                                 onClick={() => setIsKeyBindingModalOpen(true)}
                                 title="Customize keyboard keys"
@@ -439,9 +439,9 @@ const Practice: React.FC = () => {
                             ))}
                         </p>
                     </div>
-                    <KeyBindingModal 
-                        isOpen={isKeyBindingModalOpen} 
-                        onClose={() => setIsKeyBindingModalOpen(false)} 
+                    <KeyBindingModal
+                        isOpen={isKeyBindingModalOpen}
+                        onClose={() => setIsKeyBindingModalOpen(false)}
                     />
                 </div>
             </div>

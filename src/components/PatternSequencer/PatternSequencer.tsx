@@ -294,23 +294,24 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
           <button
             className={`play-button ${isPlaying ? 'playing' : ''}`}
             onClick={startPlayback}
+            data-tooltip={isPlaying ? 'Stop' : 'Play'}
           >
-            {isPlaying ? '⏸ Stop' : '▶ Play'}
+            <span className="button-icon">{isPlaying ? '⏸' : '▶'}</span>
           </button>
-          <button className="clear-button" onClick={clearPattern}>
-            Clear
+          <button className="clear-button" onClick={clearPattern} data-tooltip="Clear">
+            <span className="button-icon">🗑</span>
           </button>
-          <button className="save-button" onClick={() => setShowSaveDialog(true)}>
-            💾 Save
+          <button className="save-button" onClick={() => setShowSaveDialog(true)} data-tooltip="Save">
+            <span className="button-icon">💾</span>
           </button>
-          <button className="load-button" onClick={() => setShowLoadDialog(true)}>
-            📂 Load
+          <button className="load-button" onClick={() => setShowLoadDialog(true)} data-tooltip="Load">
+            <span className="button-icon">📂</span>
           </button>
-          <button className="new-button" onClick={handleNewPattern}>
-            ➕ New
+          <button className="new-button" onClick={handleNewPattern} data-tooltip="New">
+            <span className="button-icon">➕</span>
           </button>
           <div className="bpm-control">
-            <label>BPM:</label>
+            <label>BPM: </label>
             <input
               type="number"
               min="60"
