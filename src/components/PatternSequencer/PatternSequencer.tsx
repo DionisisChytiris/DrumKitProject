@@ -102,6 +102,7 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
   const [playbackInterval, setPlaybackInterval] = useState<number | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
+  const [showClearDialog, setShowClearDialog] = useState(false);
   const [patternName, setPatternName] = useState(pattern.name);
 
   // Auto-save pattern when it changes (but not on initial mount)
@@ -149,6 +150,24 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
       setPattern(normalizedPattern);
     }
   }, [drumKit, pattern]);
+
+  // Close clear dialog when clicking outside
+  const clearDialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showClearDialog && clearDialogRef.current && !clearDialogRef.current.contains(event.target as Node)) {
+        setShowClearDialog(false);
+      }
+    };
+
+    if (showClearDialog) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showClearDialog]);
 
   const toggleStep = (stepIndex: number, drumId: string) => {
     const newSteps = pattern.steps.map(step => [...step]);
@@ -206,11 +225,47 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
     };
   }, [playbackInterval]);
 
-  const clearPattern = () => {
-    const clearedSteps = pattern.steps.map(step =>
-      step.map(s => ({ ...s, active: false }))
-    );
-    setPattern({ ...pattern, steps: clearedSteps, updatedAt: new Date().toISOString() });
+  const handleClearPattern = () => {
+    setShowClearDialog(true);
+  };
+
+  const confirmClearPattern = () => {
+    // Stop playback if active
+    if (isPlaying) {
+      startPlayback(); // Stop
+    }
+    
+    // Delete pattern from saved patterns if it exists
+    // Reload from localStorage to ensure we have the latest state
+    const currentSavedPatterns = loadPatterns();
+    const updatedPatterns = currentSavedPatterns.filter(p => p.id !== pattern.id);
+    
+    // Save to localStorage
+    savePatterns(updatedPatterns);
+    
+    // Update state with the filtered patterns
+    setSavedPatterns(updatedPatterns);
+
+    // Create new empty pattern (this clears all steps and creates fresh pattern)
+    const newPattern = createEmptyPattern(drumKit, bpm);
+    
+    // Temporarily disable auto-save to prevent re-adding the deleted pattern
+    isInitialMount.current = true;
+    
+    setPattern(newPattern);
+    setPatternName(newPattern.name);
+    saveCurrentPattern(newPattern.id);
+    
+    // Re-enable auto-save after a brief delay
+    setTimeout(() => {
+      isInitialMount.current = false;
+    }, 100);
+    
+    setShowClearDialog(false);
+  };
+
+  const cancelClearPattern = () => {
+    setShowClearDialog(false);
   };
 
   const setBPM = (newBPM: number) => {
@@ -288,7 +343,7 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
 
   return (
     <div className="pattern-sequencer">
-      <div className="sequencer-header">
+      <div className="sequencer-header"> 
         <h3>🎵 Pattern Sequencer</h3>
         <div className="sequencer-controls">
           <button
@@ -298,9 +353,24 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
           >
             <span className="button-icon">{isPlaying ? '⏸' : '▶'}</span>
           </button>
-          <button className="clear-button" onClick={clearPattern} data-tooltip="Clear">
-            <span className="button-icon">🗑</span>
-          </button>
+          <div className="clear-button-wrapper" style={{ position: 'relative' }} ref={clearDialogRef}>
+            <button className="clear-button" onClick={handleClearPattern} data-tooltip="Clear">
+              <span className="button-icon">🗑</span>
+            </button>
+            {showClearDialog && (
+              <div className="clear-confirmation-dialog">
+                <p>Are you sure you want to clear all steps and delete this pattern? This action cannot be undone.</p>
+                <div className="clear-dialog-buttons">
+                  <button className="clear-confirm-button" onClick={confirmClearPattern}>
+                    Clear & Delete
+                  </button>
+                  <button className="clear-cancel-button" onClick={cancelClearPattern}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <button className="save-button" onClick={() => setShowSaveDialog(true)} data-tooltip="Save">
             <span className="button-icon">💾</span>
           </button>
@@ -329,6 +399,7 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
           type="text"
           className="pattern-name-input"
           value={patternName}
+          maxLength={20}
           onChange={(e) => setPatternName(e.target.value)}
           onBlur={() => {
             if (patternName.trim()) {

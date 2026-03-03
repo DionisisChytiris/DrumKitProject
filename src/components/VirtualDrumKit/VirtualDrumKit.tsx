@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { DrumPiece } from '@/types';
 import { audioManager } from '@/utils/audioManager';
 import './VirtualDrumKit.css';
@@ -13,13 +13,42 @@ export const VirtualDrumKit: React.FC<VirtualDrumKitProps> = ({
   onDrumHit,
 }) => {
   const [activeDrums, setActiveDrums] = useState<Set<string>>(new Set());
+  const drumMapRef = useRef<Map<string, DrumPiece>>(new Map());
+  const onDrumHitRef = useRef(onDrumHit);
+
+  // Keep refs updated
+  useEffect(() => {
+    onDrumHitRef.current = onDrumHit;
+  }, [onDrumHit]);
+
+  // Preload all audio files on mount for zero latency (decodes to AudioBuffers)
+  useEffect(() => {
+    const soundsToPreload = drumKit
+      .filter(drum => drum.audioUrl)
+      .map(drum => ({ id: drum.id, url: drum.audioUrl! }));
+    
+    if (soundsToPreload.length > 0) {
+      // Preload asynchronously - decodes to AudioBuffers for ultra-low latency
+      audioManager.preloadSounds(soundsToPreload).catch((error) => {
+        console.warn('Some audio files failed to preload:', error);
+      });
+    }
+
+    // Build drum map for fast lookup
+    drumMapRef.current.clear();
+    drumKit.forEach(drum => {
+      if (drum.keyBinding) {
+        drumMapRef.current.set(drum.keyBinding.toUpperCase(), drum);
+      }
+    });
+  }, [drumKit]);
 
   const handleDrumClick = useCallback(
     (drumPiece: DrumPiece) => {
-      // Play sound
+      // Play sound immediately (preloaded, so no latency)
       audioManager.playSound(drumPiece.id, drumPiece.audioUrl);
 
-      // Visual feedback
+      // Visual feedback (non-blocking)
       setActiveDrums((prev) => new Set(prev).add(drumPiece.id));
       setTimeout(() => {
         setActiveDrums((prev) => {
@@ -29,29 +58,41 @@ export const VirtualDrumKit: React.FC<VirtualDrumKitProps> = ({
         });
       }, 150);
 
-      // Notify parent
-      onDrumHit?.(drumPiece.id);
+      // Notify parent (non-blocking)
+      onDrumHitRef.current?.(drumPiece.id);
     },
-    [onDrumHit]
+    []
   );
 
-  // Keyboard support
+  // Optimized keyboard support - direct lookup, no dependencies
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       const key = event.key.toUpperCase();
-      const drumPiece = drumKit.find(
-        (drum) => drum.keyBinding?.toUpperCase() === key
-      );
+      const drumPiece = drumMapRef.current.get(key);
 
       if (drumPiece) {
         event.preventDefault();
-        handleDrumClick(drumPiece);
+        // Direct call - no callback overhead
+        audioManager.playSound(drumPiece.id, drumPiece.audioUrl);
+        
+        // Visual feedback
+        setActiveDrums((prev) => new Set(prev).add(drumPiece.id));
+        setTimeout(() => {
+          setActiveDrums((prev) => {
+            const next = new Set(prev);
+            next.delete(drumPiece.id);
+            return next;
+          });
+        }, 150);
+
+        // Notify parent
+        onDrumHitRef.current?.(drumPiece.id);
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [drumKit, handleDrumClick]);
+  }, []); // Empty deps - uses refs for everything
 
   const getDrumClassName = (drumPiece: DrumPiece): string => {
     const baseClass = `drum-piece drum-${drumPiece.type}`;

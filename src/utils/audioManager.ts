@@ -5,15 +5,21 @@
 
 class AudioManager {
   private audioCache: Map<string, HTMLAudioElement> = new Map();
+  private audioBufferCache: Map<string, AudioBuffer> = new Map();
   private audioContext: AudioContext | null = null;
   private volume: number = 0.7;
 
   /**
-   * Get or create AudioContext
+   * Get or create AudioContext - optimized for low latency
    */
   private getAudioContext(): AudioContext {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      // Use low latency settings for interactive audio
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      this.audioContext = new AudioContextClass({
+        latencyHint: 'interactive', // Lowest latency setting
+        sampleRate: 44100, // Standard sample rate
+      });
     }
     // Resume context if suspended (required by some browsers)
     if (this.audioContext.state === 'suspended') {
@@ -23,52 +29,119 @@ class AudioManager {
   }
 
   /**
-   * Play a drum sound
+   * Decode audio file into AudioBuffer for low-latency playback
+   */
+  private async decodeAudioData(audioUrl: string): Promise<AudioBuffer> {
+    const audioContext = this.getAudioContext();
+    
+    try {
+      const response = await fetch(audioUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      return audioBuffer;
+    } catch (error) {
+      console.error('Error decoding audio data:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Play a drum sound - optimized for ultra-low latency using Web Audio API
    */
   playSound(soundId: string, audioUrl?: string): void {
     try {
       if (audioUrl) {
-        console.log(`[AudioManager] Playing ${soundId} from: ${audioUrl}`); // Debug log
-        // Use audio file if provided
-        let audio = this.audioCache.get(soundId);
-        
-        // Check if cached audio URL matches the new URL, if not, create new audio
-        if (!audio || (audio.src && audio.src !== audioUrl && !audioUrl.startsWith('blob:'))) {
-          // For blob URLs, we need to check differently since they're unique
-          if (audio && audioUrl.startsWith('blob:')) {
-            // Always create new audio for blob URLs (custom uploads)
-            audio = new Audio(audioUrl);
-            this.audioCache.set(soundId, audio);
-          } else if (!audio || audio.src !== audioUrl) {
-            audio = new Audio(audioUrl);
-            this.audioCache.set(soundId, audio);
+        const audioContext = this.getAudioContext();
+        const audioBuffer = this.audioBufferCache.get(soundId);
+
+        if (audioBuffer) {
+          // Use pre-decoded AudioBuffer for instant playback (lowest latency)
+          this.playAudioBuffer(audioBuffer, audioContext);
+        } else {
+          // Fallback to HTML Audio if buffer not ready yet
+          let audio = this.audioCache.get(soundId);
+          
+          // Check if cached audio URL matches the new URL, if not, create new audio
+          if (!audio || (audio.src && audio.src !== audioUrl && !audioUrl.startsWith('blob:'))) {
+            if (audio && audioUrl.startsWith('blob:')) {
+              audio = new Audio(audioUrl);
+              audio.preload = 'auto';
+              this.audioCache.set(soundId, audio);
+            } else if (!audio || audio.src !== audioUrl) {
+              audio = new Audio(audioUrl);
+              audio.preload = 'auto';
+              this.audioCache.set(soundId, audio);
+            }
           }
+
+          // Ensure audio is ready
+          if (audio.readyState < 2) {
+            audio.load();
+          }
+
+          // Play HTML Audio as fallback
+          if (!audio.paused && audio.currentTime > 0) {
+            const audioClone = audio.cloneNode() as HTMLAudioElement;
+            audioClone.volume = this.volume;
+            audioClone.play().catch((error) => {
+              console.error(`[AudioManager] Audio play failed for ${soundId}:`, error);
+              this.generateTone(soundId);
+            });
+          } else {
+            audio.currentTime = 0;
+            audio.volume = this.volume;
+            audio.play().catch((error) => {
+              console.error(`[AudioManager] Audio play failed for ${soundId}:`, error);
+              this.generateTone(soundId);
+            });
+          }
+
+          // Try to decode and cache for next time (async, non-blocking)
+          this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+            // Silent fail - will use HTML Audio fallback
+          });
         }
-
-        // Add error handler to detect loading failures
-        audio.addEventListener('error', (e) => {
-          console.error(`[AudioManager] Failed to load audio for ${soundId} from ${audioUrl}:`, e);
-          console.warn(`[AudioManager] Falling back to generated tone for ${soundId}`);
-          // Fall back to generated tone if audio fails to load
-          this.generateTone(soundId);
-        });
-
-        // Clone and play to allow overlapping sounds
-        const audioClone = audio.cloneNode() as HTMLAudioElement;
-        audioClone.volume = this.volume;
-        audioClone.play().catch((error) => {
-          console.error(`[AudioManager] Audio play failed for ${soundId}:`, error);
-          console.warn(`[AudioManager] Falling back to generated tone for ${soundId}`);
-          // Fall back to generated tone if play fails
-          this.generateTone(soundId);
-        });
       } else {
-        console.log(`[AudioManager] No audioUrl provided for ${soundId}, using generated tone`); // Debug log
         // Generate a simple tone using Web Audio API
         this.generateTone(soundId);
       }
     } catch (error) {
       console.error('Error playing sound:', error);
+    }
+  }
+
+  /**
+   * Play AudioBuffer with Web Audio API - ultra-low latency
+   */
+  private playAudioBuffer(audioBuffer: AudioBuffer, audioContext: AudioContext): void {
+    const source = audioContext.createBufferSource();
+    const gainNode = audioContext.createGain();
+    
+    source.buffer = audioBuffer;
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    gainNode.gain.value = this.volume;
+    
+    // Start immediately with no delay
+    source.start(0);
+  }
+
+  /**
+   * Decode and cache audio file asynchronously
+   */
+  private async decodeAndCacheAudio(soundId: string, audioUrl: string): Promise<void> {
+    // Skip if already cached
+    if (this.audioBufferCache.has(soundId)) {
+      return;
+    }
+
+    try {
+      const audioBuffer = await this.decodeAudioData(audioUrl);
+      this.audioBufferCache.set(soundId, audioBuffer);
+    } catch (error) {
+      // Silent fail - will continue using HTML Audio
+      console.warn(`Failed to decode audio for ${soundId}, using HTML Audio fallback`);
     }
   }
 
@@ -141,16 +214,33 @@ class AudioManager {
   }
 
   /**
-   * Preload audio files
+   * Preload audio files - optimized for immediate playback
+   * Decodes audio files into AudioBuffers for ultra-low latency
    */
-  preloadSounds(sounds: Array<{ id: string; url: string }>): void {
+  async preloadSounds(sounds: Array<{ id: string; url: string }>): Promise<void> {
+    // Preload HTML Audio as fallback
     sounds.forEach(({ id, url }) => {
       if (!this.audioCache.has(id)) {
         const audio = new Audio(url);
         audio.preload = 'auto';
+        audio.load();
         this.audioCache.set(id, audio);
+      } else {
+        const audio = this.audioCache.get(id)!;
+        if (audio.readyState < 2) {
+          audio.load();
+        }
       }
     });
+
+    // Decode all audio files into AudioBuffers for low-latency playback
+    const decodePromises = sounds.map(({ id, url }) => 
+      this.decodeAndCacheAudio(id, url).catch(() => {
+        // Silent fail - HTML Audio will be used as fallback
+      })
+    );
+
+    await Promise.allSettled(decodePromises);
   }
 }
 

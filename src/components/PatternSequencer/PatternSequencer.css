@@ -10,6 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: -0.9rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
@@ -17,6 +18,7 @@
 
 .sequencer-header h3 {
   margin: 0;
+  padding-bottom: 5px;
   font-size: 1.2rem;
 }
 
@@ -26,47 +28,56 @@
   align-items: center;
 }
 
-.play-button,
-.clear-button,
-.save-button,
-.load-button,
-.new-button {
-  padding: 0.4rem;
-  background: #666;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  position: relative;
+.pattern-sequencer .play-button,
+.pattern-sequencer .clear-button,
+.pattern-sequencer .save-button,
+.pattern-sequencer .load-button,
+.pattern-sequencer .new-button {
+  padding: 0.4rem !important;
+  background: #666 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-size: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 26px !important;
+  height: 26px !important;
+  position: relative !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  box-shadow: none !important;
 }
 
-.play-button {
-  background: #4caf50;
-  width: 40px;
+.pattern-sequencer .play-button{
+  /* background: #311b91; */
+  background: #4caf50 !important;
+  /* width: 30px; */
 }
 
-.play-button:hover {
-  background: #45a049;
+.pattern-sequencer .play-button:hover {
+  background: #45a049 !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.play-button.playing {
-  background: #f44336;
+.pattern-sequencer .play-button.playing {
+  background: #f44336 !important;
+  border: none !important;
 }
 
-.play-button.playing:hover {
-  background: #da190b;
+.pattern-sequencer .play-button.playing:hover {
+  background: #da190b !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.clear-button:hover {
-  background: #777;
+.pattern-sequencer .clear-button:hover {
+  background: #777 !important;
 }
 
 .button-icon {
@@ -80,11 +91,11 @@
 }
 
 /* Tooltip styling */
-.play-button::after,
-.clear-button::after,
-.save-button::after,
-.load-button::after,
-.new-button::after {
+.pattern-sequencer .play-button::after,
+.pattern-sequencer .clear-button::after,
+.pattern-sequencer .save-button::after,
+.pattern-sequencer .load-button::after,
+.pattern-sequencer .new-button::after {
   content: attr(data-tooltip);
   position: absolute;
   bottom: -45px;
@@ -103,11 +114,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.play-button::before,
-.clear-button::before,
-.save-button::before,
-.load-button::before,
-.new-button::before {
+.pattern-sequencer .play-button::before,
+.pattern-sequencer .clear-button::before,
+.pattern-sequencer .save-button::before,
+.pattern-sequencer .load-button::before,
+.pattern-sequencer .new-button::before {
   content: '';
   position: absolute;
   bottom: -8px;
@@ -124,45 +135,135 @@
   z-index: 1001;
 }
 
-.play-button:hover::after,
-.clear-button:hover::after,
-.save-button:hover::after,
-.load-button:hover::after,
-.new-button:hover::after {
+.pattern-sequencer .play-button:hover::after,
+.pattern-sequencer .clear-button:hover::after,
+.pattern-sequencer .save-button:hover::after,
+.pattern-sequencer .load-button:hover::after,
+.pattern-sequencer .new-button:hover::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
 
-.play-button:hover::before,
-.clear-button:hover::before,
-.save-button:hover::before,
-.load-button:hover::before,
-.new-button:hover::before {
+.pattern-sequencer .play-button:hover::before,
+.pattern-sequencer .clear-button:hover::before,
+.pattern-sequencer .save-button:hover::before,
+.pattern-sequencer .load-button:hover::before,
+.pattern-sequencer .new-button:hover::before {
   opacity: 1;
 }
 
-.save-button {
-  background: #2196f3;
+.pattern-sequencer .save-button {
+  background: #2196f3 !important;
 }
 
-.save-button:hover {
-  background: #1976d2;
+.pattern-sequencer .save-button:hover {
+  background: #1976d2 !important;
 }
 
-.load-button {
-  background: #ff9800;
+.pattern-sequencer .load-button {
+  background: #ff9800 !important;
 }
 
-.load-button:hover {
-  background: #f57c00;
+.pattern-sequencer .load-button:hover {
+  background: #f57c00 !important;
 }
 
-.new-button {
-  background: #9c27b0;
+.pattern-sequencer .new-button {
+  background: #9c27b0 !important;
 }
 
-.new-button:hover {
-  background: #7b1fa2;
+.pattern-sequencer .new-button:hover {
+  background: #7b1fa2 !important;
+}
+
+.clear-button-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.clear-confirmation-dialog {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 1rem;
+  min-width: 280px;
+  max-width: 320px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.clear-confirmation-dialog::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #555;
+}
+
+.clear-confirmation-dialog p {
+  margin: 0 0 1rem 0;
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.clear-dialog-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.clear-confirm-button,
+.clear-cancel-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.clear-confirm-button {
+  background: #f44336;
+  color: white;
+}
+
+.clear-confirm-button:hover {
+  background: #da190b;
+  transform: scale(1.05);
+}
+
+.clear-cancel-button {
+  background: #666;
+  color: white;
+}
+
+.clear-cancel-button:hover {
+  background: #777;
+  transform: scale(1.05);
 }
 
 .bpm-control {
@@ -295,18 +396,20 @@
 }
 
 .pattern-name-section {
+  margin-top: -0.9rem;
   margin-bottom: 1rem;
 }
 
 .pattern-name-input {
   width: 100%;
-  max-width: 300px;
-  padding: 0.5rem 1rem;
-  background: #333;
-  border: 1px solid #555;
+  margin-left: 10px;
+  max-width: 160px;
+  padding: 0.3rem 0.6rem;
+  background: #292929;
+  border: 2px solid #555;
   border-radius: 6px;
-  color: #fff;
-  font-size: 1rem;
+  color: #cccaca;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
