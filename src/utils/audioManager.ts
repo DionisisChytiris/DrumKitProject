@@ -80,16 +80,17 @@ class AudioManager {
           }
 
           // Play HTML Audio as fallback
+          const safeVolume = this.getSafeVolume();
           if (!audio.paused && audio.currentTime > 0) {
             const audioClone = audio.cloneNode() as HTMLAudioElement;
-            audioClone.volume = this.volume;
+            audioClone.volume = safeVolume;
             audioClone.play().catch((error) => {
               console.error(`[AudioManager] Audio play failed for ${soundId}:`, error);
               this.generateTone(soundId);
             });
           } else {
             audio.currentTime = 0;
-            audio.volume = this.volume;
+            audio.volume = safeVolume;
             audio.play().catch((error) => {
               console.error(`[AudioManager] Audio play failed for ${soundId}:`, error);
               this.generateTone(soundId);
@@ -121,10 +122,26 @@ class AudioManager {
     source.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    gainNode.gain.value = this.volume;
+    // Ensure volume is a valid finite number between 0 and 1
+    const safeVolume = this.getSafeVolume();
+    gainNode.gain.value = safeVolume;
     
     // Start immediately with no delay
     source.start(0);
+  }
+
+  /**
+   * Get a safe volume value (ensures it's finite and between 0-1)
+   */
+  private getSafeVolume(): number {
+    // Check if volume is a valid finite number
+    if (!Number.isFinite(this.volume) || isNaN(this.volume)) {
+      console.warn(`[AudioManager] Invalid volume value: ${this.volume}, resetting to 0.7`);
+      this.volume = 0.7;
+      return 0.7;
+    }
+    // Clamp between 0 and 1
+    return Math.max(0, Math.min(1, this.volume));
   }
 
   /**
@@ -203,6 +220,13 @@ class AudioManager {
    * Set master volume (0-1)
    */
   setVolume(volume: number): void {
+    // Validate that volume is a finite number
+    if (!Number.isFinite(volume) || isNaN(volume)) {
+      console.warn(`[AudioManager] Attempted to set invalid volume: ${volume}, using default 0.7`);
+      this.volume = 0.7;
+      return;
+    }
+    // Clamp between 0 and 1
     this.volume = Math.max(0, Math.min(1, volume));
   }
 

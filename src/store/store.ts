@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import drumKitReducer from './slices/drumKitSlice';
 import metronomeReducer from './slices/metronomeSlice';
+import mixerReducer from './slices/mixerSlice';
 import { defaultDrumKit } from '@/utils/drumConfig';
 
 // Load state from localStorage on store creation
@@ -48,6 +49,7 @@ export const store = configureStore({
   reducer: {
     drumKit: drumKitReducer,
     metronome: metronomeReducer,
+    mixer: mixerReducer,
   },
   preloadedState: preloadedState || undefined,
 });
@@ -58,6 +60,10 @@ store.subscribe(() => {
     const state = store.getState();
     const serializedState = JSON.stringify(state);
     localStorage.setItem('drumKitState', serializedState);
+    
+    // Also save mixer state separately for easier access
+    const mixerState = JSON.stringify(state.mixer);
+    localStorage.setItem('mixerState', mixerState);
   } catch (err) {
     console.error('Error saving state to localStorage:', err);
   }

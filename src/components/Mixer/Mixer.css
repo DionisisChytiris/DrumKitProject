@@ -1,10 +1,15 @@
 .mixer-container {
-  background: #1a1a1a;
+  background: rgba(26, 26, 26, 0.95);
   border-radius: 8px;
   padding: 1.5rem;
   color: #fff;
-  max-height: 400px;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
+  position: relative;
+  z-index: 1;
+  min-height: 200px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .mixer-header {

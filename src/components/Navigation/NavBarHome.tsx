@@ -52,6 +52,7 @@ export const NavBarHome: React.FC = () => {
   };
 
   const handleCloseAllModals = () => {
+    console.log('[NavBar] handleCloseAllModals called - closing all modals');
     setIsMixerModalOpen(false);
     setIsModalOpen(false);
     setIsSequencerModalOpen(false);
@@ -76,8 +77,19 @@ export const NavBarHome: React.FC = () => {
           </NavLink> */}
           <div 
             className='nav-link1' 
-            onClick={handleMixerClick}
-            onMouseEnter={handleCloseAllModals}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleMixerClick(e);
+            }}
+            onMouseEnter={() => {
+              console.log('[NavBar] Mixer onMouseEnter fired');
+              handleCloseAllModals();
+            }}
+            onMouseOver={() => {
+              // Fallback in case onMouseEnter doesn't work
+              console.log('[NavBar] Mixer onMouseOver fired');
+            }}
           >
             Mixer
           </div>

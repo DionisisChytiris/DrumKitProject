@@ -8,7 +8,7 @@
     /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 10001; /* Higher than modal overlay (10000) so nav links can receive mouse events */
 }
 
 /* nav-brand h1 {
@@ -61,6 +61,8 @@
     transition: all 0.3s ease;
     /* backdrop-filter: blur(10px); */
     text-decoration: none;
+    position: relative; /* Ensure it's in the stacking context */
+    z-index: 10002; /* Even higher to ensure it's above modals */
     /* display: inline-block; */
     /* margin-top: 0px; */
 }

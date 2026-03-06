@@ -9,8 +9,13 @@ import {
   SVGContext,
 } from "vexflow";
 import * as Tone from "tone";
+import { ExerciseDefinition } from "@/types/exerciseTypes";
 
-const DrumExercise: React.FC = () => {
+interface VexFlowExerciseProps {
+  exercise: ExerciseDefinition;
+}
+
+const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
   const ref = useRef<HTMLDivElement>(null);
   const allNotesRef = useRef<StaveNote[]>([]);
   const barXPositionsRef = useRef<number[]>([]);
@@ -20,6 +25,7 @@ const DrumExercise: React.FC = () => {
   const kickRef = useRef<Tone.MembraneSynth>();
   const snareRef = useRef<Tone.NoiseSynth>();
   const hatRef = useRef<Tone.MetalSynth>();
+  const tomRef = useRef<Tone.MembraneSynth>();
 
   useEffect(() => {
     if (!ref.current) return;
@@ -31,34 +37,50 @@ const DrumExercise: React.FC = () => {
     ctxRef.current = ctx;
 
     const stave = new Stave(10, 40, 880);
-    stave.addClef("percussion").addTimeSignature("4/4");
+    stave.addClef("percussion").addTimeSignature(`${exercise.timeSignature}/4`);
     stave.setContext(ctx).draw();
 
-    const totalNotes = 32; // 4 bars * 8 eighth notes
+    const totalNotes = exercise.bars * 8; // 8 eighth notes per bar
     const notes: StaveNote[] = [];
 
     for (let i = 0; i < totalNotes; i++) {
       const beat = (i % 8) / 2 + 1;
+      const position = i % 8;
+      const totalPosition = i;
 
-      const keys: string[] = ["x/5"];
-      if (beat === 1 || beat === 3) keys.push("f/2"); // kick
-      if (beat === 2 || beat === 4) keys.push("c/3"); // snare
+      // Get drums for this position from the pattern function
+      const drumNotes = exercise.pattern(beat, position, totalPosition);
 
+      if (drumNotes.length === 0) {
+        // Create a rest note if no drums
+        const note = new StaveNote({
+          keys: ["b/4"],
+          duration: exercise.noteDuration,
+          clef: "percussion",
+        });
+        notes.push(note);
+        continue;
+      }
+
+      const keys = drumNotes.map(dn => dn.key);
       const note = new StaveNote({
         keys,
-        duration: "8",
+        duration: exercise.noteDuration,
         clef: "percussion",
       });
 
+      // Set line positions
       note.keys.forEach((k, idx) => {
-        if (k === "x/5") note.setKeyLine(idx, 5); // Hi-hat
-        if (k === "c/3") note.setKeyLine(idx, 3.5); // Snare
-        if (k === "f/2") note.setKeyLine(idx, 1.5); // Kick
+        const drumNote = drumNotes.find(dn => dn.key === k);
+        if (drumNote) {
+          note.setKeyLine(idx, drumNote.line);
+        }
       });
 
-      // Hi-hat X noteheads
+      // Custom noteheads (like X for hi-hat)
       note.keys.forEach((k, idx) => {
-        if (k === "x/5") {
+        const drumNote = drumNotes.find(dn => dn.key === k);
+        if (drumNote?.customNoteHead) {
           note.setKeyStyle(idx, {
             customNoteHead: (ctx: any, x: number, y: number, w: number, h: number) => {
               ctx.moveTo(x - w / 2, y - h / 2);
@@ -83,16 +105,19 @@ const DrumExercise: React.FC = () => {
       beams.push(new Beam(hiHatNotes.slice(i, i + 2)));
     }
 
-    const voice = new Voice({ num_beats: 16, beat_value: 4 });
+    const voice = new Voice({ num_beats: exercise.bars * exercise.timeSignature, beat_value: 4 });
     voice.addTickables(notes);
     const formatWidth = 810;
     new Formatter().joinVoices([voice]).format([voice], formatWidth);
     voice.draw(ctx, stave);
     beams.forEach((b) => b.setContext(ctx).draw());
 
-    // Bar lines after notes 7, 15, 23
+    // Bar lines
     const staveStartX = 10;
-    const barBoundaryNoteIndices = [7, 15, 23];
+    const barBoundaryNoteIndices: number[] = [];
+    for (let bar = 1; bar < exercise.bars; bar++) {
+      barBoundaryNoteIndices.push(bar * 8 - 1);
+    }
     const barXPositions: number[] = [];
     const offset = 6;
 
@@ -117,14 +142,14 @@ const DrumExercise: React.FC = () => {
 
     barXPositionsRef.current = barXPositions;
 
-    // --- Tone.js synths ---
+    // Initialize Tone.js synths
     kickRef.current = new Tone.MembraneSynth({
       pitchDecay: 0.05,
       octaves: 10,
       oscillator: { type: "sine" },
       envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4 }
     }).toDestination();
-    kickRef.current.volume.value = -5; // Set volume in decibels
+    kickRef.current.volume.value = -5;
     
     snareRef.current = new Tone.NoiseSynth({ 
       envelope: { attack: 0.001, decay: 0.2, sustain: 0 },
@@ -135,12 +160,18 @@ const DrumExercise: React.FC = () => {
       envelope: { attack: 0.001, decay: 0.1 },
       volume: -8
     }).toDestination();
+    
+    tomRef.current = new Tone.MembraneSynth({ 
+      pitchDecay: 0.05, 
+      octaves: 4,
+      volume: -3
+    }).toDestination();
 
     return () => {
       Tone.Transport.stop();
       Tone.Transport.cancel();
     };
-  }, []);
+  }, [exercise]);
 
   const scheduleNotes = () => {
     if (!allNotesRef.current.length || !ctxRef.current) return;
@@ -149,8 +180,8 @@ const DrumExercise: React.FC = () => {
 
     const ctx = ctxRef.current;
     const stave = new Stave(10, 40, 880);
-    stave.addClef("percussion").addTimeSignature("4/4");
-    const voice = new Voice({ num_beats: 16, beat_value: 4 });
+    stave.addClef("percussion").addTimeSignature(`${exercise.timeSignature}/4`);
+    const voice = new Voice({ num_beats: exercise.bars * exercise.timeSignature, beat_value: 4 });
     voice.addTickables(allNotesRef.current);
     new Formatter().joinVoices([voice]).format([voice], 810);
 
@@ -163,11 +194,25 @@ const DrumExercise: React.FC = () => {
 
     allNotesRef.current.forEach((_note, i) => {
       const beat = (i % 8) / 2 + 1;
+      const position = i % 8;
       const time = i * 0.5;
+      
+      // Get drums for this position
+      const drumNotes = exercise.pattern(beat, position, i);
+      
       Tone.Transport.schedule((t) => {
-        hatRef.current?.triggerAttackRelease("16n", t);
-        if (beat === 1 || beat === 3) kickRef.current?.triggerAttackRelease("C1", "8n", t);
-        if (beat === 2 || beat === 4) snareRef.current?.triggerAttackRelease("16n", t);
+        // Play drums based on pattern
+        drumNotes.forEach(drumNote => {
+          if (drumNote.key === "x/5") {
+            hatRef.current?.triggerAttackRelease("16n", t);
+          } else if (drumNote.key === "f/2") {
+            kickRef.current?.triggerAttackRelease("C1", "8n", t);
+          } else if (drumNote.key === "c/3") {
+            snareRef.current?.triggerAttackRelease("16n", t);
+          } else if (drumNote.key === "d/4") {
+            tomRef.current?.triggerAttackRelease("C2", "8n", t);
+          }
+        });
 
         // Highlight note
         allNotesRef.current.forEach((note, idx) => {
@@ -192,7 +237,7 @@ const DrumExercise: React.FC = () => {
     try {
       await Tone.start();
       // Ensure synths are initialized
-      if (!kickRef.current || !snareRef.current || !hatRef.current) {
+      if (!kickRef.current || !snareRef.current || !hatRef.current || !tomRef.current) {
         kickRef.current = new Tone.MembraneSynth({
           pitchDecay: 0.05,
           octaves: 10,
@@ -209,6 +254,12 @@ const DrumExercise: React.FC = () => {
         hatRef.current = new Tone.MetalSynth({ 
           envelope: { attack: 0.001, decay: 0.1 },
           volume: -8
+        }).toDestination();
+        
+        tomRef.current = new Tone.MembraneSynth({ 
+          pitchDecay: 0.05, 
+          octaves: 4,
+          volume: -3
         }).toDestination();
       }
       scheduleNotes();
@@ -229,10 +280,10 @@ const DrumExercise: React.FC = () => {
     allNotesRef.current.forEach((note) => note.setStyle({ fillStyle: "black", strokeStyle: "black" }));
 
     const stave = new Stave(10, 40, 880);
-    stave.addClef("percussion").addTimeSignature("4/4");
+    stave.addClef("percussion").addTimeSignature(`${exercise.timeSignature}/4`);
     stave.setContext(ctx).draw();
 
-    const voice = new Voice({ num_beats: 16, beat_value: 4 });
+    const voice = new Voice({ num_beats: exercise.bars * exercise.timeSignature, beat_value: 4 });
     voice.addTickables(allNotesRef.current);
     new Formatter().joinVoices([voice]).format([voice], 810);
     voice.draw(ctx, stave);
@@ -256,7 +307,8 @@ const DrumExercise: React.FC = () => {
 
   return (
     <div>
-      <h2>4-Bar Drum Kit Groove</h2>
+      <h2>{exercise.title}</h2>
+      {exercise.description && <p style={{ marginTop: 10, marginBottom: 10, fontStyle: 'italic' }}>{exercise.description}</p>}
       <div ref={ref} />
       <button onClick={play} style={{ marginTop: 20, marginRight: 10 }}>▶ Play</button>
       <button onClick={stop} style={{ marginTop: 20 }}>■ Stop</button>
@@ -264,4 +316,4 @@ const DrumExercise: React.FC = () => {
   );
 };
 
-export default DrumExercise;
+export default VexFlowExercise;

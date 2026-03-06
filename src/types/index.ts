@@ -43,3 +43,15 @@ export interface Pattern {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface DrumMixerSettings {
+  volume: number;
+  pan: number;
+  reverb: number;
+  compression: number;
+  eq: {
+    low: number;
+    mid: number;
+    high: number;
+  };
+}

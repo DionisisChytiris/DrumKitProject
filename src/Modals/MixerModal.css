@@ -2,19 +2,18 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 60%;
     height: 100%;
     background: rgba(0, 0, 0, 0);
-    
     /* backdrop-filter: blur(5px); */
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    z-index: 10000;
+    z-index:1000;
     animation: fadeIn 0.2s ease;
     padding-top: 5rem; /* Space below navbar */
     padding-left: 2rem; /* Left padding */
-    pointer-events: none; /* Allow clicks to pass through to practice page */
+    pointer-events: auto; /* Enable clicks on overlay */
   }
   
   @keyframes fadeIn {
@@ -27,20 +26,22 @@
   }
   
   .mixer-modal-content {
-    background: 
-      radial-gradient(ellipse 60% 50% at 70% 50%, rgba(120, 100, 80, 0.1) 0%, transparent 60%);
+    background: rgba(25, 25, 25, 0.5);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     width: 90%;
-    max-width: 700px;
+    max-width: 900px;
     max-height: calc(100vh - 7rem); /* Account for navbar and padding */
     display: flex;
     flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     animation: slideInLeft 0.3s ease;
-    overflow: visible; /* Allow popups to overflow */
+    overflow-y: auto;
+    overflow-x: visible; /* Allow horizontal overflow for popups */
     pointer-events: auto; /* Enable clicks on modal content */
+    position: relative;
+    z-index: 10001;
   }
   
   @keyframes slideInLeft {
@@ -98,6 +99,7 @@
     overflow-y: auto;
     overflow-x: visible; /* Allow horizontal overflow for popups */
     position: relative;
+    background: transparent;
   }
   
   .mixer-modal-body p {
@@ -148,13 +150,15 @@
   .mixer-panel {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #333;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
   }
   
   .mixer-panel h3 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 1rem 0;
     font-size: 1.2rem;
     color: #fff;
+    font-weight: 600;
   }
   
   /* Responsive */
