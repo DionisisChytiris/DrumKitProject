@@ -316,8 +316,8 @@ const Metronome: React.FC = () => {
         const value = parseInt(e.target.value, 10);
         if (isNaN(value) || value < 30) {
             dispatch(setBpm(30));
-        } else if (value > 300) {
-            dispatch(setBpm(300));
+        } else if (value > 400) {
+            dispatch(setBpm(400));
         } else {
             dispatch(setBpm(value));
         }
@@ -566,7 +566,7 @@ const Metronome: React.FC = () => {
                                 <button 
                                     className="bpm-button"
                                     onClick={() => handleBpmChange(bpm + 1)}
-                                    disabled={bpm >= 300}
+                                    disabled={bpm >= 400}
                                 >
                                     +
                                 </button>
@@ -576,7 +576,7 @@ const Metronome: React.FC = () => {
                                     type="range"
                                     className="bpm-slider"
                                     min="30"
-                                    max="300"
+                                    max="400"
                                     step="1"
                                     value={bpm}
                                     onChange={(e) => handleBpmChange(parseInt(e.target.value, 10))}
@@ -617,15 +617,21 @@ const Metronome: React.FC = () => {
                         <div className="settings-control">
                             <label>Volume</label>
                             <div className="volume-control">
-                                <input
-                                    type="range"
-                                    className="volume-slider"
-                                    min="0"
-                                    max="1"
-                                    step="0.01"
-                                    value={volume}
-                                    onChange={(e) => dispatch(setVolume(parseFloat(e.target.value)))}
-                                />
+                                <div className="volume-slider-container">
+                                    <div 
+                                        className="volume-progress-bar" 
+                                        style={{ width: `${volume * 100}%` }}
+                                    ></div>
+                                    <input
+                                        type="range"
+                                        className="volume-slider"
+                                        min="0"
+                                        max="1"
+                                        step="0.01"
+                                        value={volume}
+                                        onChange={(e) => dispatch(setVolume(parseFloat(e.target.value)))}
+                                    />
+                                </div>
                                 <span className="volume-value">{Math.round(volume * 100)}%</span>
                             </div>
                         </div>

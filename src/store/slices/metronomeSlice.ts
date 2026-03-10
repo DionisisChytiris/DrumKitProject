@@ -34,8 +34,8 @@ const metronomeSlice = createSlice({
   initialState,
   reducers: {
     setBpm: (state, action: PayloadAction<number>) => {
-      const clampedBpm = Math.max(30, Math.min(300, action.payload));
-      if (!isNaN(clampedBpm) && clampedBpm >= 30 && clampedBpm <= 300) {
+      const clampedBpm = Math.max(30, Math.min(400, action.payload));
+      if (!isNaN(clampedBpm) && clampedBpm >= 30 && clampedBpm <= 400) {
         state.bpm = clampedBpm;
       }
     },
