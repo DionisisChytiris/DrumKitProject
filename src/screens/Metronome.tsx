@@ -31,6 +31,7 @@ const Metronome: React.FC = () => {
     
     const [beat, setBeat] = useState<number>(0);
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+    const [bpmInputValue, setBpmInputValue] = useState<string>(bpm.toString());
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -300,15 +301,26 @@ const Metronome: React.FC = () => {
         dispatch(setBpm(newBpm));
     };
 
+    // Sync local input value when Redux BPM changes (from slider or buttons)
+    // Only sync if the input is not currently focused (user is not typing)
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    useEffect(() => {
+        if (inputRef.current !== document.activeElement) {
+            setBpmInputValue(bpm.toString());
+        }
+    }, [bpm]);
+
     const handleBpmInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        // Allow empty input while typing
-        if (value === '') {
-            return;
-        }
-        const numValue = parseInt(value, 10);
-        if (!isNaN(numValue)) {
-            handleBpmChange(numValue);
+        // Allow any input while typing - store in local state
+        setBpmInputValue(value);
+        
+        // Only dispatch to Redux if it's a valid number within range
+        if (value !== '') {
+            const numValue = parseInt(value, 10);
+            if (!isNaN(numValue) && numValue >= 30 && numValue <= 400) {
+                handleBpmChange(numValue);
+            }
         }
     };
 
@@ -316,10 +328,13 @@ const Metronome: React.FC = () => {
         const value = parseInt(e.target.value, 10);
         if (isNaN(value) || value < 30) {
             dispatch(setBpm(30));
+            setBpmInputValue('30');
         } else if (value > 400) {
             dispatch(setBpm(400));
+            setBpmInputValue('400');
         } else {
             dispatch(setBpm(value));
+            setBpmInputValue(value.toString());
         }
     };
 
@@ -545,7 +560,7 @@ const Metronome: React.FC = () => {
                     <div className="metronome-controls">
                         {/* BPM Control */}
                         <div className="bpm-control">
-                            <label>BPM</label>
+                            {/* <label>BPM</label> */}
                             <div className="bpm-input-group">
                                 <button 
                                     className="bpm-button"
@@ -555,11 +570,12 @@ const Metronome: React.FC = () => {
                                     −
                                 </button>
                                 <input
+                                    ref={inputRef}
                                     type="number"
                                     className="bpm-input"
-                                    value={bpm}
-                                    min={20}
-                                    max={30}
+                                    value={bpmInputValue}
+                                    min={30}
+                                    max={400}
                                     onChange={handleBpmInputChange}
                                     onBlur={handleBpmBlur}
                                 />
