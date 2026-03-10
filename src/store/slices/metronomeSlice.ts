@@ -46,8 +46,8 @@ const metronomeSlice = createSlice({
       state.subdivision = action.payload;
     },
     setTimeSignature: (state, action: PayloadAction<number>) => {
-      const value = Math.max(2, Math.min(19, action.payload));
-      if (value >= 2 && value <= 19) {
+      const value = Math.max(1, Math.min(19, action.payload));
+      if (value >= 1 && value <= 19) {
         state.timeSignature = value;
         // Update accent pattern length to match new time signature
         const newPattern = new Array(value).fill(false);

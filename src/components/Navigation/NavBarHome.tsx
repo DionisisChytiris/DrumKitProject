@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { CustomizeModal } from '../../Modals/CustomizeModal';
 import './NavBarHome.css';
 import { PracticeSoundSettingsModal } from '@/Modals/PracticeSoundSettings';
-import {MixerModal} from '../../Modals/MixerModal'
-import {SequencerModal} from '../../Modals/SequencerModal'
+import { MixerModal } from '../../Modals/MixerModal'
+import { SequencerModal } from '../../Modals/SequencerModal'
 
 export const NavBarHome: React.FC = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
   const [isMixerModalOpen, setIsMixerModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSequencerModalOpen, setIsSequencerModalOpen] = useState(false)
@@ -75,53 +78,78 @@ export const NavBarHome: React.FC = () => {
           >
             🏠 Home
           </NavLink> */}
-          <div 
-            className='nav-link1' 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleMixerClick(e);
-            }}
-            onMouseEnter={() => {
-              console.log('[NavBar] Mixer onMouseEnter fired');
-              handleCloseAllModals();
-            }}
-            onMouseOver={() => {
-              // Fallback in case onMouseEnter doesn't work
-              console.log('[NavBar] Mixer onMouseOver fired');
-            }}
-          >
-            Mixer
-          </div>
-          <div 
-            className='nav-link1' 
-            onClick={handleCustomizeClick}
-            onMouseEnter={handleCloseAllModals}
-          >
-            Customize
-          </div>
-          <div 
-            className='nav-link1' 
-            onClick={handleSequencerClick}
-            onMouseEnter={handleCloseAllModals}
-          >
-            Sequencer
-          </div>
-          <div 
-            className='nav-link1' 
+          {currentPath === '/practice' && (
+            <>
+              <div
+                className='nav-link1'
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleMixerClick(e);
+                }}
+                onMouseEnter={() => {
+                  console.log('[NavBar] Mixer onMouseEnter fired');
+                  handleCloseAllModals();
+                }}
+                onMouseOver={() => {
+                  // Fallback in case onMouseEnter doesn't work
+                  console.log('[NavBar] Mixer onMouseOver fired');
+                }}
+              >
+                Mixer
+              </div>
+              <div
+                className='nav-link1'
+                onClick={handleCustomizeClick}
+                onMouseEnter={handleCloseAllModals}
+              >
+                Customize
+              </div>
+              <div
+                className='nav-link1'
+                onClick={handleSequencerClick}
+                onMouseEnter={handleCloseAllModals}
+              >
+                Sequencer
+              </div>
+            </>
+          )}
+          {/* <div
+            className='nav-link1'
             onClick={handlePracticeSoundClick}
             onMouseEnter={handleCloseAllModals}
           >
             Settings
-          </div>
+          </div> */}
+          {currentPath !== '/practice' && (
+            <div className="nav-brand">
+              <NavLink to="/practice" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className='nav-link1'>Practice</div>
+              </NavLink>
+            </div>
+          )}
+          {currentPath !== '/metronome' && (
+            <div className="nav-brand">
+              <NavLink to="/metronome" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className='nav-link1'>Metronome</div>
+              </NavLink>
+            </div>
+          )}
+          {currentPath !== '/exercises' && (
+            <div className="nav-brand">
+              <NavLink to="/exercises" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className='nav-link1'>Exercises</div>
+              </NavLink>
+            </div>
+          )}
 
           <div className='nav-link2'></div>
         </div>
       </nav>
-      <MixerModal isOpen={isMixerModalOpen} onClose={handleMixerCloseModal}/>
+      <MixerModal isOpen={isMixerModalOpen} onClose={handleMixerCloseModal} />
       <CustomizeModal isOpen={isModalOpen} onClose={handleCloseModal} />
-      <SequencerModal isOpen={isSequencerModalOpen} onClose={handleSequencerCloseModal}/>
-      <PracticeSoundSettingsModal isOpen={isPracticeSoundSettingsModalOpen} onClose={handleClosePracticeSoundSettingsModal}/>
+      <SequencerModal isOpen={isSequencerModalOpen} onClose={handleSequencerCloseModal} />
+      <PracticeSoundSettingsModal isOpen={isPracticeSoundSettingsModalOpen} onClose={handleClosePracticeSoundSettingsModal} />
     </>
   );
 };

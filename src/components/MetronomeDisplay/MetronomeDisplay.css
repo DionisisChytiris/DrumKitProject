@@ -2,7 +2,7 @@
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 1000;
+    z-index: 10002;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -10,6 +10,7 @@
     padding: 12px 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     min-width: 140px;
+    pointer-events: auto;
 }
 
 .metronome-display-content {
@@ -17,14 +18,21 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    position: relative;
+    pointer-events: auto;
 }
 
 .metronome-display-bpm {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 4px;
     font-size: 14px;
     color: #ffffff;
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
 }
 
 .metronome-display-label {
@@ -32,18 +40,88 @@
     opacity: 0.8;
 }
 
-.metronome-display-value {
-    font-weight: 700;
-    font-size: 16px;
+.metronome-display-bpm-input {
+    width: 60px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
     color: #4caf50;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    outline: none;
+    cursor: text;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10003 !important;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    user-select: text;
+    touch-action: manipulation;
+}
+
+.metronome-display-bpm-input:focus {
+    border-color: rgba(76, 175, 80, 0.8);
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
 }
 
 .metronome-display-time-signature {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     font-size: 12px;
     color: rgba(255, 255, 255, 0.7);
 }
 
-.metronome-display-ts {
+.metronome-display-ts-input {
+    width: 32px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+    cursor: text;
+    pointer-events: auto;
+}
+
+.metronome-display-ts-input:focus {
+    border-color: rgba(76, 175, 80, 0.8);
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+}
+
+.metronome-display-ts-select {
+    width: 45px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.metronome-display-ts-select:focus {
+    border-color: rgba(76, 175, 80, 0.8);
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+}
+
+.metronome-display-ts-select option {
+    background: rgba(0, 0, 0, 0.9);
+    color: #ffffff;
+}
+
+.metronome-display-ts-separator {
     font-weight: 600;
 }
 

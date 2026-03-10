@@ -397,23 +397,23 @@ const Metronome: React.FC = () => {
                                         <button
                                             className="time-signature-button"
                                             onClick={() => {
-                                                if (timeSignature > 2) {
+                                                if (timeSignature > 1) {
                                                     dispatch(setTimeSignature(timeSignature - 1));
                                                 }
                                             }}
-                                            disabled={isPlaying || timeSignature <= 2}
+                                            disabled={isPlaying || timeSignature <= 1}
                                         >
                                             −
                                         </button>
                                         <input
                                             type="number"
                                             className="time-signature-input"
-                                            min="2"
+                                            min="1"
                                             max="19"
                                             value={timeSignature}
                                             onChange={(e) => {
                                                 const value = parseInt(e.target.value, 10);
-                                                if (!isNaN(value) && value >= 2 && value <= 19) {
+                                                if (!isNaN(value) && value >= 1 && value <= 19) {
                                                     dispatch(setTimeSignature(value));
                                                 }
                                             }}

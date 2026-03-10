@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
     setIsPlaying,
+    setBpm,
+    setTimeSignature,
+    setTimeSignatureDenom,
     Subdivision,
 } from '@/store/slices/metronomeSlice';
 import './MetronomeDisplay.css';
@@ -23,6 +26,15 @@ const MetronomeDisplay: React.FC = () => {
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
 
+    // Local input state for inline editing
+    const [bpmInput, setBpmInput] = useState<string>(bpm.toString());
+    const [tsNumInput, setTsNumInput] = useState<string>(timeSignature.toString());
+    const [tsDenomInput, setTsDenomInput] = useState<string>(timeSignatureDenom.toString());
+
+    const bpmInputRef = useRef<HTMLInputElement | null>(null);
+    const tsNumInputRef = useRef<HTMLSelectElement | null>(null);
+    const tsDenomInputRef = useRef<HTMLSelectElement | null>(null);
+
     // Initialize AudioContext
     useEffect(() => {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -32,6 +44,23 @@ const MetronomeDisplay: React.FC = () => {
             }
         };
     }, []);
+
+    // Keep local BPM input in sync with store when not focused
+    useEffect(() => {
+        if (bpmInputRef.current !== document.activeElement) {
+            setBpmInput(bpm.toString());
+        }
+    }, [bpm]);
+
+    // Keep local time signature numerator in sync
+    useEffect(() => {
+        setTsNumInput(timeSignature.toString());
+    }, [timeSignature]);
+
+    // Keep local time signature denominator in sync
+    useEffect(() => {
+        setTsDenomInput(timeSignatureDenom.toString());
+    }, [timeSignatureDenom]);
 
     // Calculate beats per measure and interval timing
     const getSubdivisionConfig = (sub: Subdivision, ts: number, tsDenom: number) => {
@@ -52,6 +81,64 @@ const MetronomeDisplay: React.FC = () => {
                 return { beatsPerMeasure: beatsPerMeasure * 3, intervalMultiplier: 1 / 3 };
             default:
                 return { beatsPerMeasure: beatsPerMeasure, intervalMultiplier: 1 };
+        }
+    };
+
+    const handleInlineBpmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        // Always update local state to allow typing
+        setBpmInput(value);
+
+        // Only dispatch to Redux if the value is valid and within range
+        // This allows typing intermediate values like "4" when typing "45"
+        if (value !== '') {
+            const num = parseInt(value, 10);
+            if (!isNaN(num) && num >= 30 && num <= 400) {
+                dispatch(setBpm(num));
+            }
+        }
+    };
+
+    const handleBpmInputClick = (e: React.MouseEvent<HTMLInputElement>) => {
+        // Stop propagation to prevent any parent handlers
+        e.stopPropagation();
+        // Ensure input is focused and selectable
+        e.currentTarget.focus();
+        e.currentTarget.select();
+    };
+
+    const handleBpmInputMouseDown = (e: React.MouseEvent<HTMLInputElement>) => {
+        // Stop propagation to prevent any parent handlers
+        e.stopPropagation();
+    };
+
+    const handleInlineBpmBlur = () => {
+        const num = parseInt(bpmInput, 10);
+        if (isNaN(num)) {
+            // Revert to store value
+            setBpmInput(bpm.toString());
+            return;
+        }
+        const clamped = Math.max(30, Math.min(400, num));
+        dispatch(setBpm(clamped));
+        setBpmInput(clamped.toString());
+    };
+
+    const handleInlineTsNumChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        const num = parseInt(value, 10);
+        if (!isNaN(num) && num >= 1 && num <= 19) {
+            setTsNumInput(value);
+            dispatch(setTimeSignature(num));
+        }
+    };
+
+    const handleInlineTsDenomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        const num = parseInt(value, 10);
+        if (!isNaN(num) && [2, 4, 8, 16].includes(num)) {
+            setTsDenomInput(value);
+            dispatch(setTimeSignatureDenom(num));
         }
     };
 
@@ -264,10 +351,44 @@ const MetronomeDisplay: React.FC = () => {
             <div className="metronome-display-content">
                 <div className="metronome-display-bpm">
                     <span className="metronome-display-label">BPM:</span>
-                    <span className="metronome-display-value">{bpm}</span>
+                    <input
+                        ref={bpmInputRef}
+                        type="number"
+                        className="metronome-display-bpm-input"
+                        value={bpmInput}
+                        min={30}
+                        max={400}
+                        onChange={handleInlineBpmChange}
+                        onBlur={handleInlineBpmBlur}
+                        onClick={handleBpmInputClick}
+                        onMouseDown={handleBpmInputMouseDown}
+                        onFocus={(e) => e.target.select()}
+                        style={{ pointerEvents: 'auto', zIndex: 10003 }}
+                    />
                 </div>
                 <div className="metronome-display-time-signature">
-                    <span className="metronome-display-ts">{timeSignature}/{timeSignatureDenom}</span>
+                    <select
+                        ref={tsNumInputRef}
+                        className="metronome-display-ts-select"
+                        value={tsNumInput}
+                        onChange={handleInlineTsNumChange}
+                    >
+                        {Array.from({ length: 19 }, (_, i) => i + 1).map(num => (
+                            <option key={num} value={num.toString()}>{num}</option>
+                        ))}
+                    </select>
+                    <span className="metronome-display-ts-separator">/</span>
+                    <select
+                        ref={tsDenomInputRef}
+                        className="metronome-display-ts-select"
+                        value={tsDenomInput}
+                        onChange={handleInlineTsDenomChange}
+                    >
+                        <option value="2">2</option>
+                        <option value="4">4</option>
+                        <option value="8">8</option>
+                        <option value="16">16</option>
+                    </select>
                 </div>
                 <button
                     className={`metronome-display-button ${isPlaying ? 'playing' : ''}`}
@@ -276,6 +397,7 @@ const MetronomeDisplay: React.FC = () => {
                 >
                     {isPlaying ? '⏸' : '▶'}
                 </button>
+             
             </div>
         </div>
     );
