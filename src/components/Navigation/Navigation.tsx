@@ -10,18 +10,18 @@ export const Navigation: React.FC = () => {
         </NavLink>
       </div>
       <div className="nav-links">
-        <NavLink
+        {/* <NavLink
           to="/"
           className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
         >
           🏠 Home
-        </NavLink>
-        <NavLink
+        </NavLink> */}
+        {/* <NavLink
           to="/hometest"
           className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
         >
           🏠 HomeTest
-        </NavLink>
+        </NavLink> */}
         <NavLink
           to="/about"
           className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}

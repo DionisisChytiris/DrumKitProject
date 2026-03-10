@@ -301,7 +301,7 @@ const Practice: React.FC = () => {
                 <div className="practice-back-home-button">
                     <button
                         className="practice-back-home-link"
-                        onClick={() => navigate('/hometest')}
+                        onClick={() => navigate('/')}
                     >
                         🥁 Drum Kit Learning Platform
                     </button>

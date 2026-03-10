@@ -1,32 +1,29 @@
 import { Routes, Route } from 'react-router-dom';
-import { Navigation } from './components/Navigation/Navigation';
-import { HomeScreen } from './screens/Home';
-import { AboutScreen } from './screens/About';
-import { SettingsScreen } from './screens/Settings';
 import './App.css';
-import HomeTest from './screens/HomeTest';
+import HomeScreen from './screens/HomeScreen';
 import Practice from './screens/Practice';
 import Metronome from './screens/Metronome';
 import Exercises from './screens/Exercises';
 import Progress from './screens/Progress';
 import ConnectMIDI from './screens/ConnectMIDI'
+import About from './screens/About';
+import Settings from './screens/Settings';
 
 function App() {
   return (
     <div className="app">
-      {/* <Navigation /> */}
       
       <main className="app-main">
         <Routes>
           <Route path="/" element={<HomeScreen />} />
-          <Route path="/hometest" element={<HomeTest />} />
+          {/* <Route path="/hometest" element={<HomeTest />} /> */}
           <Route path="/practice" element={<Practice />} />
           <Route path="/metronome" element={<Metronome />} />
           <Route path="/exercises" element={<Exercises />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/connectmidi" element={<ConnectMIDI />} />
-          <Route path="/about" element={<AboutScreen />} />
-          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/about" element={<About/>} />
+          <Route path="/settings" element={<Settings/>} />
         </Routes>
       </main>
 

@@ -629,7 +629,7 @@ const Metronome: React.FC = () => {
                     </div>
 
                     {/* Settings Container - Right Side */}
-                    <div className="settings-container">
+                    <div className="metronome-settings-container">
                         <div className="settings-control">
                             <label>Volume</label>
                             <div className="volume-control">

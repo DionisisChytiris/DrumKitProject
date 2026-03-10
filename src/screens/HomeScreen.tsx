@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './styles/HomeTest.css';
 import {Navigation} from '../components/Navigation'
 
-const HomeTest: React.FC = ()=>{
+const HomeScreen: React.FC = ()=>{
     const navigate = useNavigate();
 
     return (
@@ -47,4 +47,4 @@ const HomeTest: React.FC = ()=>{
     )
 }
 
-export default HomeTest;
+export default HomeScreen;
