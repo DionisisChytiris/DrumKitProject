@@ -130,4 +130,33 @@ export const exercises: ExerciseDefinition[] = [
       });
     }
   },
+
+  // Exercise 6: Hi-Hat Triplets
+  {
+    id: 6,
+    title: "Exercise 6: Hi-Hat Triplets",
+    description: "Simple hi-hat triplet pattern - three notes per beat",
+    timeSignature: 4,
+    bars: 4,
+    noteDuration: "8t", // 8th note triplets
+    pattern: (beat, position) => {
+      const keys: string[] = [];
+      
+      // Hi-hat on all triplet positions (every position in triplet subdivision)
+      // For triplets: 12 positions per bar (0-11), 3 per beat
+      keys.push("x/5");
+      
+      // Optional: Add kick on beat 1 and snare on beat 3 for reference
+      // For triplets: beat 1 = positions 0,1,2; beat 3 = positions 6,7,8
+      if (beat === 1 && position === 0) keys.push("f/2"); // kick on beat 1, first triplet
+      if (beat === 3 && position === 6) keys.push("c/3"); // snare on beat 3, first triplet
+      
+      return keys.map(key => {
+        if (key === "x/5") return { key, line: 5, customNoteHead: true };
+        if (key === "c/3") return { key, line: 3.5 };
+        if (key === "f/2") return { key, line: 1.5 };
+        return { key, line: 4 };
+      });
+    }
+  },
 ];

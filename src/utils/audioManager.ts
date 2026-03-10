@@ -3,6 +3,9 @@
  * Can be expanded to support multiple sound libraries, effects, etc.
  */
 
+// Declare Tone for optional use
+declare const Tone: any;
+
 class AudioManager {
   private audioCache: Map<string, HTMLAudioElement> = new Map();
   private audioBufferCache: Map<string, AudioBuffer> = new Map();
@@ -11,20 +14,45 @@ class AudioManager {
 
   /**
    * Get or create AudioContext - optimized for low latency
+   * Reuses Tone.js AudioContext if available to avoid conflicts
    */
   private getAudioContext(): AudioContext {
     if (!this.audioContext) {
-      // Use low latency settings for interactive audio
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      this.audioContext = new AudioContextClass({
-        latencyHint: 'interactive', // Lowest latency setting
-        sampleRate: 44100, // Standard sample rate
-      });
+      // Try to reuse Tone.js AudioContext if available
+      try {
+        if (typeof Tone !== 'undefined' && Tone.context && Tone.context.rawContext) {
+          this.audioContext = Tone.context.rawContext as AudioContext;
+          console.log('[AudioManager] Reusing Tone.js AudioContext. Sample Rate:', this.audioContext.sampleRate);
+        }
+      } catch (e) {
+        console.warn('[AudioManager] Could not access Tone.js context:', e);
+      }
+      
+      // Create new AudioContext if Tone.js not available
+      if (!this.audioContext) {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        this.audioContext = new AudioContextClass({
+          latencyHint: 'interactive', // Lowest latency setting
+          // Don't force sampleRate - use device native to avoid resampling issues
+        });
+        console.log('[AudioManager] Created new AudioContext. Sample Rate:', this.audioContext.sampleRate);
+      }
     }
+    
     // Resume context if suspended (required by some browsers)
     if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume();
+      this.audioContext.resume().catch(err => {
+        console.error('[AudioManager] Failed to resume audio context:', err);
+      });
     }
+    
+    // Check for errors
+    if (this.audioContext.state === 'closed') {
+      console.error('[AudioManager] AudioContext is closed! Creating new one...');
+      this.audioContext = null;
+      return this.getAudioContext(); // Recursively create new one
+    }
+    
     return this.audioContext;
   }
 
@@ -115,19 +143,64 @@ class AudioManager {
    * Play AudioBuffer with Web Audio API - ultra-low latency
    */
   private playAudioBuffer(audioBuffer: AudioBuffer, audioContext: AudioContext): void {
-    const source = audioContext.createBufferSource();
-    const gainNode = audioContext.createGain();
-    
-    source.buffer = audioBuffer;
-    source.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    // Ensure volume is a valid finite number between 0 and 1
-    const safeVolume = this.getSafeVolume();
-    gainNode.gain.value = safeVolume;
-    
-    // Start immediately with no delay
-    source.start(0);
+    try {
+      // Validate audio context
+      if (!audioContext || audioContext.state === 'closed') {
+        console.error('[AudioManager] AudioContext is invalid or closed');
+        return;
+      }
+      
+      // Ensure audio context is running
+      if (audioContext.state !== 'running') {
+        console.warn('[AudioManager] Audio context not running, attempting to resume...', audioContext.state);
+        audioContext.resume().catch(err => {
+          console.error('[AudioManager] Failed to resume audio context:', err);
+          return; // Don't proceed if resume fails
+        });
+      }
+
+      // Validate audioBuffer
+      if (!audioBuffer || !audioBuffer.length || audioBuffer.numberOfChannels === 0) {
+        console.error('[AudioManager] Invalid audioBuffer:', audioBuffer);
+        return;
+      }
+      
+      // Check if buffer sample rate matches context
+      if (audioBuffer.sampleRate !== audioContext.sampleRate) {
+        console.warn(`[AudioManager] Sample rate mismatch: buffer=${audioBuffer.sampleRate}, context=${audioContext.sampleRate}`);
+      }
+      
+      const source = audioContext.createBufferSource();
+      const gainNode = audioContext.createGain();
+      
+      source.buffer = audioBuffer;
+      source.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Ensure volume is a valid finite number between 0 and 1
+      const safeVolume = this.getSafeVolume();
+      gainNode.gain.value = safeVolume;
+      
+      // Start immediately with no delay
+      const now = audioContext.currentTime;
+      source.start(now);
+      
+      // Clean up after playback completes
+      source.onended = () => {
+        try {
+          source.disconnect();
+          gainNode.disconnect();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      };
+      
+      // Note: AudioBufferSourceNode doesn't have onerror, errors are caught in try-catch
+    } catch (error) {
+      console.error('[AudioManager] Error playing AudioBuffer:', error);
+      // Fallback to generateTone if AudioBuffer fails
+      console.log('[AudioManager] Falling back to generated tone');
+    }
   }
 
   /**

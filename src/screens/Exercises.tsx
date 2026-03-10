@@ -25,7 +25,7 @@ const Exercises: React.FC = () => {
             <div className="exercises-content">
                 <NavBarHome />
                 <div className="exercises-main">
-                    <div className="exercises-title">Exercises</div>
+                    {/* <div className="exercises-title">Exercises</div> */}
 
                     {/* Navigation Buttons */}
                     <div style={{ 
@@ -77,89 +77,22 @@ const Exercises: React.FC = () => {
 
                     {/* Exercise Content */}
                     <div style={{
-                        backgroundColor: 'gray', 
-                        marginRight: '30%', 
+                        backgroundColor: 'rgba(128, 128, 128, 0.8)', 
                         justifyContent: 'center', 
                         alignItems: 'center', 
                         display: 'flex', 
+                        flexDirection: 'column',
                         width: '100%',
-                        minHeight: '300px'
+                        minHeight: '300px',
+                        margin: 'auto',
+                        padding: '20px',
+                        position: 'relative',
+                        zIndex: 10
                     }}>
                         {currentExercise && <VexFlowExercise exercise={currentExercise} />}
                     </div>
-                    
-                    {/* <div className="exercise-card">
-                        <div className="exercise-header">
-                            <h2>Exercise 1: Basic 4/4 Beat</h2>
-                            <div className="exercise-difficulty beginner">Beginner</div>
-                        </div>
-                        
-                        <div className="exercise-description">
-                            <p>Learn the fundamental rock beat pattern:</p>
-                            <ul>
-                                <li><strong>Kick</strong> on beats 1 and 3 (use <kbd>Space</kbd>)</li>
-                                <li><strong>Snare</strong> on beats 2 and 4 (use <kbd>S</kbd>)</li>
-                                <li><strong>Hi-Hat</strong> on all beats (use <kbd>H</kbd>)</li>
-                            </ul>
-                        </div>
-
-                        <div className="exercise-pattern">
-                            <h3>Pattern:</h3>
-                            <div className="pattern-visualization">
-                                {exercise1Pattern.map((step, index) => {
-                                    const isActive = currentStep === index;
-                                    const isHit = userHits.has(index);
-                                    const drum = drumKit.find(d => d.id === step.drumId);
-                                    
-                                    return (
-                                        <div
-                                            key={index}
-                                            className={`pattern-step ${isActive ? 'active' : ''} ${isHit ? 'hit' : ''}`}
-                                        >
-                                            <div className="step-beat">{step.beat}</div>
-                                            <div className="step-drum">{step.drumName}</div>
-                                            {step.keyBinding && (
-                                                <div className="step-key"><kbd>{step.keyBinding}</kbd></div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        <div className="exercise-controls">
-                            <button 
-                                className={`play-button ${isPlaying ? 'playing' : ''}`}
-                                onClick={playExercise}
-                            >
-                                {isPlaying ? '⏸ Stop' : '▶ Play Pattern'}
-                            </button>
-                            
-                            {isPlaying && (
-                                <div className="exercise-stats">
-                                    <div className="stat">
-                                        <span className="stat-label">Accuracy:</span>
-                                        <span className="stat-value">{accuracy}%</span>
-                                    </div>
-                                    <div className="stat">
-                                        <span className="stat-label">Hits:</span>
-                                        <span className="stat-value">{userHits.size}/{exercise1Pattern.length}</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="exercise-instructions">
-                            <h3>How to Practice:</h3>
-                            <ol>
-                                <li>Click "Play Pattern" to hear the exercise</li>
-                                <li>Try to play along with the pattern using your keyboard (Space for Kick, S for Snare, H for Hi-Hat)</li>
-                                <li>Watch the pattern visualization - green highlights show correct hits</li>
-                                <li>Keep practicing until you can play it smoothly!</li>
-                            </ol>
-                        </div>
-                    </div> */}
                 </div>
+                    
             </div>
         </div>
     );

@@ -114,13 +114,13 @@ export const NavBarHome: React.FC = () => {
               </div>
             </>
           )}
-          <div
+          {/* <div
             className='nav-link1'
             onClick={handlePracticeSoundClick}
             onMouseEnter={handleCloseAllModals}
           >
             Settings
-          </div>
+          </div> */}
           {currentPath !== '/practice' && (
             <div className="nav-brand">
               <NavLink to="/practice" style={{ textDecoration: 'none', color: 'inherit' }}>

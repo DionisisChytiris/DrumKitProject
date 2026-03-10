@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './styles/HomeTest.css';
+import './styles/HomeScreen.css';
 import {Navigation} from '../components/Navigation'
 
 const HomeScreen: React.FC = ()=>{

@@ -151,6 +151,19 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
     }
   }, [drumKit, pattern]);
 
+  // Pre-decode all audio files when component mounts or drumKit changes
+  useEffect(() => {
+    // Pre-decode all drum audio files to AudioBuffer for better quality and reliability
+    drumKit.forEach(drum => {
+      if (drum.audioUrl) {
+        // Pre-decode to AudioBuffer for better quality
+        enhancedAudioManager.preloadAudio(drum.id, drum.audioUrl).catch(err => {
+          console.warn(`Failed to preload audio for ${drum.id}:`, err);
+        });
+      }
+    });
+  }, [drumKit]);
+
   // Close clear dialog when clicking outside
   const clearDialogRef = useRef<HTMLDivElement>(null);
   useEffect(() => {

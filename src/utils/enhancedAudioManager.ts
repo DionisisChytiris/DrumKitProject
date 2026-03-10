@@ -33,8 +33,8 @@ class EnhancedAudioManager {
   };
 
   private globalSettings: EffectSettings = {
-    reverb: 0.1,
-    compression: 0.3,
+    reverb: 0, // Disable reverb by default for clearer sound
+    compression: 0, // Disable compression by default for better quality
     eq: { low: 0, mid: 0, high: 0 },
     pan: 0,
     volume: 1.0, // Set to 1.0 - individual drum volumes from mixer control the output
@@ -45,14 +45,20 @@ class EnhancedAudioManager {
 
   /**
    * Initialize audio context and effects
+   * Uses a single AudioContext to avoid quality degradation from multiple contexts
    */
   private initializeAudioContext(): AudioContext {
     if (!this.audioContext) {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      
+      // Use the device's native sample rate instead of forcing 44100
+      // This prevents resampling which can degrade audio quality
       this.audioContext = new AudioContextClass({
         latencyHint: 'interactive', // Low latency for real-time playback
-        sampleRate: 44100,
+        // Don't specify sampleRate - let browser use native rate to avoid resampling
       });
+      
+      console.log('[EnhancedAudioManager] Created AudioContext, sampleRate:', this.audioContext.sampleRate);
       
       // Create master gain - set to 1.0 so individual drum volumes control the output
       // Individual drum volumes in the mixer should be the primary volume control
@@ -60,13 +66,14 @@ class EnhancedAudioManager {
       this.masterGain.gain.value = 1.0; // Always 1.0 - let individual drum volumes control output
       this.masterGain.connect(this.audioContext.destination);
 
-      // Create master compressor
+      // Create master compressor - set to pass-through (no compression) when disabled
       this.masterCompressor = this.audioContext.createDynamicsCompressor();
-      this.masterCompressor.threshold.value = -24;
-      this.masterCompressor.knee.value = 30;
-      this.masterCompressor.ratio.value = 12;
-      this.masterCompressor.attack.value = 0.003;
-      this.masterCompressor.release.value = 0.25;
+      // Set to essentially bypass (threshold at 0, ratio 1:1 = no compression)
+      this.masterCompressor.threshold.value = 0; // Very high threshold = no compression
+      this.masterCompressor.knee.value = 0; // No knee
+      this.masterCompressor.ratio.value = 1; // 1:1 ratio = no compression (pass-through)
+      this.masterCompressor.attack.value = 0.001;
+      this.masterCompressor.release.value = 0.001;
 
       // Create master EQ
       this.masterEQ.low = this.audioContext.createBiquadFilter();
@@ -85,20 +92,36 @@ class EnhancedAudioManager {
       this.masterEQ.high.frequency.value = 5000;
       this.masterEQ.high.gain.value = 0;
 
-      // Connect EQ chain
+      // Connect EQ chain - but make compressor optional
       this.masterEQ.low.connect(this.masterEQ.mid);
       this.masterEQ.mid.connect(this.masterEQ.high);
-      this.masterEQ.high.connect(this.masterCompressor);
-      this.masterCompressor.connect(this.masterGain);
+      // Only connect compressor if compression is enabled
+      if (this.globalSettings.compression > 0) {
+        this.masterEQ.high.connect(this.masterCompressor);
+        this.masterCompressor.connect(this.masterGain);
+      } else {
+        // Bypass compressor for cleaner sound when disabled
+        this.masterEQ.high.connect(this.masterGain);
+      }
 
-      // Create reverb (using impulse response simulation)
-      this.masterReverb = this.audioContext.createConvolver();
-      this.createReverbImpulse();
-      this.masterReverb.connect(this.masterEQ.low);
+      // Create reverb (using impulse response simulation) - only if reverb is enabled
+      if (this.globalSettings.reverb > 0) {
+        this.masterReverb = this.audioContext.createConvolver();
+        this.createReverbImpulse();
+        this.masterReverb.connect(this.masterEQ.low);
+      }
     }
 
+    // Ensure audio context is running - critical for continuous playback
     if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume();
+      this.audioContext.resume().catch(err => {
+        console.error('[EnhancedAudioManager] Failed to resume audio context:', err);
+      });
+    }
+    
+    // Monitor audio context state to prevent it from suspending
+    if (this.audioContext.state !== 'running') {
+      console.warn('[EnhancedAudioManager] Audio context not running, state:', this.audioContext.state);
     }
 
     return this.audioContext;
@@ -140,59 +163,42 @@ class EnhancedAudioManager {
   ): void {
     try {
       const audioContext = this.initializeAudioContext();
-      // Get drum-specific settings - ALWAYS get fresh from the Map
-      let drumSettings = this.drumSettings.get(soundId);
       
-      // Debug: check what's in the Map - THIS IS CRITICAL FOR DEBUGGING
-      console.log(`[EnhancedAudioManager] playSound for ${soundId} - RETRIEVING SETTINGS:`, {
-        'hasSettings': !!drumSettings,
-        'settings from Map': drumSettings,
-        'settings.volume (if exists)': drumSettings?.volume,
-        'allDrumIds in Map': Array.from(this.drumSettings.keys()),
-        'snareSettings': this.drumSettings.get('snare'),
-        'kickSettings': this.drumSettings.get('kick'),
-        'ALL SETTINGS IN MAP': Array.from(this.drumSettings.entries()).map(([id, s]) => ({ id, volume: s.volume }))
-      });
-      
-      if (soundId === 'snare') {
-        console.log(`[EnhancedAudioManager] 🔍 SNARE - playSound called, retrieving settings:`, {
-          'soundId': soundId,
-          'hasSettings in Map?': !!drumSettings,
-          'settings from Map': drumSettings,
-          'settings.volume': drumSettings?.volume,
-          'Map has snare?': this.drumSettings.has('snare'),
-          'All entries in Map': Array.from(this.drumSettings.entries()).map(([id, s]) => ({ id, volume: s.volume }))
+      // CRITICAL: Ensure audio context stays running
+      if (audioContext.state !== 'running') {
+        console.warn('[EnhancedAudioManager] Audio context not running, attempting to resume...', audioContext.state);
+        audioContext.resume().catch(err => {
+          console.error('[EnhancedAudioManager] Failed to resume audio context:', err);
         });
       }
       
+      // If velocity is 0, this is a preload call - just decode, don't play
+      if (velocity === 0 && audioUrl) {
+        this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+          // Silent fail
+        });
+        return;
+      }
+      
+      // Get drum-specific settings - ALWAYS get fresh from the Map
+      let drumSettings = this.drumSettings.get(soundId);
+      
       // If no drum settings exist, create default with volume 0.8 (audible by default)
       if (!drumSettings) {
-        console.warn(`[EnhancedAudioManager] ⚠️ No settings found for ${soundId} in Map! Creating defaults with volume 0.8`);
         drumSettings = {
           volume: 0.8, // Start at 0.8 so drums are audible by default
           pan: 0,
-          reverb: 0.1,
-          compression: 0.2,
+          reverb: 0,
+          compression: 0,
           eq: { low: 0, mid: 0, high: 0 },
         };
         this.drumSettings.set(soundId, drumSettings);
-        console.log(`[EnhancedAudioManager] Created default settings for ${soundId}:`, drumSettings);
       }
       
       // Use drum settings, merge with provided settings if any
       const finalSettings: EffectSettings = settings 
         ? { ...drumSettings, ...settings }
         : drumSettings;
-      
-      // Debug: verify we're using the correct settings - THIS IS THE VOLUME THAT WILL BE USED
-      console.log(`[EnhancedAudioManager] playSound for ${soundId} - FINAL SETTINGS TO USE:`, {
-        'drumSettings from Map': drumSettings,
-        'finalSettings': finalSettings,
-        'VOLUME FROM MAP': drumSettings.volume,
-        'FINAL VOLUME TO USE': finalSettings.volume,
-        'pan': finalSettings.pan,
-        '⚠️ THIS VOLUME WILL BE APPLIED TO GAIN NODE': finalSettings.volume
-      });
 
       // Apply velocity sensitivity - this affects the volume
       // velocity is typically 1.0, so velocityMultiplier will be around 0.7-1.0
@@ -263,151 +269,175 @@ class EnhancedAudioManager {
     settings: EffectSettings,
     audioContext: AudioContext
   ): void {
+    // ALWAYS prefer AudioBuffer for better reliability and quality
     const audioBuffer = this.audioBufferCache.get(soundId);
     
     if (audioBuffer) {
-      // Use pre-decoded AudioBuffer for instant playback (lowest latency)
+      // Use pre-decoded AudioBuffer for instant playback (lowest latency, most reliable)
       this.playAudioBufferWithEffects(soundId, audioBuffer, velocity, settings, audioContext);
-    } else {
-      // Fallback to HTML Audio if buffer not ready yet
-      let audio = this.audioCache.get(soundId);
-      
-      if (!audio || (audio.src && audio.src !== audioUrl && !audioUrl.startsWith('blob:'))) {
-        audio = new Audio(audioUrl);
-        audio.preload = 'auto';
-        this.audioCache.set(soundId, audio);
-      }
-
-      if (audio.readyState < 2) {
-        audio.load();
-      }
-
-      // Create Web Audio API source from the audio element
-      const source = audioContext.createMediaElementSource(audio);
-      
-      // Build effects chain
-      const gainNode = audioContext.createGain();
-      const panNode = audioContext.createStereoPanner();
-      
-      // Apply volume (drum volume is the PRIMARY control)
-      // settings.volume is 0-1 from the mixer slider - THIS IS THE INDIVIDUAL DRUM VOLUME
-      // velocity is a multiplier (typically 0.7-1.0) for velocity sensitivity
-      const safeVolume = this.getSafeVolume(settings.volume);
-      const safeVelocity = Number.isFinite(velocity) && !isNaN(velocity) ? velocity : 1.0;
-      const finalVolume = safeVolume * safeVelocity;
-      
-      // CRITICAL: Set the gain value - this controls the actual volume for this individual drum
-      // If settings.volume is 0, this drum should be SILENT
-      gainNode.gain.value = finalVolume;
-      
-      // Verify the gain was set correctly
-      const actualGainValue = gainNode.gain.value;
-      
-      // Debug: verify volume is being set correctly
-      console.log(`[EnhancedAudioManager] playAudioFile VOLUME for ${soundId}:`, {
-        'settings.volume (INDIVIDUAL DRUM VOLUME from mixer)': settings.volume,
-        'safeVolume': safeVolume,
-        'velocity (multiplier)': velocity,
-        'safeVelocity': safeVelocity,
-        'finalVolume (calculated)': finalVolume,
-        'gainNode.gain.value (ACTUAL - THIS CONTROLS INDIVIDUAL DRUM)': actualGainValue,
-        'WILL BE AUDIBLE?': actualGainValue > 0.001,
-        'VOLUME IS ZERO?': actualGainValue === 0,
-        'MASTER GAIN VALUE': this.masterGain?.gain.value,
-        'FINAL OUTPUT WILL BE': actualGainValue * (this.masterGain?.gain.value || 1.0)
+      return;
+    }
+    
+    // If buffer not ready, try to decode it asynchronously for next time
+    // But use HTML Audio as fallback for now
+    if (audioUrl) {
+      // Try to decode in background for next playback
+      this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+        // Silent fail - will use HTML Audio fallback
       });
+    }
+    
+    // Fallback to HTML Audio if buffer not ready yet
+    let audio = this.audioCache.get(soundId);
+    
+    if (!audio || (audio.src && audio.src !== audioUrl && !audioUrl.startsWith('blob:'))) {
+      audio = new Audio(audioUrl);
+      audio.preload = 'auto';
+      this.audioCache.set(soundId, audio);
+    }
+
+    if (audio.readyState < 2) {
+      audio.load();
+    }
+
+    // CRITICAL: createMediaElementSource can only be called once per audio element
+    // We must clone the audio element for each playback to avoid this limitation
+    const audioClone = audio.cloneNode() as HTMLAudioElement;
+    audioClone.src = audio.src;
+    audioClone.volume = audio.volume;
+    
+    // Create source from the clone (each clone can have its own source)
+    const source = audioContext.createMediaElementSource(audioClone);
+    
+    // Use the clone for playback
+    audio = audioClone;
+    
+    // Build effects chain
+    const gainNode = audioContext.createGain();
+    const panNode = audioContext.createStereoPanner();
+    
+    // Apply volume (drum volume is the PRIMARY control)
+    // settings.volume is 0-1 from the mixer slider - THIS IS THE INDIVIDUAL DRUM VOLUME
+    // velocity is a multiplier (typically 0.7-1.0) for velocity sensitivity
+    const safeVolume = this.getSafeVolume(settings.volume);
+    const safeVelocity = Number.isFinite(velocity) && !isNaN(velocity) ? velocity : 1.0;
+    const finalVolume = safeVolume * safeVelocity;
+    
+    // CRITICAL: Set the gain value - this controls the actual volume for this individual drum
+    // If settings.volume is 0, this drum should be SILENT
+    gainNode.gain.value = finalVolume;
+    
+    // Apply pan
+    panNode.pan.value = settings.pan;
+    
+    // Create individual drum effects chain (same as AudioBuffer path)
+    const drumEQ = {
+      low: audioContext.createBiquadFilter(),
+      mid: audioContext.createBiquadFilter(),
+      high: audioContext.createBiquadFilter(),
+    };
+    
+    drumEQ.low.type = 'lowshelf';
+    drumEQ.low.frequency.value = 200;
+    drumEQ.low.gain.value = settings.eq.low;
+    
+    drumEQ.mid.type = 'peaking';
+    drumEQ.mid.frequency.value = 1000;
+    drumEQ.mid.gain.value = settings.eq.mid;
+    drumEQ.mid.Q.value = 1;
+    
+    drumEQ.high.type = 'highshelf';
+    drumEQ.high.frequency.value = 5000;
+    drumEQ.high.gain.value = settings.eq.high;
+    
+    drumEQ.low.connect(drumEQ.mid);
+    drumEQ.mid.connect(drumEQ.high);
+    
+    // Apply reverb and compression if enabled
+    let lastNode: AudioNode = drumEQ.high;
+    if (settings.reverb > 0) {
+      const drumReverb = audioContext.createConvolver();
+      const reverbGain = audioContext.createGain();
+      const dryGain = audioContext.createGain();
       
-      // TEST: If volume is 0, the sound should be completely silent
-      if (settings.volume === 0) {
-        console.warn(`[EnhancedAudioManager] ⚠️ VOLUME IS 0 for ${soundId} - sound should be SILENT!`);
+      const reverbLength = audioContext.sampleRate * (0.5 + settings.reverb * 1.5);
+      const reverbImpulse = audioContext.createBuffer(2, reverbLength, audioContext.sampleRate);
+      const reverbL = reverbImpulse.getChannelData(0);
+      const reverbR = reverbImpulse.getChannelData(1);
+      
+      for (let i = 0; i < reverbLength; i++) {
+        const n = reverbLength - i;
+        reverbL[i] = (Math.random() * 2 - 1) * Math.pow(n / reverbLength, 2) * settings.reverb;
+        reverbR[i] = (Math.random() * 2 - 1) * Math.pow(n / reverbLength, 2) * settings.reverb;
       }
       
-      // If volume is 0, the sound should be silent
-      if (settings.volume === 0) {
-        console.warn(`[EnhancedAudioManager] WARNING: Volume is 0 for ${soundId} - sound should be SILENT!`);
-      }
+      drumReverb.buffer = reverbImpulse;
+      reverbGain.gain.value = settings.reverb * 0.5;
+      dryGain.gain.value = 1 - (settings.reverb * 0.3);
       
-      // Apply pan
-      panNode.pan.value = settings.pan;
+      lastNode.connect(dryGain);
+      lastNode.connect(reverbGain);
+      reverbGain.connect(drumReverb);
+      drumReverb.connect(dryGain);
       
-      // Create individual drum effects chain (same as AudioBuffer path)
-      const drumEQ = {
-        low: audioContext.createBiquadFilter(),
-        mid: audioContext.createBiquadFilter(),
-        high: audioContext.createBiquadFilter(),
-      };
+      const mergeGain = audioContext.createGain();
+      dryGain.connect(mergeGain);
+      lastNode = mergeGain;
+    }
+    
+    if (settings.compression > 0) {
+      const drumCompressor = audioContext.createDynamicsCompressor();
+      drumCompressor.threshold.value = -24 - (settings.compression * 20);
+      drumCompressor.knee.value = 30;
+      drumCompressor.ratio.value = 4 + (settings.compression * 8);
+      drumCompressor.attack.value = 0.003;
+      drumCompressor.release.value = 0.25;
       
-      drumEQ.low.type = 'lowshelf';
-      drumEQ.low.frequency.value = 200;
-      drumEQ.low.gain.value = settings.eq.low;
-      
-      drumEQ.mid.type = 'peaking';
-      drumEQ.mid.frequency.value = 1000;
-      drumEQ.mid.gain.value = settings.eq.mid;
-      drumEQ.mid.Q.value = 1;
-      
-      drumEQ.high.type = 'highshelf';
-      drumEQ.high.frequency.value = 5000;
-      drumEQ.high.gain.value = settings.eq.high;
-      
-      drumEQ.low.connect(drumEQ.mid);
-      drumEQ.mid.connect(drumEQ.high);
-      
-      // Apply reverb and compression if enabled
-      let lastNode: AudioNode = drumEQ.high;
-      if (settings.reverb > 0) {
-        const drumReverb = audioContext.createConvolver();
-        const reverbGain = audioContext.createGain();
-        const dryGain = audioContext.createGain();
-        
-        const reverbLength = audioContext.sampleRate * (0.5 + settings.reverb * 1.5);
-        const reverbImpulse = audioContext.createBuffer(2, reverbLength, audioContext.sampleRate);
-        const reverbL = reverbImpulse.getChannelData(0);
-        const reverbR = reverbImpulse.getChannelData(1);
-        
-        for (let i = 0; i < reverbLength; i++) {
-          const n = reverbLength - i;
-          reverbL[i] = (Math.random() * 2 - 1) * Math.pow(n / reverbLength, 2) * settings.reverb;
-          reverbR[i] = (Math.random() * 2 - 1) * Math.pow(n / reverbLength, 2) * settings.reverb;
-        }
-        
-        drumReverb.buffer = reverbImpulse;
-        reverbGain.gain.value = settings.reverb * 0.5;
-        dryGain.gain.value = 1 - (settings.reverb * 0.3);
-        
-        lastNode.connect(dryGain);
-        lastNode.connect(reverbGain);
-        reverbGain.connect(drumReverb);
-        drumReverb.connect(dryGain);
-        
-        const mergeGain = audioContext.createGain();
-        dryGain.connect(mergeGain);
-        lastNode = mergeGain;
-      }
-      
-      if (settings.compression > 0) {
-        const drumCompressor = audioContext.createDynamicsCompressor();
-        drumCompressor.threshold.value = -24 - (settings.compression * 20);
-        drumCompressor.knee.value = 30;
-        drumCompressor.ratio.value = 4 + (settings.compression * 8);
-        drumCompressor.attack.value = 0.003;
-        drumCompressor.release.value = 0.25;
-        
-        lastNode.connect(drumCompressor);
-        lastNode = drumCompressor;
-      }
-      
-      // Connect: source -> gain -> pan -> drumEQ -> (drumReverb) -> (drumCompressor) -> master chain
-      source.connect(gainNode);
-      gainNode.connect(panNode);
+      lastNode.connect(drumCompressor);
+      lastNode = drumCompressor;
+    }
+    
+    // Connect: source -> gain -> pan -> drumEQ -> (drumReverb) -> (drumCompressor) -> master chain
+    source.connect(gainNode);
+    gainNode.connect(panNode);
+    
+    // If no effects are enabled, bypass the EQ chain and go directly to master gain for cleaner sound
+    if (!this.masterGain) {
+      console.error('[EnhancedAudioManager] Master gain not initialized!');
+      return;
+    }
+    
+    const hasEffects = settings.reverb > 0 || settings.compression > 0 || 
+                       settings.eq.low !== 0 || settings.eq.mid !== 0 || settings.eq.high !== 0 ||
+                       this.globalSettings.reverb > 0 || this.globalSettings.compression > 0;
+    
+    if (!hasEffects && this.masterGain) {
+      // Direct path: pan -> master gain (cleanest sound)
+      panNode.connect(this.masterGain);
+    } else if (this.masterEQ.low) {
+      // Effects path: pan -> drumEQ -> (effects) -> master chain
       panNode.connect(drumEQ.low);
-      lastNode.connect(this.masterEQ.low!);
-      
-      // Play the audio
-      audio.currentTime = 0;
-      audio.play().catch(console.warn);
-      
-      // Try to decode and cache for next time (async, non-blocking)
+      lastNode.connect(this.masterEQ.low);
+    } else {
+      // Fallback: direct to master gain if EQ chain not available
+      panNode.connect(this.masterGain);
+    }
+    
+    // Play the audio - ensure it plays and handle errors
+    audio.currentTime = 0;
+    audio.play().catch(err => {
+      console.error(`[EnhancedAudioManager] Failed to play audio for ${soundId}:`, err);
+      // If play fails, try to decode and use AudioBuffer next time
+      if (audioUrl) {
+        this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+          // Silent fail
+        });
+      }
+    });
+    
+    // Try to decode and cache for next time (async, non-blocking)
+    // This ensures future playbacks use AudioBuffer (more reliable)
+    if (audioUrl && !this.audioBufferCache.has(soundId)) {
       this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
         // Silent fail - will use HTML Audio fallback
       });
@@ -556,8 +586,29 @@ class EnhancedAudioManager {
     // Connect: source -> gain -> pan -> drumEQ -> (drumReverb) -> (drumCompressor) -> master chain
     source.connect(gainNode);
     gainNode.connect(panNode);
-    panNode.connect(drumEQ.low);
-    lastNode.connect(this.masterEQ.low!);
+    
+    // Always ensure master gain exists before connecting
+    if (!this.masterGain) {
+      console.error('[EnhancedAudioManager] Master gain not initialized!');
+      return;
+    }
+    
+    // If no effects are enabled, bypass the EQ chain and go directly to master gain for cleaner sound
+    const hasEffects = settings.reverb > 0 || settings.compression > 0 || 
+                       settings.eq.low !== 0 || settings.eq.mid !== 0 || settings.eq.high !== 0 ||
+                       this.globalSettings.reverb > 0 || this.globalSettings.compression > 0;
+    
+    if (!hasEffects && this.masterGain) {
+      // Direct path: pan -> master gain (cleanest sound)
+      panNode.connect(this.masterGain);
+    } else if (this.masterEQ.low) {
+      // Effects path: pan -> drumEQ -> (effects) -> master chain
+      panNode.connect(drumEQ.low);
+      lastNode.connect(this.masterEQ.low);
+    } else {
+      // Fallback: direct to master gain if EQ chain not available
+      panNode.connect(this.masterGain);
+    }
     
     // Debug: verify all settings are being applied
     console.log(`[EnhancedAudioManager] playAudioBufferWithEffects for ${soundId}:`, {
@@ -573,7 +624,6 @@ class EnhancedAudioManager {
     });
     
     // Start playback
-    source.start(0);
     source.start(0);
   }
 
@@ -893,6 +943,22 @@ class EnhancedAudioManager {
     );
 
     await Promise.allSettled(decodePromises);
+  }
+
+  /**
+   * Pre-decode audio file to AudioBuffer for better quality and reliability
+   * Call this when component mounts to ensure all audio is ready
+   */
+  async preloadAudio(soundId: string, audioUrl: string): Promise<void> {
+    if (this.audioBufferCache.has(soundId)) {
+      return; // Already decoded
+    }
+    try {
+      await this.decodeAndCacheAudio(soundId, audioUrl);
+      console.log(`[EnhancedAudioManager] Preloaded audio for ${soundId}`);
+    } catch (error) {
+      console.warn(`[EnhancedAudioManager] Failed to preload audio for ${soundId}:`, error);
+    }
   }
 }
 
