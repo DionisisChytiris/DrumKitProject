@@ -159,4 +159,35 @@ export const exercises: ExerciseDefinition[] = [
       });
     }
   },
+
+  // Exercise 7: 16th Note Hi-Hat Pattern
+  {
+    id: 7,
+    title: "Exercise 7: 16th Note Hi-Hat Pattern",
+    description: "16th note hi-hat pattern with kick and snare accents - four notes per beat",
+    timeSignature: 4,
+    bars: 4,
+    noteDuration: "16", // 16th notes
+    pattern: (beat, position) => {
+      const keys: string[] = [];
+      
+      // Hi-hat on all 16th note positions (every position in 16th note subdivision)
+      // For 16th notes: 16 positions per bar (0-15), 4 per beat
+      keys.push("x/5");
+      
+      // Kick on beat 1 (positions 0, 1, 2, 3) - accent on first 16th
+      if (beat === 1 && position === 0) keys.push("f/2");
+      
+      // Snare on beats 2 and 4 (positions 4, 5, 6, 7 and 12, 13, 14, 15) - accent on first 16th
+      if (beat === 2 && position === 4) keys.push("c/3");
+      if (beat === 4 && position === 12) keys.push("c/3");
+      
+      return keys.map(key => {
+        if (key === "x/5") return { key, line: 5, customNoteHead: true };
+        if (key === "c/3") return { key, line: 3.5 };
+        if (key === "f/2") return { key, line: 1.5 };
+        return { key, line: 4 };
+      });
+    }
+  },
 ];

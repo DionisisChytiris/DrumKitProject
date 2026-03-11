@@ -54,15 +54,23 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
     stave.setContext(ctx).draw();
 
     // Calculate total notes based on note duration
-    // For 8th notes: 8 per bar, for 8th note triplets (8t): 12 per bar
-    const notesPerBar = exercise.noteDuration === "8t" ? 12 : 8;
+    // For 8th notes: 8 per bar, for 8th note triplets (8t): 12 per bar, for 16th notes: 16 per bar
+    const notesPerBar = exercise.noteDuration === "8t" ? 12 : exercise.noteDuration === "16" ? 16 : 8;
     const totalNotes = exercise.bars * notesPerBar;
     const notes: StaveNote[] = [];
 
     for (let i = 0; i < totalNotes; i++) {
-      const beat = exercise.noteDuration === "8t" 
-        ? Math.floor(i % 12 / 3) + 1  // For triplets: 3 notes per beat, 12 per bar
-        : (i % 8) / 2 + 1;  // For 8th notes: 2 notes per beat, 8 per bar
+      let beat: number;
+      if (exercise.noteDuration === "8t") {
+        // For triplets: 3 notes per beat, 12 per bar
+        beat = Math.floor(i % 12 / 3) + 1;
+      } else if (exercise.noteDuration === "16") {
+        // For 16th notes: 4 notes per beat, 16 per bar
+        beat = Math.floor(i % 16 / 4) + 1;
+      } else {
+        // For 8th notes: 2 notes per beat, 8 per bar
+        beat = Math.floor(i % 8 / 2) + 1;
+      }
       const position = i % notesPerBar;
       const totalPosition = i;
 
@@ -144,6 +152,13 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
       for (let i = 0; i < hiHatNotes.length; i += 3) {
         if (i + 2 < hiHatNotes.length) {
           beams.push(new Beam(hiHatNotes.slice(i, i + 3)));
+        }
+      }
+    } else if (exercise.noteDuration === "16") {
+      // For 16th notes, beam groups of 4
+      for (let i = 0; i < hiHatNotes.length; i += 4) {
+        if (i + 3 < hiHatNotes.length) {
+          beams.push(new Beam(hiHatNotes.slice(i, i + 4)));
         }
       }
     } else {
@@ -244,6 +259,13 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
           beams.push(new Beam(hiHatNotes.slice(i, i + 3)));
         }
       }
+    } else if (exercise.noteDuration === "16") {
+      // For 16th notes, beam groups of 4
+      for (let i = 0; i < hiHatNotes.length; i += 4) {
+        if (i + 3 < hiHatNotes.length) {
+          beams.push(new Beam(hiHatNotes.slice(i, i + 4)));
+        }
+      }
     } else {
       // For regular 8th notes, beam groups of 2
       for (let i = 0; i < hiHatNotes.length; i += 2) {
@@ -258,6 +280,10 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
       // For triplets: 3 notes per beat, so each note is 1/3 of a beat
       const tripletNoteDuration = (60 / BPM) / 3; // ~0.167 seconds per triplet note
       intervalMs = tripletNoteDuration * 1000;
+    } else if (exercise.noteDuration === "16") {
+      // For 16th notes: 4 notes per beat, so each note is 1/4 of a beat
+      const sixteenthNoteDuration = (60 / BPM) / 4; // 0.125 seconds per 16th note
+      intervalMs = sixteenthNoteDuration * 1000;
     } else {
       // For 8th notes: 2 notes per beat, so each note is 0.5 beats
       const eighthNoteDuration = (60 / BPM) / 2; // 0.25 seconds per eighth note
@@ -289,11 +315,16 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
         const notesPerBar = 12;
         position = i % notesPerBar;
         beat = Math.floor(position / 3) + 1;
+      } else if (exercise.noteDuration === "16") {
+        // For 16th notes: 16 positions per bar, 4 per beat
+        const notesPerBar = 16;
+        position = i % notesPerBar;
+        beat = Math.floor(position / 4) + 1;
       } else {
         // For 8th notes: 8 positions per bar, 2 per beat
         const notesPerBar = 8;
         position = i % notesPerBar;
-        beat = (position / 2) + 1;
+        beat = Math.floor(position / 2) + 1;
       }
       
       const drumNotes = exercise.pattern(beat, position, i);
@@ -356,19 +387,6 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
       
       // Use audioManager directly - it's more reliable and handles AudioContext properly
       console.log("Using audioManager for all sounds");
-      
-      // Test audioManager immediately to verify it works
-      console.log("Testing audioManager sounds...");
-      audioManager.playSound("kick");
-      setTimeout(() => {
-        audioManager.playSound("snare");
-        console.log("✓ Test snare via audioManager");
-      }, 200);
-      setTimeout(() => {
-        audioManager.playSound("hihat");
-        console.log("✓ Test hi-hat via audioManager");
-      }, 400);
-      console.log("✓ Test kick via audioManager");
       
       // Start the exercise playback
       scheduleNotes();
@@ -438,6 +456,13 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
       for (let i = 0; i < hiHatNotes.length; i += 3) {
         if (i + 2 < hiHatNotes.length) {
           beams.push(new Beam(hiHatNotes.slice(i, i + 3)));
+        }
+      }
+    } else if (exercise.noteDuration === "16") {
+      // For 16th notes, beam groups of 4
+      for (let i = 0; i < hiHatNotes.length; i += 4) {
+        if (i + 3 < hiHatNotes.length) {
+          beams.push(new Beam(hiHatNotes.slice(i, i + 4)));
         }
       }
     } else {
