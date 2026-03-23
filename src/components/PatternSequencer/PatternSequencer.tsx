@@ -99,11 +99,14 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
   const [savedPatterns, setSavedPatterns] = useState<Pattern[]>(loadPatterns());
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [playbackInterval, setPlaybackInterval] = useState<number | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [patternName, setPatternName] = useState(pattern.name);
+  const isPlayingRef = useRef(false);
+  const playbackTimerRef = useRef<number | null>(null);
+  const nextStepTimeRef = useRef<number>(0);
+  const stepRef = useRef<number>(0);
 
   // Auto-save pattern when it changes (but not on initial mount)
   const isInitialMount = useRef(true);
@@ -207,36 +210,57 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
     });
   }, [pattern.steps, drumKit]);
 
-  const startPlayback = () => {
+  const stopPlayback = useCallback(() => {
+    isPlayingRef.current = false;
+    if (playbackTimerRef.current !== null) {
+      window.clearTimeout(playbackTimerRef.current);
+      playbackTimerRef.current = null;
+    }
+    setIsPlaying(false);
+    setCurrentStep(0);
+    stepRef.current = 0;
+    nextStepTimeRef.current = 0;
+  }, []);
+
+  const scheduleNextStep = useCallback(() => {
+    if (!isPlayingRef.current) return;
+
+    const stepDurationMs = (60 / pattern.bpm) * 1000 * 4 / pattern.length;
+    const now = performance.now();
+
+    // Catch up if UI thread was blocked to avoid audible drift.
+    while (nextStepTimeRef.current <= now + 1) {
+      const step = stepRef.current % pattern.length;
+      playStep(step);
+      setCurrentStep(step);
+      stepRef.current = (stepRef.current + 1) % pattern.length;
+      nextStepTimeRef.current += stepDurationMs;
+    }
+
+    const nextDelay = Math.max(0, nextStepTimeRef.current - performance.now());
+    playbackTimerRef.current = window.setTimeout(scheduleNextStep, nextDelay);
+  }, [pattern.bpm, pattern.length, playStep]);
+
+  const startPlayback = useCallback(() => {
     if (isPlaying) {
-      if (playbackInterval) {
-        clearInterval(playbackInterval);
-        setPlaybackInterval(null);
-      }
-      setIsPlaying(false);
-      setCurrentStep(0);
+      stopPlayback();
       return;
     }
 
+    isPlayingRef.current = true;
     setIsPlaying(true);
-    let step = 0;
-
-    const interval = setInterval(() => {
-      playStep(step);
-      setCurrentStep(step);
-      step = (step + 1) % pattern.length;
-    }, (60 / pattern.bpm) * 1000 * 4 / pattern.length); // 4/4 time
-
-    setPlaybackInterval(interval);
-  };
+    stepRef.current = 0;
+    nextStepTimeRef.current = performance.now();
+    scheduleNextStep();
+  }, [isPlaying, scheduleNextStep, stopPlayback]);
 
   useEffect(() => {
     return () => {
-      if (playbackInterval) {
-        clearInterval(playbackInterval);
+      if (playbackTimerRef.current !== null) {
+        window.clearTimeout(playbackTimerRef.current);
       }
     };
-  }, [playbackInterval]);
+  }, []);
 
   const handleClearPattern = () => {
     setShowClearDialog(true);

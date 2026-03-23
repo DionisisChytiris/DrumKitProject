@@ -72,6 +72,36 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.nav-locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.nav-auth-locked-tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s ease, visibility 0.12s ease;
+    pointer-events: none;
+    z-index: 10003;
+}
+
+.nav-locked:hover .nav-auth-locked-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
 /* .nav-link:hover {
     background: rgba(255, 255, 255, 0.0);
     transform: translateY(-2px);

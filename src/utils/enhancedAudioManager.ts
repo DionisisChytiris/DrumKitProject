@@ -16,6 +16,7 @@ interface EffectSettings {
 }
 
 class EnhancedAudioManager {
+  private readonly debugEnabled = false;
   private audioCache: Map<string, HTMLAudioElement> = new Map();
   private audioBufferCache: Map<string, AudioBuffer> = new Map();
   private audioContext: AudioContext | null = null;
@@ -43,6 +44,14 @@ class EnhancedAudioManager {
   private drumSettings: Map<string, EffectSettings> = new Map();
   private velocitySensitivity: number = 0.5;
 
+  private debugLog(...args: unknown[]): void {
+    if (this.debugEnabled) console.log(...args);
+  }
+
+  private debugWarn(...args: unknown[]): void {
+    if (this.debugEnabled) console.warn(...args);
+  }
+
   /**
    * Initialize audio context and effects
    * Uses a single AudioContext to avoid quality degradation from multiple contexts
@@ -58,7 +67,7 @@ class EnhancedAudioManager {
         // Don't specify sampleRate - let browser use native rate to avoid resampling
       });
       
-      console.log('[EnhancedAudioManager] Created AudioContext, sampleRate:', this.audioContext.sampleRate);
+      this.debugLog('[EnhancedAudioManager] Created AudioContext, sampleRate:', this.audioContext.sampleRate);
       
       // Create master gain - set to 1.0 so individual drum volumes control the output
       // Individual drum volumes in the mixer should be the primary volume control
@@ -121,7 +130,7 @@ class EnhancedAudioManager {
     
     // Monitor audio context state to prevent it from suspending
     if (this.audioContext.state !== 'running') {
-      console.warn('[EnhancedAudioManager] Audio context not running, state:', this.audioContext.state);
+      this.debugWarn('[EnhancedAudioManager] Audio context not running, state:', this.audioContext.state);
     }
 
     return this.audioContext;
@@ -166,7 +175,7 @@ class EnhancedAudioManager {
       
       // CRITICAL: Ensure audio context stays running
       if (audioContext.state !== 'running') {
-        console.warn('[EnhancedAudioManager] Audio context not running, attempting to resume...', audioContext.state);
+        this.debugWarn('[EnhancedAudioManager] Audio context not running, attempting to resume...', audioContext.state);
         audioContext.resume().catch(err => {
           console.error('[EnhancedAudioManager] Failed to resume audio context:', err);
         });
@@ -204,14 +213,10 @@ class EnhancedAudioManager {
       // velocity is typically 1.0, so velocityMultiplier will be around 0.7-1.0
       const velocityMultiplier = 0.3 + (velocity * (0.4 + this.velocitySensitivity * 0.3));
       
-      console.log(`[EnhancedAudioManager] playSound for ${soundId} - Volume Debug:`, {
-        'drumSettings.volume (from Map)': drumSettings.volume,
-        'finalSettings.volume': finalSettings.volume,
-        'velocity': velocity,
-        'velocitySensitivity': this.velocitySensitivity,
-        'velocityMultiplier': velocityMultiplier,
-        'final volume will be': finalSettings.volume * velocityMultiplier,
-        'VOLUME SHOULD BE': finalSettings.volume
+      this.debugLog(`[EnhancedAudioManager] playSound for ${soundId}`, {
+        velocity,
+        velocityMultiplier,
+        finalVolume: finalSettings.volume * velocityMultiplier,
       });
 
       if (audioUrl) {
@@ -220,8 +225,7 @@ class EnhancedAudioManager {
         this.generateTone(soundId, velocityMultiplier, finalSettings, audioContext);
       }
       
-      // Debug: log what settings were used
-      console.log(`[EnhancedAudioManager] playSound completed for ${soundId} with volume:`, finalSettings.volume);
+      this.debugLog(`[EnhancedAudioManager] playSound completed for ${soundId}`, finalSettings.volume);
     } catch (error) {
       console.error('Error playing sound:', error);
     }
@@ -481,28 +485,19 @@ class EnhancedAudioManager {
     const masterGainValue = this.masterGain?.gain.value || 1.0;
     const finalOutputVolume = actualGain * masterGainValue;
     
-    console.log(`[EnhancedAudioManager] playAudioBufferWithEffects VOLUME for ${soundId}:`, {
-      'settings.volume (INDIVIDUAL DRUM VOLUME from mixer)': settings.volume,
-      'safeVolume': safeVolume,
-      'velocity (multiplier)': velocity,
-      'safeVelocity': safeVelocity,
-      'finalVolume (calculated)': finalVolume,
-      'gainNode.gain.value (ACTUAL - THIS CONTROLS INDIVIDUAL DRUM)': actualGain,
-      'MASTER GAIN VALUE (GLOBAL VOLUME)': masterGainValue,
-      'FINAL OUTPUT VOLUME (individual * global)': finalOutputVolume,
-      'WILL BE AUDIBLE?': finalOutputVolume > 0.001,
-      'VOLUME IS ZERO?': actualGain === 0 || finalOutputVolume === 0,
-      '⚠️ IF GLOBAL VOLUME IS LOW, INDIVIDUAL CHANGES WON\'T BE AUDIBLE!': masterGainValue < 0.5
+    this.debugLog(`[EnhancedAudioManager] Buffer volume for ${soundId}`, {
+      finalVolume,
+      finalOutputVolume,
     });
     
     // TEST: If volume is 0, the sound should be completely silent
     if (settings.volume === 0) {
-      console.warn(`[EnhancedAudioManager] ⚠️ VOLUME IS 0 for ${soundId} - sound should be SILENT!`);
+      this.debugWarn(`[EnhancedAudioManager] Volume is 0 for ${soundId}`);
     }
     
     // WARNING: If global volume is very low, individual volume changes won't be noticeable
     if (masterGainValue < 0.3 && settings.volume > 0) {
-      console.warn(`[EnhancedAudioManager] ⚠️ WARNING: Global volume is ${masterGainValue} (${Math.round(masterGainValue * 100)}%) - individual volume changes may not be audible!`);
+      this.debugWarn(`[EnhancedAudioManager] Low global volume: ${masterGainValue}`);
     }
     
     // Apply pan
@@ -610,17 +605,10 @@ class EnhancedAudioManager {
       panNode.connect(this.masterGain);
     }
     
-    // Debug: verify all settings are being applied
-    console.log(`[EnhancedAudioManager] playAudioBufferWithEffects for ${soundId}:`, {
-      'settings.volume': settings.volume,
-      'settings.pan': settings.pan,
-      'settings.reverb': settings.reverb,
-      'settings.compression': settings.compression,
-      'settings.eq': settings.eq,
-      'velocity': velocity,
-      'calculated finalVolume': finalVolume,
-      'gainNode.gain.value (actual)': actualGain,
-      'WILL BE AUDIBLE?': actualGain > 0.01
+    this.debugLog(`[EnhancedAudioManager] playAudioBufferWithEffects for ${soundId}`, {
+      volume: settings.volume,
+      pan: settings.pan,
+      velocity,
     });
     
     // Start playback

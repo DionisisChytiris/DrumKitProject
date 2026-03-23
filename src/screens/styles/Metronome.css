@@ -425,6 +425,7 @@
   align-items: center;
   gap: 0.75rem;
   margin-top: 1.5rem;
+  position: relative;
 }
 
 .time-signature-control label {
@@ -433,6 +434,100 @@
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 1.5px;
+}
+
+/* Time Signature Beat Dots */
+.time-signature-beat-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ts-dot-gap, 4px);
+  pointer-events: none;
+  z-index: 5;
+  --ts-dot-size: 9px;
+}
+
+.metronome-top-beat-dots {
+  position: absolute;
+  top: 78px; /* Approx below NavBarHome sticky height */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10000; /* Below NavBarHome z-index */
+  width: auto;
+  margin: 0;
+}
+
+.time-signature-beat-dots--advanced {
+  position: relative;
+  margin-bottom: 0.4rem;
+  z-index: 1;
+}
+
+.time-signature-beat-dot {
+  width: var(--ts-dot-width, var(--ts-dot-size, 9px));
+  height: var(--ts-dot-height, var(--ts-dot-size, 9px));
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  opacity: 0.8;
+  transition: background 120ms ease, box-shadow 120ms ease, transform 120ms ease, opacity 120ms ease;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-sizing: border-box;
+}
+
+.time-signature-beat-dot--bar {
+  border-radius: 6px;
+}
+
+.time-signature-beat-dot.active {
+  opacity: 1;
+}
+
+.time-signature-beat-dot.active.downbeat {
+  background: rgba(255, 152, 0, 0.95);
+  border-color: rgba(255, 152, 0, 0.9);
+  box-shadow: 0 0 26px rgba(255, 152, 0, 0.8);
+  transform: scale(1.2);
+}
+
+.time-signature-beat-dot--bar.active.downbeat {
+  transform: scale(1.06);
+}
+
+.time-signature-beat-dot.active.accented {
+  background: rgba(255, 152, 0, 0.75);
+  border-color: rgba(255, 152, 0, 0.75);
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.65);
+  transform: scale(1.12);
+}
+
+.time-signature-beat-dot--bar.active.accented {
+  transform: scale(1.04);
+}
+
+.time-signature-beat-dot.active.ghost {
+  background: rgba(76, 175, 80, 0.4);
+  border-color: rgba(76, 175, 80, 0.35);
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.35);
+  transform: scale(1.06);
+  opacity: 0.7;
+}
+
+.time-signature-beat-dot--bar.active.ghost {
+  transform: scale(1.03);
+}
+
+.time-signature-beat-dot.active:not(.downbeat):not(.accented):not(.ghost) {
+  background: rgba(76, 175, 80, 0.9);
+  border-color: rgba(76, 175, 80, 0.85);
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+  transform: scale(1.12);
+}
+
+.time-signature-beat-dot--bar.active:not(.downbeat):not(.accented):not(.ghost) {
+  transform: scale(1.04);
 }
 
 .time-signature-input-group {
@@ -601,10 +696,55 @@
   letter-spacing: 0.5px;
 }
 
+.advanced-auth-tooltip-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.advanced-auth-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 0.45rem 0.7rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease, visibility 0.12s ease;
+  pointer-events: none;
+  z-index: 10003;
+}
+
+.advanced-auth-tooltip-wrapper.locked:hover .advanced-auth-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
 .advanced-button:hover:not(:disabled) {
   background: rgba(76, 175, 80, 0.3);
   border-color: rgba(76, 175, 80, 0.8);
   transform: scale(1.02);
+}
+
+.advanced-button.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+  box-shadow: none;
+}
+
+.advanced-button.locked:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: none;
 }
 
 .advanced-button:disabled {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { CustomizeModal } from '../../Modals/CustomizeModal';
 import './NavBarHome.css';
@@ -14,6 +14,20 @@ export const NavBarHome: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSequencerModalOpen, setIsSequencerModalOpen] = useState(false)
   const [isPracticeSoundSettingsModalOpen, setIsPracticeSoundSettingsModalOpen] = useState(false)
+
+  // Client-only auth gating for limited services
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('drumkitAuth.loggedIn') === 'true';
+  });
+
+  useEffect(() => {
+    const onStorage = () => {
+      setIsLoggedIn(localStorage.getItem('drumkitAuth.loggedIn') === 'true');
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const handleMixerClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,6 +50,9 @@ export const NavBarHome: React.FC = () => {
   const handleSequencerClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isLoggedIn) {
+      return;
+    }
     setIsSequencerModalOpen(true);
   };
 
@@ -106,11 +123,14 @@ export const NavBarHome: React.FC = () => {
                 Customize
               </div>
               <div
-                className='nav-link1'
+                className={`nav-link1 ${!isLoggedIn ? 'nav-locked' : ''}`}
                 onClick={handleSequencerClick}
                 onMouseEnter={handleCloseAllModals}
               >
-                Sequencer
+                <span className="nav-auth-locked-label">
+                  {!isLoggedIn ? '🔒 Sequencer' : 'Sequencer'}
+                </span>
+                {!isLoggedIn && <span className="nav-auth-locked-tooltip">Login required</span>}
               </div>
             </>
           )}

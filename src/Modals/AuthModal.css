@@ -1,0 +1,138 @@
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  backdrop-filter: blur(6px);
+  animation: authFadeIn 0.15s ease;
+}
+
+@keyframes authFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.auth-modal-content {
+  width: 90%;
+  max-width: 420px;
+  background: rgba(25, 25, 25, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.auth-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-modal-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.auth-modal-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-modal-body {
+  padding: 1.25rem 1.5rem 1.25rem;
+}
+
+.auth-modal-hint {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.35;
+}
+
+.auth-demo-email,
+.auth-demo-password {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.auth-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.auth-input {
+  height: 42px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  color: #ffffff;
+  padding: 0 0.75rem;
+  outline: none;
+}
+
+.auth-input:focus {
+  border-color: rgba(76, 175, 80, 0.7);
+  box-shadow: 0 0 18px rgba(76, 175, 80, 0.18);
+}
+
+.auth-error {
+  margin: 0 0 1rem;
+  color: rgba(244, 67, 54, 0.95);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.auth-modal-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.25rem;
+}
+
+.auth-submit {
+  background: rgba(76, 175, 80, 0.25);
+  border: 2px solid rgba(76, 175, 80, 0.6);
+  color: #ffffff;
+  border-radius: 50px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-submit:hover {
+  transform: translateY(-2px);
+  background: rgba(76, 175, 80, 0.4);
+  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.15);
+}
+
