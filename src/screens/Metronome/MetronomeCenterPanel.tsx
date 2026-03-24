@@ -11,6 +11,14 @@ interface MetronomeCenterPanelProps {
   timeSignatureDenom: number;
   visualFlashIntensity: number;
   toggleMetronome: () => void;
+  barCount: number;
+  onResetBarCount: () => void;
+  autoBpmRampEnabled: boolean;
+  onAutoBpmRampEnabledChange: (enabled: boolean) => void;
+  autoBpmIncrement: number;
+  onAutoBpmIncrementChange: (value: number) => void;
+  autoBpmEveryBars: number;
+  onAutoBpmEveryBarsChange: (value: number) => void;
 }
 
 export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
@@ -21,6 +29,14 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
   timeSignatureDenom,
   visualFlashIntensity,
   toggleMetronome,
+  barCount,
+  onResetBarCount,
+  autoBpmRampEnabled,
+  onAutoBpmRampEnabledChange,
+  autoBpmIncrement,
+  onAutoBpmIncrementChange,
+  autoBpmEveryBars,
+  onAutoBpmEveryBarsChange,
 }) => {
   const dispatch = useAppDispatch();
   const { bpm } = useAppSelector((state) => state.metronome);
@@ -128,6 +144,68 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
       <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={toggleMetronome}>
         {isPlaying ? '⏸ Stop' : '▶ Play'}
       </button>
+
+      <div className="metronome-bar-row">
+        <div className="metronome-bar-counter" aria-live="polite">
+          <span className="metronome-bar-counter-label">Bars</span>
+          <span className="metronome-bar-counter-value">{barCount}</span>
+          <button
+            type="button"
+            className="metronome-bar-reset"
+            onClick={onResetBarCount}
+            aria-label="Reset bar count to zero"
+          >
+            Reset
+          </button>
+        </div>
+
+        <div className="metronome-auto-bpm-ramp">
+          <label className="metronome-auto-bpm-toggle">
+            <input
+              type="checkbox"
+              checked={autoBpmRampEnabled}
+              onChange={(e) => onAutoBpmRampEnabledChange(e.target.checked)}
+            />
+            <span className="metronome-auto-bpm-toggle-label">Auto +BPM</span>
+          </label>
+          <div className="metronome-auto-bpm-fields">
+            <label className="metronome-auto-bpm-field">
+              <span className="metronome-auto-bpm-field-label">+ BPM</span>
+              <input
+                type="number"
+                className="metronome-auto-bpm-input"
+                min={1}
+                max={50}
+                value={autoBpmIncrement}
+                disabled={!autoBpmRampEnabled}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value, 10);
+                  if (Number.isNaN(v)) return;
+                  onAutoBpmIncrementChange(Math.min(50, Math.max(1, v)));
+                }}
+                aria-label="BPM increase per interval"
+              />
+            </label>
+            <label className="metronome-auto-bpm-field">
+              <span className="metronome-auto-bpm-field-label">Every N bars</span>
+              <input
+                type="number"
+                className="metronome-auto-bpm-input"
+                min={1}
+                max={999}
+                value={autoBpmEveryBars}
+                disabled={!autoBpmRampEnabled}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value, 10);
+                  if (Number.isNaN(v)) return;
+                  onAutoBpmEveryBarsChange(Math.min(999, Math.max(1, v)));
+                }}
+                aria-label="Number of bars between BPM increases"
+              />
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

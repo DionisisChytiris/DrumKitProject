@@ -26,7 +26,15 @@ const Metronome: React.FC = () => {
     });
     
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
-    const { beat, toggleMetronome } = useMetronomeEngine();
+    const [autoBpmRampEnabled, setAutoBpmRampEnabled] = useState(false);
+    const [autoBpmIncrement, setAutoBpmIncrement] = useState(1);
+    const [autoBpmEveryBars, setAutoBpmEveryBars] = useState(4);
+
+    const { beat, toggleMetronome, barCount, resetBarCount } = useMetronomeEngine({
+        enabled: autoBpmRampEnabled,
+        increment: autoBpmIncrement,
+        everyBars: autoBpmEveryBars,
+    });
 
     useEffect(() => {
         const onStorage = () => {
@@ -74,12 +82,20 @@ const Metronome: React.FC = () => {
                         timeSignatureDenom={timeSignatureDenom}
                         visualFlashIntensity={visualFlashIntensity}
                         toggleMetronome={toggleMetronome}
+                        barCount={barCount}
+                        onResetBarCount={resetBarCount}
+                        autoBpmRampEnabled={autoBpmRampEnabled}
+                        onAutoBpmRampEnabledChange={setAutoBpmRampEnabled}
+                        autoBpmIncrement={autoBpmIncrement}
+                        onAutoBpmIncrementChange={setAutoBpmIncrement}
+                        autoBpmEveryBars={autoBpmEveryBars}
+                        onAutoBpmEveryBarsChange={setAutoBpmEveryBars}
                     />
 
                     {/* Settings Container - Right Side */}
                     <MetronomeRightSettingsPanel />
                 </div>
-        </div>
+            </div>
         </div>
     );
 };
