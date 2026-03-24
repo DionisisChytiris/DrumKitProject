@@ -31,6 +31,169 @@
   color: #ffffff;
 }
 
+/* Meter loop — under beat dots, no panel background; single row (scroll if long) */
+.metronome-sequence-summary-shell {
+  pointer-events: auto;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: min(96vw, 52rem);
+  margin: 0;
+  padding: 0 0.35rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.metronome-sequence-summary-shell::-webkit-scrollbar {
+  height: 5px;
+}
+
+.metronome-sequence-summary-shell::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.metronome-sequence-summary {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.15rem 0.2rem;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  pointer-events: none;
+}
+
+.metronome-sequence-summary-inner {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.55rem;
+  white-space: nowrap;
+}
+
+.metronome-sequence-summary-head {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  padding-right: 0.65rem;
+  margin-right: 0.05rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.22);
+  min-height: 0;
+}
+
+.metronome-sequence-summary-title {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #dcedc8;
+  line-height: 1.15;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+}
+
+.metronome-sequence-summary-sub {
+  display: block;
+  font-size: 0.55rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.62);
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.metronome-sequence-track {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.15rem;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.metronome-sequence-step {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.metronome-sequence-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: rgba(183, 225, 185, 0.75);
+  margin: 0 0.02rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+.metronome-sequence-arrow-svg {
+  display: block;
+}
+
+.metronome-sequence-chip {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 0.25rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.metronome-sequence-chip-meter {
+  font-size: clamp(0.85rem, 1.8vw, 1rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.metronome-sequence-chip-dot {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1;
+  user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+}
+
+.metronome-sequence-chip-bars {
+  font-size: 0.6rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgba(220, 237, 200, 0.92);
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+}
+
 .metronome-wrapper {
   display: flex;
   flex-direction: row;
@@ -72,6 +235,18 @@
   height: 60vh;
   min-height: 60vh;
   max-height: 60vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Wider left column while editing meter sequence (Advanced) */
+.subdivision-container--sequence-focus {
+  min-width: 300px;
+  max-width: 420px;
+  width: min(420px, 36vw);
+  align-items: stretch;
+  justify-content: flex-start;
 }
 
 .metronome-settings-container {
@@ -453,10 +628,14 @@
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.55rem;
   pointer-events: none;
   z-index: 10000; /* Below NavBarHome z-index */
   width: auto;
+  max-width: 100vw;
   margin: 0;
 }
 
@@ -759,9 +938,36 @@
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
   justify-content: center;
   overflow-y: visible;
+}
+
+.advanced-control--sequence-only {
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow-y: auto;
+  min-height: 0;
+  max-height: 100%;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.ts-sequence-focus-hint {
+  margin: -0.15rem 0 0.35rem;
+  padding: 0 0.25rem;
+  font-size: 0.62rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  max-width: 340px;
+  align-self: center;
+}
+
+.ts-sequence-section-label {
+  align-self: center;
+  margin-bottom: -0.15rem;
 }
 
 .advanced-control label {
@@ -832,6 +1038,381 @@
   text-align: center;
   margin-bottom: 0.5rem;
   font-style: italic;
+}
+
+/* Time signature bar sequence (Advanced) */
+.ts-sequence-block {
+  max-width: 100%;
+  align-items: stretch;
+}
+
+.ts-sequence-block--focus {
+  flex: 0 1 auto;
+  width: 100%;
+  min-height: 0;
+}
+
+.ts-sequence-block--focus .ts-sequence-row {
+  flex-wrap: nowrap;
+}
+
+.ts-sequence-block--focus .ts-sequence-meter {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ts-sequence-card {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(165deg, rgba(30, 35, 40, 0.65) 0%, rgba(12, 14, 18, 0.85) 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  overflow-x: hidden;
+  overflow-y: visible;
+  transition: border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.ts-sequence-card--on {
+  border-color: rgba(76, 175, 80, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(76, 175, 80, 0.12),
+    0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.ts-sequence-card--disabled {
+  opacity: 0.72;
+}
+
+.ts-sequence-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.7rem 0.85rem;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+}
+
+.ts-sequence-card-header:has(.ts-sequence-card-checkbox:disabled) {
+  cursor: not-allowed;
+}
+
+.ts-sequence-card-checkbox {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  accent-color: #66bb6a;
+  cursor: pointer;
+}
+
+.ts-sequence-card-checkbox:disabled {
+  cursor: not-allowed;
+}
+
+.ts-sequence-card-header-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ts-sequence-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+}
+
+.ts-sequence-card-hint {
+  font-size: 0.62rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.ts-sequence-card-status {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: rgba(165, 214, 167, 0.95);
+  letter-spacing: 0.03em;
+}
+
+.ts-sequence-card-chevron {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 0.05rem;
+  transition: transform 0.3s ease, color 0.25s ease;
+}
+
+.ts-sequence-card--on .ts-sequence-card-chevron {
+  transform: rotate(90deg);
+  color: rgba(129, 199, 132, 0.95);
+}
+
+.ts-sequence-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
+  padding: 0 0.85rem 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: ts-sequence-panel-in 0.32s ease;
+  overflow: visible;
+}
+
+@keyframes ts-sequence-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ts-sequence-help {
+  flex-shrink: 0;
+  margin: 0.65rem 0 0.55rem;
+  font-size: 0.63rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.58);
+  text-align: left;
+  max-width: none;
+}
+
+.ts-sequence-help strong {
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 600;
+}
+
+.ts-sequence-rows-scroll {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: min(38vh, 300px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin-right: -0.15rem;
+  padding-right: 0.35rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.28) rgba(255, 255, 255, 0.06);
+}
+
+.ts-sequence-rows-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ts-sequence-rows-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+}
+
+.ts-sequence-rows-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.ts-sequence-rows-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.ts-sequence-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.ts-sequence-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.4rem 0.45rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.4rem;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 11px;
+}
+
+.ts-sequence-row-index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-bottom: 0.15rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.ts-sequence-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: flex-start;
+}
+
+.ts-sequence-field-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.ts-sequence-input {
+  width: 3.25rem;
+  padding: 0.3rem 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+}
+
+.ts-sequence-input:disabled {
+  opacity: 0.45;
+}
+
+.ts-sequence-input-narrow {
+  width: 2.5rem;
+}
+
+.ts-sequence-meter {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+.ts-sequence-meter-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ts-sequence-slash {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.ts-sequence-denom-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.ts-sequence-denom {
+  min-width: 26px;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ts-sequence-denom:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.ts-sequence-denom.active {
+  background: rgba(76, 175, 80, 0.25);
+  border-color: rgba(76, 175, 80, 0.65);
+  color: #a5d6a7;
+}
+
+.ts-sequence-denom:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ts-sequence-remove {
+  margin-left: auto;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.75);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.ts-sequence-remove:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(255, 200, 200, 0.45);
+  background: rgba(255, 100, 100, 0.12);
+}
+
+.ts-sequence-remove:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ts-sequence-add-row {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.65rem;
+  padding-bottom: 0.15rem;
+  position: relative;
+  z-index: 1;
+}
+
+.ts-sequence-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: 100%;
+  margin-top: 0;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ts-sequence-add:hover:not(:disabled) {
+  background: rgba(76, 175, 80, 0.28);
+  border-color: rgba(76, 175, 80, 0.55);
+}
+
+.ts-sequence-add:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.time-signature-sequence-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.62rem;
+  line-height: 1.3;
+  color: rgba(255, 200, 120, 0.85);
+  text-align: center;
 }
 
 /* Accent Pattern */
@@ -1192,7 +1773,7 @@
 .metronome-bar-counter {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
   background: rgba(0, 0, 0, 0.25);
@@ -1200,6 +1781,14 @@
   border-radius: 14px;
   flex: 1 1 160px;
   max-width: 220px;
+}
+
+/* 1fr | auto (number) | 1fr keeps the value visually centered; icon sits in the right track */
+.metronome-bar-counter-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
 }
 
 .metronome-auto-bpm-ramp {
@@ -1286,9 +1875,12 @@
   text-transform: uppercase;
   letter-spacing: 1.2px;
   color: rgba(255, 255, 255, 0.65);
+  text-align: center;
 }
 
 .metronome-bar-counter-value {
+  grid-column: 2;
+  justify-self: center;
   font-size: 2rem;
   font-weight: 800;
   color: #ffffff;
@@ -1297,20 +1889,36 @@
 }
 
 .metronome-bar-reset {
-  padding: 0.4rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
+  grid-column: 3;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.metronome-bar-reset:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.metronome-bar-reset-icon {
+  display: block;
+  flex-shrink: 0;
 }
 
 .metronome-bar-reset:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+}
+
+.metronome-bar-reset:active {
+  opacity: 0.85;
 }
 
 /* Responsive Styles */
@@ -1400,6 +2008,31 @@
   }
 }
 
+@media (max-width: 1023px) {
+  .ts-sequence-block--focus .ts-sequence-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 767px) {
+  .metronome-sequence-summary-shell {
+    max-width: 100vw;
+    padding: 0 0.5rem;
+  }
+
+  .metronome-sequence-summary-head {
+    padding-right: 0.5rem;
+  }
+
+  .metronome-sequence-chip-meter {
+    font-size: 0.8rem;
+  }
+
+  .metronome-sequence-chip-bars {
+    font-size: 0.55rem;
+  }
+}
+
 /* Small Screens (768px - 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
   .metronome-wrapper {
@@ -1429,6 +2062,10 @@
     height: fit-content;
     min-height: fit-content;
     max-height: none;
+  }
+
+  .subdivision-container--sequence-focus {
+    max-width: min(420px, 100%);
   }
 
   .beat-circle {

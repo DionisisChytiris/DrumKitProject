@@ -3,6 +3,34 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export type Subdivision = 'quarters' | 'eighths' | 'sixteenths' | 'triplets';
 export type ClickSound = 'tick' | 'beep' | 'wood' | 'metallic';
 
+export type TimeSignatureDenominator = 2 | 4 | 8 | 16;
+
+export interface TimeSignatureSegment {
+  id: string;
+  bars: number;
+  numerator: number;
+  denominator: TimeSignatureDenominator;
+}
+
+const createSegmentId = (): string =>
+  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `seg-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+
+export const makeTimeSignatureSegment = (
+  overrides?: Partial<Omit<TimeSignatureSegment, 'id'>> & { id?: string }
+): TimeSignatureSegment => {
+  const denom = overrides?.denominator;
+  const safeDenom: TimeSignatureDenominator =
+    denom === 2 || denom === 4 || denom === 8 || denom === 16 ? denom : 4;
+  return {
+    id: overrides?.id ?? createSegmentId(),
+    bars: Math.max(1, Math.min(999, overrides?.bars ?? 4)),
+    numerator: Math.max(1, Math.min(19, overrides?.numerator ?? 4)),
+    denominator: safeDenom,
+  };
+};
+
 export interface MetronomeState {
   bpm: number;
   isPlaying: boolean;
@@ -14,6 +42,9 @@ export interface MetronomeState {
   swing: number; // 0-100
   accentPattern: boolean[]; // Array of booleans for each beat
   visualFlashIntensity: number; // 0-1
+  /** When true, playback cycles `timeSignatureSegments` (each row = N bars at that meter). */
+  useTimeSignatureSequence: boolean;
+  timeSignatureSegments: TimeSignatureSegment[];
 }
 
 const initialState: MetronomeState = {
@@ -27,6 +58,8 @@ const initialState: MetronomeState = {
   swing: 0,
   accentPattern: [true, false, false, false], // First beat accented by default
   visualFlashIntensity: 0.5,
+  useTimeSignatureSequence: false,
+  timeSignatureSegments: [makeTimeSignatureSegment()],
 };
 
 const metronomeSlice = createSlice({
@@ -103,6 +136,36 @@ const metronomeSlice = createSlice({
       const clamped = Math.max(0, Math.min(1, action.payload));
       state.visualFlashIntensity = clamped;
     },
+    setUseTimeSignatureSequence: (state, action: PayloadAction<boolean>) => {
+      state.useTimeSignatureSequence = action.payload;
+    },
+    setTimeSignatureSegments: (state, action: PayloadAction<TimeSignatureSegment[]>) => {
+      const next = action.payload.filter((s) => s && s.id);
+      state.timeSignatureSegments = next.length ? next : [makeTimeSignatureSegment()];
+    },
+    addTimeSignatureSegment: (state) => {
+      state.timeSignatureSegments.push(makeTimeSignatureSegment({ bars: 4, numerator: 4, denominator: 4 }));
+    },
+    removeTimeSignatureSegment: (state, action: PayloadAction<string>) => {
+      if (state.timeSignatureSegments.length <= 1) return;
+      state.timeSignatureSegments = state.timeSignatureSegments.filter((s) => s.id !== action.payload);
+    },
+    updateTimeSignatureSegment: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        patch: Partial<Pick<TimeSignatureSegment, 'bars' | 'numerator' | 'denominator'>>;
+      }>
+    ) => {
+      const seg = state.timeSignatureSegments.find((s) => s.id === action.payload.id);
+      if (!seg) return;
+      const { patch } = action.payload;
+      if (patch.bars != null) seg.bars = Math.max(1, Math.min(999, Math.floor(patch.bars)));
+      if (patch.numerator != null) seg.numerator = Math.max(1, Math.min(19, Math.floor(patch.numerator)));
+      if (patch.denominator != null && [2, 4, 8, 16].includes(patch.denominator)) {
+        seg.denominator = patch.denominator as TimeSignatureDenominator;
+      }
+    },
     toggleMetronome: (state) => {
       state.isPlaying = !state.isPlaying;
     },
@@ -124,6 +187,11 @@ export const {
   setAccentPattern,
   toggleAccent,
   setVisualFlashIntensity,
+  setUseTimeSignatureSequence,
+  setTimeSignatureSegments,
+  addTimeSignatureSegment,
+  removeTimeSignatureSegment,
+  updateTimeSignatureSegment,
   toggleMetronome,
   resetMetronome,
 } = metronomeSlice.actions;

@@ -148,15 +148,34 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
       <div className="metronome-bar-row">
         <div className="metronome-bar-counter" aria-live="polite">
           <span className="metronome-bar-counter-label">Bars</span>
-          <span className="metronome-bar-counter-value">{barCount}</span>
-          <button
-            type="button"
-            className="metronome-bar-reset"
-            onClick={onResetBarCount}
-            aria-label="Reset bar count to zero"
-          >
-            Reset
-          </button>
+          <div className="metronome-bar-counter-row">
+            <span className="metronome-bar-counter-value">{barCount}</span>
+            <button
+              type="button"
+              className="metronome-bar-reset"
+              onClick={onResetBarCount}
+              aria-label="Reset bar count to zero"
+              title="Reset bar count"
+            >
+              <svg
+                className="metronome-bar-reset-icon"
+                viewBox="0 0 24 24"
+                width={20}
+                height={20}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M3 21v-5h5" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="metronome-auto-bpm-ramp">

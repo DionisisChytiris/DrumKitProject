@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import drumKitReducer from './slices/drumKitSlice';
-import metronomeReducer from './slices/metronomeSlice';
+import metronomeReducer, { makeTimeSignatureSegment } from './slices/metronomeSlice';
 import mixerReducer from './slices/mixerSlice';
 import { defaultDrumKit } from '@/utils/drumConfig';
 
@@ -36,6 +36,18 @@ const loadState = () => {
         });
       });
     }
+    if (parsed.metronome) {
+      if (typeof parsed.metronome.useTimeSignatureSequence !== 'boolean') {
+        parsed.metronome.useTimeSignatureSequence = false;
+      }
+      if (
+        !Array.isArray(parsed.metronome.timeSignatureSegments) ||
+        parsed.metronome.timeSignatureSegments.length === 0
+      ) {
+        parsed.metronome.timeSignatureSegments = [makeTimeSignatureSegment()];
+      }
+    }
+
     return parsed;
   } catch (err) {
     console.error('Error loading state from localStorage:', err);

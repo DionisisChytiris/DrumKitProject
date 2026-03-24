@@ -12,7 +12,8 @@ export const MetronomeLeftBasicPanel: React.FC<MetronomeLeftBasicPanelProps> = (
   setShowAdvanced,
 }) => {
   const dispatch = useAppDispatch();
-  const { isPlaying, subdivision, timeSignature, timeSignatureDenom } = useAppSelector((state) => state.metronome);
+  const { isPlaying, subdivision, timeSignature, timeSignatureDenom, useTimeSignatureSequence } =
+    useAppSelector((state) => state.metronome);
 
   const advanceDisabled = isPlaying || !isLoggedIn;
 
@@ -68,7 +69,7 @@ export const MetronomeLeftBasicPanel: React.FC<MetronomeLeftBasicPanelProps> = (
             onClick={() => {
               if (timeSignature > 1) dispatch(setTimeSignature(timeSignature - 1));
             }}
-            disabled={isPlaying || timeSignature <= 1}
+            disabled={isPlaying || useTimeSignatureSequence || timeSignature <= 1}
           >
             −
           </button>
@@ -84,7 +85,7 @@ export const MetronomeLeftBasicPanel: React.FC<MetronomeLeftBasicPanelProps> = (
                 dispatch(setTimeSignature(value));
               }
             }}
-            disabled={isPlaying}
+            disabled={isPlaying || useTimeSignatureSequence}
           />
           <span className="time-signature-slash">/</span>
           <div className="time-signature-denominator-display">{timeSignatureDenom}</div>
@@ -93,11 +94,14 @@ export const MetronomeLeftBasicPanel: React.FC<MetronomeLeftBasicPanelProps> = (
             onClick={() => {
               if (timeSignature < 19) dispatch(setTimeSignature(timeSignature + 1));
             }}
-            disabled={isPlaying || timeSignature >= 19}
+            disabled={isPlaying || useTimeSignatureSequence || timeSignature >= 19}
           >
             +
           </button>
         </div>
+        {useTimeSignatureSequence && (
+          <p className="time-signature-sequence-hint">Set meters in Advanced → Bar sequence</p>
+        )}
       </div>
 
       {/* Advanced Button */}

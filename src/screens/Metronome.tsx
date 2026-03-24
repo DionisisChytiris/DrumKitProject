@@ -8,6 +8,7 @@ import { MetronomeLeftBasicPanel } from './Metronome/MetronomeLeftBasicPanel';
 import { MetronomeLeftAdvancedPanel } from './Metronome/MetronomeLeftAdvancedPanel';
 import { MetronomeCenterPanel } from './Metronome/MetronomeCenterPanel';
 import { MetronomeRightSettingsPanel } from './Metronome/MetronomeRightSettingsPanel';
+import { MetronomeSequenceSummary } from './Metronome/MetronomeSequenceSummary';
 
 const Metronome: React.FC = () => {
     const {
@@ -17,6 +18,8 @@ const Metronome: React.FC = () => {
         timeSignatureDenom,
         accentPattern,
         visualFlashIntensity,
+        useTimeSignatureSequence,
+        timeSignatureSegments,
     } = useAppSelector((state) => state.metronome);
 
     // Client-only auth gating for limited services (no backend)
@@ -62,10 +65,19 @@ const Metronome: React.FC = () => {
                         timeSignatureDenom={timeSignatureDenom}
                         accentPattern={accentPattern}
                     />
+                    {useTimeSignatureSequence && timeSignatureSegments.length > 0 && (
+                        <div className="metronome-sequence-summary-shell">
+                            <MetronomeSequenceSummary segments={timeSignatureSegments} />
+                        </div>
+                    )}
                 </div>
                 <div className="metronome-wrapper">
                     {/* Subdivision Selector - Left Side */}
-                    <div className="subdivision-container">
+                    <div
+                        className={`subdivision-container${
+                            showAdvanced && useTimeSignatureSequence ? ' subdivision-container--sequence-focus' : ''
+                        }`}
+                    >
                         {!showAdvanced ? (
                             <MetronomeLeftBasicPanel isLoggedIn={isLoggedIn} setShowAdvanced={setShowAdvanced} />
                         ) : (

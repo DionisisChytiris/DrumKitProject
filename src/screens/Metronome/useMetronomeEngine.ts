@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setBpm, setIsPlaying } from '@/store/slices/metronomeSlice';
+import {
+  setBpm,
+  setIsPlaying,
+  setTimeSignature,
+  setTimeSignatureDenom,
+} from '@/store/slices/metronomeSlice';
 import { getSubdivisionConfig, getMainBeatNumber, isMainClick } from './metronomeTiming';
 
 export type AutoBpmRampConfig = {
@@ -21,6 +26,8 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
     clickSound,
     swing,
     accentPattern,
+    useTimeSignatureSequence,
+    timeSignatureSegments,
   } = useAppSelector((state) => state.metronome);
 
   const [beat, setBeat] = useState<number>(0);
@@ -36,6 +43,13 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
   autoRampRef.current = autoBpmRamp;
   const timingRef = useRef({ subdivision, timeSignature, timeSignatureDenom });
   timingRef.current = { subdivision, timeSignature, timeSignatureDenom };
+  const segmentAdvanceRef = useRef(false);
+  const segmentIndexRef = useRef(0);
+  const barsCompletedInSegmentRef = useRef(0);
+  const sequenceEnabledRef = useRef(useTimeSignatureSequence);
+  sequenceEnabledRef.current = useTimeSignatureSequence;
+  const segmentsRef = useRef(timeSignatureSegments);
+  segmentsRef.current = timeSignatureSegments;
 
   const resetBarCount = useCallback(() => {
     lastAutoRampBarRef.current = null;
@@ -132,9 +146,23 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
       dispatch(setIsPlaying(false));
       prevBeatForBarRef.current = null;
       lastAutoRampBarRef.current = null;
+      segmentIndexRef.current = 0;
+      barsCompletedInSegmentRef.current = 0;
       setBeat(0);
       setBarCount(0);
     } else {
+      const useSeq = sequenceEnabledRef.current;
+      const segs = segmentsRef.current;
+      if (useSeq && segs.length > 0) {
+        const s0 = segs[0];
+        segmentIndexRef.current = 0;
+        barsCompletedInSegmentRef.current = 0;
+        dispatch(setTimeSignature(s0.numerator));
+        dispatch(setTimeSignatureDenom(s0.denominator));
+      } else {
+        segmentIndexRef.current = 0;
+        barsCompletedInSegmentRef.current = 0;
+      }
       dispatch(setIsPlaying(true));
       setBeat(0);
       setBarCount(1); // bar #1 begins at beat index 0
@@ -150,11 +178,15 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
       intervalRef.current = null;
     }
 
-    // Start/re-start playback from the beginning of the bar.
     prevBeatForBarRef.current = null;
-    lastAutoRampBarRef.current = null;
-    setBeat(0);
-    setBarCount(1);
+    const skipFullRestart = segmentAdvanceRef.current;
+    if (skipFullRestart) {
+      segmentAdvanceRef.current = false;
+    } else {
+      lastAutoRampBarRef.current = null;
+      setBeat(0);
+      setBarCount(1);
+    }
 
     const config = getSubdivisionConfig(subdivision, timeSignature, timeSignatureDenom);
 
@@ -196,8 +228,22 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
     if (prev === null) return;
     if (prev === n - 1 && beat === 0) {
       setBarCount((c) => c + 1);
+
+      if (sequenceEnabledRef.current && segmentsRef.current.length > 0) {
+        barsCompletedInSegmentRef.current += 1;
+        const idx = segmentIndexRef.current;
+        const seg = segmentsRef.current[idx];
+        if (barsCompletedInSegmentRef.current >= seg.bars) {
+          barsCompletedInSegmentRef.current = 0;
+          segmentIndexRef.current = (idx + 1) % segmentsRef.current.length;
+          const nextSeg = segmentsRef.current[segmentIndexRef.current];
+          segmentAdvanceRef.current = true;
+          dispatch(setTimeSignature(nextSeg.numerator));
+          dispatch(setTimeSignatureDenom(nextSeg.denominator));
+        }
+      }
     }
-  }, [beat, isPlaying, subdivision, timeSignature, timeSignatureDenom]);
+  }, [beat, isPlaying, subdivision, timeSignature, timeSignatureDenom, dispatch]);
 
   // After every N completed bars (barCount 2 = first bar finished), optionally raise BPM (capped at 400).
   useEffect(() => {
