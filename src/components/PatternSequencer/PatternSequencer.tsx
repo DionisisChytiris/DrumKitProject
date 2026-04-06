@@ -1,6 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Pattern, PatternStep, DrumPiece } from '@/types';
 import { enhancedAudioManager } from '@/utils/enhancedAudioManager';
+import { audioManager } from '@/utils/audioManager';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setGlobalVolume } from '@/store/slices/mixerSlice';
+import {
+  GROOVE_PRESETS,
+  getGroovePreset,
+  GHOST_VELOCITY_MAX,
+  mergeGrooveHitsIntoSteps,
+  stepsFromGrooveHits,
+  type GrooveStyleId,
+} from './groovePresets';
 import './PatternSequencer.css';
 
 interface PatternSequencerProps {
@@ -78,6 +89,9 @@ const normalizePattern = (p: Pattern, kit: DrumPiece[]): Pattern => {
 };
 
 export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm = 120 }) => {
+  const dispatch = useAppDispatch();
+  const globalVolume = useAppSelector((state) => state.mixer.globalVolume);
+
   const [pattern, setPattern] = useState<Pattern>(() => {
     // Try to load saved pattern on mount
     const savedPatterns = loadPatterns();
@@ -103,6 +117,9 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [patternName, setPatternName] = useState(pattern.name);
+  const [grooveStyle, setGrooveStyle] = useState<GrooveStyleId>('funk');
+  const [grooveMerge, setGrooveMerge] = useState(false);
+  const [grooveUseSuggestedBpm, setGrooveUseSuggestedBpm] = useState(false);
   const isPlayingRef = useRef(false);
   const playbackTimerRef = useRef<number | null>(null);
   const nextStepTimeRef = useRef<number>(0);
@@ -166,6 +183,11 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
       }
     });
   }, [drumKit]);
+
+  useEffect(() => {
+    audioManager.setVolume(globalVolume);
+    enhancedAudioManager.setGlobalVolume(globalVolume);
+  }, [globalVolume]);
 
   // Close clear dialog when clicking outside
   const clearDialogRef = useRef<HTMLDivElement>(null);
@@ -378,6 +400,32 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
     saveCurrentPattern(newPattern.id);
   };
 
+  const handleApplyGroove = () => {
+    const preset = getGroovePreset(grooveStyle);
+    if (!preset) return;
+
+    if (isPlaying) {
+      startPlayback();
+    }
+
+    const len = pattern.steps.length;
+    const nextSteps = grooveMerge
+      ? mergeGrooveHitsIntoSteps(pattern.steps, preset.hits, drumKit)
+      : stepsFromGrooveHits(drumKit, preset.hits, len);
+
+    const nextBpm = grooveUseSuggestedBpm ? preset.suggestedBpm : pattern.bpm;
+
+    setPattern({
+      ...pattern,
+      steps: nextSteps,
+      bpm: nextBpm,
+      length: nextSteps.length,
+      updatedAt: new Date().toISOString(),
+    });
+  };
+
+  const selectedGroove = getGroovePreset(grooveStyle);
+
   return (
     <div className="pattern-sequencer">
       <div className="sequencer-header"> 
@@ -427,6 +475,21 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
               onChange={(e) => setBPM(parseInt(e.target.value) || 120)}
             />
           </div>
+          <div className="sequencer-volume-control">
+            <label htmlFor="sequencer-global-volume">Vol</label>
+            <input
+              id="sequencer-global-volume"
+              type="range"
+              min={0}
+              max={100}
+              value={Math.round(globalVolume * 100)}
+              onChange={(e) => dispatch(setGlobalVolume(parseInt(e.target.value, 10) / 100))}
+              aria-label="Global output volume"
+            />
+            <span className="sequencer-volume-value" aria-hidden>
+              {Math.round(globalVolume * 100)}%
+            </span>
+          </div>
         </div>
       </div>
 
@@ -447,6 +510,44 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
           }}
           placeholder="Pattern Name"
         />
+      </div>
+
+      <div className="sequencer-groove-bar" role="region" aria-label="Groove templates">
+        <div className="sequencer-groove-bar-inner">
+          <span className="sequencer-groove-heading">Groove</span>
+          <select
+            className="sequencer-groove-select"
+            value={grooveStyle}
+            onChange={(e) => setGrooveStyle(e.target.value as GrooveStyleId)}
+            aria-label="Groove style"
+          >
+            {GROOVE_PRESETS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="sequencer-groove-apply" onClick={handleApplyGroove}>
+            Apply template
+          </button>
+          <label className="sequencer-groove-check">
+            <input
+              type="checkbox"
+              checked={grooveMerge}
+              onChange={(e) => setGrooveMerge(e.target.checked)}
+            />
+            Merge into pattern
+          </label>
+          <label className="sequencer-groove-check">
+            <input
+              type="checkbox"
+              checked={grooveUseSuggestedBpm}
+              onChange={(e) => setGrooveUseSuggestedBpm(e.target.checked)}
+            />
+            Use style BPM ({selectedGroove?.suggestedBpm ?? '—'})
+          </label>
+        </div>
+        {selectedGroove && <p className="sequencer-groove-hint">{selectedGroove.description}</p>}
       </div>
 
       {/* Save Dialog */}
@@ -543,15 +644,27 @@ export const PatternSequencer: React.FC<PatternSequencerProps> = ({ drumKit, bpm
                 {pattern.steps.map((step, stepIndex) => {
                   const patternStep = step.find(s => s.drumId === drum.id);
                   const isActive = patternStep?.active || false;
+                  const velocity = patternStep?.velocity ?? 0.8;
+                  const isSnare = drum.type === 'snare';
+                  const isGhost = isActive && isSnare && velocity < GHOST_VELOCITY_MAX;
+                  const isSnareAccent = isActive && isSnare && !isGhost;
                   const isCurrent = currentStep === stepIndex && isPlaying;
 
                   return (
                     <button
                       key={stepIndex}
-                      className={`step-button ${isActive ? 'active' : ''} ${isCurrent ? 'current' : ''}`}
+                      type="button"
+                      className={`step-button ${isActive ? 'active' : ''} ${isGhost ? 'ghost' : ''} ${isSnareAccent ? 'snare-accent' : ''} ${isCurrent ? 'current' : ''}`}
                       onClick={() => toggleStep(stepIndex, drum.id)}
+                      title={
+                        isGhost
+                          ? `Ghost snare (${Math.round(velocity * 100)}% vel.)`
+                          : isSnareAccent
+                            ? `Accent snare (${Math.round(velocity * 100)}% vel.)`
+                            : undefined
+                      }
                     >
-                      {isActive && '●'}
+                      {isActive && (isGhost ? '·' : '●')}
                     </button>
                   );
                 })}
