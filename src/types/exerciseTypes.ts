@@ -33,6 +33,8 @@ export interface ExerciseDefinition {
   bars: number;
   /** Note duration (e.g., "8" for eighth notes) */
   noteDuration: string;
+  /** Optional exercise tempo in BPM (falls back to 120 when omitted) */
+  bpm?: number;
   /** Pattern definition - function that returns drums for each position */
   pattern: (beat: number, position: number, totalPosition: number) => DrumNote[];
 }

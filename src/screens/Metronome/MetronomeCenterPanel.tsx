@@ -125,9 +125,10 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
         </div>
       </div>
 
-      {/* Visual Beat Indicator */}
+      {/* Beat count circle — tap to play / stop */}
       <div className="beat-indicator">
-        <div
+        <button
+          type="button"
           className={`beat-circle ${isPlaying ? 'active' : ''} ${mainBeatNumber === 1 ? 'downbeat' : ''}`}
           style={{
             boxShadow:
@@ -135,15 +136,14 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
                 ? `0 0 ${30 * visualFlashIntensity}px rgba(76, 175, 80, ${0.6 * visualFlashIntensity})`
                 : undefined,
           }}
+          onClick={toggleMetronome}
+          aria-pressed={isPlaying}
+          aria-label={isPlaying ? 'Stop metronome' : 'Start metronome'}
         >
-          <div className="beat-number">{mainBeatNumber}</div>
-        </div>
+          <span className="beat-number">{mainBeatNumber}</span>
+          <span className="beat-circle-action-label">{isPlaying ? 'Stop' : 'Play'}</span>
+        </button>
       </div>
-
-      {/* Play/Stop Button */}
-      <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={toggleMetronome}>
-        {isPlaying ? '⏸ Stop' : '▶ Play'}
-      </button>
 
       <div className="metronome-bar-row">
         <div className="metronome-bar-counter" aria-live="polite">

@@ -1,0 +1,60 @@
+1. What does this application do in one sentence?
+
+It’s an interactive drum kit learning platform—a web app for practicing drums with tools like a playable kit, metronome, notation-based exercises, and rhythm/pattern practice (per package.json and the features in the repo).
+
+----
+
+2. Who is the primary user and what is their core need?
+
+Primary user: Someone who is learning or practicing drum kit—often at a keyboard, with or without a real kit or MIDI.
+Core need: To hear and see what to play, practice timing and patterns, and get clear feedback (virtual kit sounds, metronome, written exercises, optional MIDI) so they can improve without only relying on a teacher or a physical setup.
+
+---
+
+3. What is the step-by-step flow from sign-up to core value?
+
+Tracing auth and navigation in the codebase to map the real user flow.
+Here’s how it works in this codebase today (not a hypothetical full product):
+Reality check
+There is no real sign-up or server account. “Sign up” and “Log in” both open the same AuthModal, which only accepts demo credentials (demo@drumkit.local / DrumKit123) and then sets localStorage (drumkitAuth.loggedIn, drumkitAuth.email). So the flow is a client-only “signed in” flag, not registration.
+  Step-by-step: from “sign-up” to core value
+Open the app → you’re on / (home) with tiles (Practice, Exercises, MIDI, Metronome, Progress, Settings) and the main Navigation bar (About, Settings, Sign up / Log in).
+Click “Sign up” (or “Log in”) → AuthModal opens.
+Enter the demo email and password shown in the modal → submit (“Create account” or “Log in”).
+Modal closes → Navigation shows you as signed in (email + Log out).
+Go to where the learning happens — e.g. “Start Practice” (/practice) for the virtual kit, “Exercises” (/exercises) for notation/patterns, or “Metronome” (/metronome) for timekeeping.
+Core value moment — you play or follow along with immediate sound and UI (kit hits, metronome clicks/visuals, exercise UI).
+Important nuance
+Most of that core value does not require sign-in. You can hit Practice, Exercises, or Metronome from home without logging in. Signing in mainly unlocks gated pieces: Advanced metronome (and related UI) when logged in, and the Sequencer entry in NavBarHome (shown on inner screens), which is locked until login.
+
+So a fair one-line summary: “Sign-up” here is demo login that flips a local flag; core value is reached by opening Practice/Exercises/Metronome and using them, with a few extras only after that demo login.
+
+---
+
+4. What are the three most important features for the first version?
+
+For a first version of this app, the three features that matter most—because they match the README and the main paths from the home screen—are:
+Interactive virtual drum kit (Practice) — the core “play drums in the browser” experience with immediate audio (and keyboard/MIDI-style input if you wire it), which is what the project describes first.
+Exercise / notation experience (Exercises) — structured material (e.g. VexFlow-style patterns) so practice isn’t only free play; it turns the kit into a learning surface.
+Metronome — steady time and subdivisions are non‑negotiable for drummers; it supports the kit and exercises and stands on its own from the home tiles.
+Honorable mentions that support v1 but are slightly less central than those three: Connect MIDI (hardware bridge) and Progress (meaningful once exercises and sessions are solid).
+
+---
+
+5. What is explicitly out of scope?
+
+The repo never uses the phrase “out of scope.” What is explicit is what is not part of the product today and what is called out as future-only.
+Explicitly deferred (README — “Future Expansion”)
+These are listed as not what you get now, but directions the project is “structured to support” later:
+Real user authentication (accounts, real sign-up/login)
+Progress tracking
+Multiple exercise libraries
+Advanced rhythm patterns (as a separate expansion line)
+Social features
+Performance analytics
+Explicitly not in the current implementation (code / UI copy)
+Backend auth or any server-backed identity — the auth modal labels it “Demo login (no backend)”, and metronome code comments describe “Client-only auth gating for limited services (no backend).”
+So in practice: anything that needs a real backend, persistent accounts, social graph, or analytics product is explicitly not in scope for the current build, and several of those same areas are explicitly named as future expansion in the README—not as shipped v1 promises.
+
+---
+

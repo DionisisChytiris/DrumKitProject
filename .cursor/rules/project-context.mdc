@@ -1,0 +1,31 @@
+---
+description: Project source-of-truth context. Read templates/ before any change.
+alwaysApply: true
+---
+
+# Project Context — Read These First
+
+This is the **Drum Kit Learning Platform**: a client-side React + TypeScript SPA built with Vite, Redux Toolkit, Tone.js, and VexFlow. No backend, no database, no service worker. Persistence is `localStorage` only.
+
+## Required reading before planning or coding any change
+
+Before answering a question, planning, refactoring, adding a feature, or generating new content, **read the relevant template files in `templates/`**. They are the project's source of truth and must not be contradicted by new work without an explicit user decision.
+
+| When the task is about… | Read |
+| --- | --- |
+| What the app does, goals, scope, success criteria, audience | `templates/project-overview.md` |
+| Stack, folder ownership, storage model, auth model, invariants | `templates/architecture.md` |
+| TypeScript, React, Redux, audio, styling, persistence rules, quality gates | `templates/code-standards.md` |
+| Colors, typography, spacing, layout patterns, components, accessibility | `templates/ui-content.md` |
+
+For deeper grounding, `wExplanationFiles/ImportantQuestions.txt` and `wExplanationFiles/ImportantTechnicalQuestions.txt` contain prose Q&A that justifies the decisions in the templates.
+
+## Rules of engagement
+
+1. **Honor the templates.** If a request conflicts with `templates/architecture.md` (e.g. introduces a backend, a database, or a service worker) or `templates/code-standards.md` (e.g. adds CSS Modules, Tailwind, or a UI library), call it out before doing the work and ask the user how to proceed.
+2. **Match what already ships.** Do not describe placeholder screens (Connect MIDI, Progress, Settings, About) or MIDI as working features. They are placeholders per `templates/project-overview.md`.
+3. **No new dependencies without asking.** The stack is fixed in `templates/architecture.md`. Adding a UI library, icon library, CSS framework, test runner, or auth provider requires explicit user approval.
+4. **Use existing folder ownership.** Put new code where `templates/architecture.md` says it belongs (`screens/`, `components/`, `Modals/`, `store/`, `utils/`, `types/`, `data/`). Do not invent new top-level folders without asking.
+5. **Keep the studio visual language.** Follow the dark / glass / green-orange-red accent system documented in `templates/ui-content.md`. Prefer CSS custom properties over new hardcoded literals in new files.
+6. **Quality gates are non-negotiable.** `npm run build` (TypeScript strict) and `npm run lint` (zero warnings) must still pass after any change.
+7. **When the templates are wrong, fix the templates.** If the codebase has moved on, propose an edit to the relevant template alongside the code change so the source of truth stays accurate.

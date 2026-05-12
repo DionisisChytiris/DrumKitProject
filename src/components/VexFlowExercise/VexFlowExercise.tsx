@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Renderer,
   Stave,
@@ -12,16 +12,35 @@ import {
 import * as Tone from "tone";
 import { ExerciseDefinition } from "@/types/exerciseTypes";
 import { audioManager } from "@/utils/audioManager";
+import { DrumPiece } from "@/types";
+import { useAppSelector } from "@/store/hooks";
+import { ClickSound } from "@/store/slices/metronomeSlice";
 
 interface VexFlowExerciseProps {
   exercise: ExerciseDefinition;
 }
 
 const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
+  const { drumKit } = useAppSelector((state) => state.drumKit);
+  const { clickSound, volume: metronomeVolume } = useAppSelector((state) => state.metronome);
   const ref = useRef<HTMLDivElement>(null);
   const allNotesRef = useRef<StaveNote[]>([]);
   const barXPositionsRef = useRef<number[]>([]);
   const ctxRef = useRef<SVGContext | null>(null);
+
+  const getExerciseDrum = useCallback((vexKey: string): DrumPiece | undefined => {
+    if (vexKey === "x/5") return drumKit.find((drum) => drum.id === "hihat");
+    if (vexKey === "f/2") return drumKit.find((drum) => drum.id === "kick");
+    if (vexKey === "c/3") return drumKit.find((drum) => drum.id === "snare");
+    if (vexKey === "d/4") {
+      const tomPriority = ["high-tom", "mid-tom", "floor-tom", "low-floor-tom", "tom"];
+      for (const tomId of tomPriority) {
+        const matchedTom = drumKit.find((drum) => drum.id === tomId);
+        if (matchedTom) return matchedTom;
+      }
+    }
+    return undefined;
+  }, [drumKit]);
 
   // Using audioManager directly instead of Tone.js synths for better reliability
 
@@ -221,6 +240,18 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      if (countInIntervalRef.current) {
+        clearInterval(countInIntervalRef.current);
+        countInIntervalRef.current = null;
+      }
+      if (countInStartTimeoutRef.current) {
+        clearTimeout(countInStartTimeoutRef.current);
+        countInStartTimeoutRef.current = null;
+      }
+      if (countInStartTimeoutRef.current) {
+        clearTimeout(countInStartTimeoutRef.current);
+        countInStartTimeoutRef.current = null;
+      }
       Tone.Transport.stop();
       Tone.Transport.cancel();
     };
@@ -228,6 +259,65 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const currentNoteIndexRef = useRef<number>(0);
+  const countInIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countInStartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countInAudioContextRef = useRef<AudioContext | null>(null);
+  const [exerciseTempos, setExerciseTempos] = useState<Record<number, number>>({});
+  const defaultTempo = exercise.bpm ?? 120;
+  const exerciseTempo = exerciseTempos[exercise.id] ?? defaultTempo;
+  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
+
+  const playMetronomeStyleClick = useCallback((isDownbeat: boolean) => {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!countInAudioContextRef.current) {
+      countInAudioContextRef.current = new AudioContextClass();
+    }
+    const audioContext = countInAudioContextRef.current;
+    if (audioContext.state === "suspended") {
+      audioContext.resume().catch(() => {
+        // If resume fails, we simply skip this click.
+      });
+    }
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    let frequency = isDownbeat ? 880 : 640;
+    let baseVolume = isDownbeat ? 0.35 : 0.22;
+    let oscillatorType: OscillatorType = "sine";
+
+    switch (clickSound as ClickSound) {
+      case "tick":
+        oscillatorType = "sine";
+        break;
+      case "beep":
+        oscillatorType = "square";
+        frequency *= 1.2;
+        baseVolume += 0.03;
+        break;
+      case "wood":
+        oscillatorType = "sawtooth";
+        frequency *= 0.82;
+        break;
+      case "metallic":
+        oscillatorType = "triangle";
+        frequency *= 1.45;
+        break;
+    }
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = oscillatorType;
+
+    const finalVolume = Math.max(0.05, Math.min(1, baseVolume * metronomeVolume));
+    const now = audioContext.currentTime;
+    gainNode.gain.setValueAtTime(finalVolume, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.11);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.11);
+  }, [clickSound, metronomeVolume]);
 
   const scheduleNotes = () => {
     if (!allNotesRef.current.length || !ctxRef.current) return;
@@ -273,8 +363,8 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
       }
     }
 
-    // BPM = 120, calculate interval based on note duration
-    const BPM = 120;
+    // Use exercise BPM, falling back to 120 when not specified.
+    const BPM = exerciseTempo;
     let intervalMs: number;
     if (exercise.noteDuration === "8t") {
       // For triplets: 3 notes per beat, so each note is 1/3 of a beat
@@ -292,17 +382,21 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
 
     currentNoteIndexRef.current = 0;
 
-    // Use setInterval for more reliable timing
-    intervalRef.current = setInterval(() => {
-      const i = currentNoteIndexRef.current;
+    const playScheduledStep = () => {
+      let i = currentNoteIndexRef.current;
       
       if (i >= allNotesRef.current.length) {
-        // Finished playing
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+        if (!isLoopEnabled) {
+          // Finished playing (loop disabled)
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          return;
         }
-        return;
+        // Restart from the beginning when loop is enabled.
+        currentNoteIndexRef.current = 0;
+        i = 0;
       }
 
       // Calculate beat and position based on note duration
@@ -335,22 +429,11 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
       drumNotes.forEach(drumNote => {
         try {
           // Use audioManager directly - it handles AudioContext properly and has fallbacks
-          if (drumNote.key === "x/5") {
-            // Hi-hat
-            audioManager.playSound("hihat");
-            console.log("  ✓ Playing hi-hat via audioManager");
-          } else if (drumNote.key === "f/2") {
-            // Kick
-            audioManager.playSound("kick");
-            console.log("  ✓ Playing kick via audioManager");
-          } else if (drumNote.key === "c/3") {
-            // Snare
-            audioManager.playSound("snare");
-            console.log("  ✓ Playing snare via audioManager");
-          } else if (drumNote.key === "d/4") {
-            // Tom
-            audioManager.playSound("tom");
-            console.log("  ✓ Playing tom via audioManager");
+          const mappedDrum = getExerciseDrum(drumNote.key);
+          if (mappedDrum) {
+            // Use the currently customized kit sound (audioUrl) for exercise playback.
+            audioManager.playSound(mappedDrum.id, mappedDrum.audioUrl);
+            console.log(`  ✓ Playing ${mappedDrum.id} via customized kit audio`);
           } else {
             console.warn("  ⚠️ No handler for drum key:", drumNote.key);
           }
@@ -376,7 +459,12 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
       });
 
       currentNoteIndexRef.current++;
-    }, intervalMs);
+    };
+
+    // Play the first exercise step immediately so it aligns with the count-in downbeat.
+    playScheduledStep();
+    // Then continue at regular interval.
+    intervalRef.current = setInterval(playScheduledStep, intervalMs);
 
     console.log(`Started interval-based playback, ${allNotesRef.current.length} notes, interval: ${intervalMs}ms`);
   };
@@ -387,10 +475,52 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
       
       // Use audioManager directly - it's more reliable and handles AudioContext properly
       console.log("Using audioManager for all sounds");
-      
-      // Start the exercise playback
-      scheduleNotes();
-      console.log("Exercise playback scheduled");
+
+      // Ensure we are not running previous timers before starting a new count-in.
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      if (countInIntervalRef.current) {
+        clearInterval(countInIntervalRef.current);
+        countInIntervalRef.current = null;
+      }
+
+      // One bar count-in (quarter-note clicks) before the exercise starts.
+      const BPM = exerciseTempo;
+      const beatIntervalMs = (60 / BPM) * 1000;
+      const beatsInBar = Math.max(1, exercise.timeSignature);
+      let countInBeat = 1;
+
+      // Immediate first click gives better feedback when pressing Play.
+      playMetronomeStyleClick(true);
+      console.log(`[VexFlowExercise] Count-in beat ${countInBeat}/${beatsInBar}`);
+
+      if (beatsInBar === 1) {
+        countInStartTimeoutRef.current = setTimeout(() => {
+          scheduleNotes();
+          console.log("Exercise playback scheduled after count-in");
+        }, beatIntervalMs);
+        return;
+      }
+
+      countInIntervalRef.current = setInterval(() => {
+        countInBeat += 1;
+        playMetronomeStyleClick(false);
+        console.log(`[VexFlowExercise] Count-in beat ${countInBeat}/${beatsInBar}`);
+
+        if (countInBeat >= beatsInBar) {
+          if (countInIntervalRef.current) {
+            clearInterval(countInIntervalRef.current);
+            countInIntervalRef.current = null;
+          }
+          // Start exactly one beat after the final count-in click.
+          countInStartTimeoutRef.current = setTimeout(() => {
+            scheduleNotes();
+            console.log("Exercise playback scheduled after count-in");
+          }, beatIntervalMs);
+        }
+      }, beatIntervalMs);
       
     } catch (error) {
       console.error("Error starting audio:", error);
@@ -402,6 +532,14 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
+    }
+    if (countInIntervalRef.current) {
+      clearInterval(countInIntervalRef.current);
+      countInIntervalRef.current = null;
+    }
+    if (countInStartTimeoutRef.current) {
+      clearTimeout(countInStartTimeoutRef.current);
+      countInStartTimeoutRef.current = null;
     }
     
     Tone.Transport.stop();
@@ -474,10 +612,90 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
     beams.forEach((b) => b.setContext(ctx).draw());
   };
 
+  const handleTempoChange = (tempo: number) => {
+    const safeTempo = Math.max(30, Math.min(300, Math.round(tempo)));
+    setExerciseTempos((prev) => ({
+      ...prev,
+      [exercise.id]: safeTempo,
+    }));
+  };
+
+  const resetTempo = () => {
+    setExerciseTempos((prev) => {
+      const next = { ...prev };
+      delete next[exercise.id];
+      return next;
+    });
+  };
+
   return (
     <div style={{ position: 'relative', zIndex: 10 }}>
       <h2 style={{ color: 'white', marginBottom: 10 }}>{exercise.title}</h2>
       {exercise.description && <p style={{ marginTop: 10, marginBottom: 10, fontStyle: 'italic', color: 'white' }}>{exercise.description}</p>}
+      <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: 'white' }}>
+        <span style={{ fontWeight: 600 }}>Tempo:</span>
+        <button
+          onClick={() => handleTempoChange(exerciseTempo - 5)}
+          style={{
+            padding: '6px 10px',
+            fontSize: '14px',
+            cursor: 'pointer',
+            backgroundColor: '#444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+          }}
+          title="Decrease tempo by 5 BPM"
+        >
+          -5
+        </button>
+        <input
+          type="number"
+          min={30}
+          max={300}
+          value={exerciseTempo}
+          onChange={(e) => handleTempoChange(Number(e.target.value))}
+          style={{
+            width: '78px',
+            padding: '6px 8px',
+            borderRadius: '4px',
+            border: '1px solid #888',
+            fontSize: '14px',
+            textAlign: 'center',
+          }}
+        />
+        <span style={{ minWidth: 32 }}>BPM</span>
+        <button
+          onClick={() => handleTempoChange(exerciseTempo + 5)}
+          style={{
+            padding: '6px 10px',
+            fontSize: '14px',
+            cursor: 'pointer',
+            backgroundColor: '#444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+          }}
+          title="Increase tempo by 5 BPM"
+        >
+          +5
+        </button>
+        <button
+          onClick={resetTempo}
+          style={{
+            padding: '6px 10px',
+            fontSize: '14px',
+            cursor: 'pointer',
+            backgroundColor: '#666',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+          }}
+          title={`Reset to default tempo (${defaultTempo} BPM)`}
+        >
+          Reset
+        </button>
+      </div>
       <div ref={ref} />
       <div style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'center' }}>
         <button 
@@ -519,6 +737,27 @@ const VexFlowExercise: React.FC<VexFlowExerciseProps> = ({ exercise }) => {
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e24a4a'}
         >
           ■ Stop
+        </button>
+        <button
+          onClick={() => setIsLoopEnabled((prev) => !prev)}
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: isLoopEnabled ? '#2d8a45' : '#666666',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            fontWeight: 'bold',
+            position: 'relative',
+            zIndex: 1000,
+            pointerEvents: 'auto'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLoopEnabled ? '#236b35' : '#545454'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isLoopEnabled ? '#2d8a45' : '#666666'}
+          title="Toggle looping for this exercise"
+        >
+          {isLoopEnabled ? '🔁 Loop: ON' : '🔁 Loop: OFF'}
         </button>
       </div>
     </div>

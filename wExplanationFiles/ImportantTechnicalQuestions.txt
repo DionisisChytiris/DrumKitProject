@@ -1,0 +1,379 @@
+1. what is the full technology stack and why each choice?
+
+Here is the stack as defined by this repo (package.json, vite.config.ts, tsconfig.json), plus why each piece is a sensible fit for an interactive drum-learning app. The codebase does not spell out every rationale in prose; where it does not, the reasons below are the usual engineering reasons for these choices.
+
+Application platform
+Single-page app in the browser — Deliverable is a static front end you run with Vite; no Node server or API layer is part of the stack.
+Core UI and language
+React 18 + React DOM — Standard component model for a rich, stateful UI (kit pads, metronome controls, modals, exercises). Large ecosystem and straightforward mental model for interactive views.
+TypeScript — tsconfig uses strict mode, path aliases, and react-jsx. Types help keep audio state, exercise definitions, and Redux slices consistent as the app grows (README also calls out TypeScript explicitly).
+Build, dev server, and bundling
+Vite 5 — Fast cold start and HMR for day-to-day development; ESM-native bundling fits a modern React SPA.
+@vitejs/plugin-react — Official integration for React (Fast Refresh, JSX transform).
+Routing
+React Router DOM v6 — Client-side routes (/practice, /metronome, /exercises, etc.) without full page reloads, which suits a multi-screen learning app.
+Global state
+Redux Toolkit + React Redux — Centralized, predictable state for cross-cutting concerns (for example metronome BPM, time signature, playback flags) that many screens and hooks read or update. RTK reduces boilerplate versus classic Redux.
+Domain-specific libraries
+Tone.js — Web Audio–oriented toolkit with transport, scheduling, and synthesis/sampling patterns suited to metronomes, clicks, and timed playback—hard to get right with raw AudioContext alone.
+VexFlow — Mature music notation rendering in the browser, aligned with an “exercise display” / reading-rhythms product.
+Code quality (tooling only)
+ESLint + @typescript-eslint/* + eslint-plugin-react-hooks + eslint-plugin-react-refresh — Catches common React and TypeScript issues and keeps Fast Refresh safe.
+Project ergonomics (configured, not always “dependencies”)
+@/ path alias (vite.config + tsconfig) — Shorter imports and clearer module boundaries as src/ grows.
+Styling (implicit from the repo)
+Plain CSS files (e.g. screen-level *.css like Metronome.css) — No Tailwind/CSS-in-JS library appears in package.json; styling is hand-authored CSS alongside components.
+Not in package.json (so not part of the declared stack)
+No test runner (Jest/Vitest/Playwright), no UI kit, no backend framework, no database — those are simply absent from the dependency list; anything there would be adding scope beyond what this repo installs today.
+Bottom line: The stack is a TypeScript React SPA built with Vite, with Redux for shared app state, Tone.js for musical time and audio, and VexFlow for notation—each chosen to match interactive practice, timing, and reading music in the browser without a custom server.
+
+---
+
+2. Where does data live database, file storage, cache?
+
+Here is how data actually lives in this project today:
+Database
+None. There is no server database, no ORM, and no hosted data store. Everything is client-side.
+File storage
+Bundled static files — Drum samples and other assets live in the repo (for example under public/ and src/assets/) and are loaded over HTTP (e.g. fetch in audioManager / enhancedAudioManager).
+No cloud file storage — Nothing like S3 or user-specific server files appears in the stack.
+User “files” — Custom kit work is oriented toward embedding sample data in the app state (comments in CustomizeModal mention base64 for localStorage persistence; the Redux store merge logic strips non-serializable File objects when saving). So uploads are not stored as separate files on disk in the app—they end up as serialized state in the browser.
+Cache
+No dedicated cache layer (no Redis, no app-level disk cache API, no service worker cache called out in the dependencies you have been using).
+What you do have:
+localStorage (persistent in the browser)
+drumKitState — full Redux snapshot (drum kit, metronome, mixer) subscribed in store.ts.
+mixerState — duplicate save of mixer slice for easier access (store.ts / mixerSlice).
+drumkitAuth.loggedIn, drumkitAuth.email — demo auth flags (AuthModal, Navigation, etc.).
+drumKitSequencerPatterns, drumKitSequencerCurrentPattern — pattern sequencer data (PatternSequencer.tsx).
+In-memory only — React component state, Redux while the tab is open, and decoded audio buffers after fetch (normal RAM use; gone on refresh unless re-fetched).
+
+Implicit HTTP cache — The browser may cache static audio URLs like any other fetch; the app does not configure a separate cache store.
+
+One-line summary: Data lives in localStorage + static assets in the repo, with Redux as the in-memory source of truth while the app runs—no database and no real file-storage backend.
+
+---
+
+3. How does authentication work?
+
+Authentication in this app is not real server auth; it is a small client-side demo gate.
+
+What happens on “Log in” / “Sign up”
+The main Navigation bar opens AuthModal in either login or signup mode (same modal, different title).
+On submit, validate() runs: it only accepts the fixed demo pair demo@drumkit.local / DrumKit123. Anything else shows “For now, use the demo credentials.”
+If validation passes, the modal runs client-only “auth”:
+localStorage.setItem('drumkitAuth.loggedIn', 'true')
+localStorage.setItem('drumkitAuth.email', DEMO_EMAIL) (always the demo email, not necessarily what was typed—though it must match to pass).
+onSuccess runs so Navigation can set React state to “logged in,” then the modal closes.
+There is no API call, no password hash, no token, no cookie session, and no server verification.
+
+How the app treats “logged in”
+On load, components read localStorage.getItem('drumkitAuth.loggedIn') === 'true' (e.g. Navigation, NavBarHome, Metronome).
+storage events update UI if localStorage changes in another tab.
+Log out (Navigation) removes drumkitAuth.loggedIn and drumkitAuth.email.
+What “auth” is used for
+It only unlocks or enables UI paths that check that flag (for example Advanced metronome when logged in, Sequencer in NavBarHome when logged in). It does not protect a backend or encrypt user data.
+
+In one sentence: “Authentication” is checking demo credentials in the browser and setting a localStorage boolean, with no network identity layer.
+
+---
+
+4. What are the system boundaries which folder owns what responsibility?
+
+Here is a practical boundary map for this repo: what each top-level area is responsible for and what it should not own.
+
+src/App.tsx, src/main.tsx
+Boundary: Application shell — router wiring, root layout, global providers (Redux, etc.).
+Not for: Feature logic, audio engines, or heavy UI.
+
+src/screens/
+Boundary: Route-level pages — one main component per URL (HomeScreen, Practice, Metronome, Exercises, ConnectMIDI, Progress, Settings, About). Composes smaller components and hooks local to that flow.
+Subfolder src/screens/Metronome/: Metronome-only UI pieces, timing helper (metronomeTiming.ts), and useMetronomeEngine.ts (audio/tick engine for that screen).
+src/screens/styles/: CSS scoped to those screens.
+Not for: Global Redux slice definitions (those live under store/), or generic widgets reused everywhere (prefer components/).
+
+src/components/
+Boundary: Reusable feature UI used across or beside screens — e.g. VirtualDrumKit, PatternSequencer, Navigation, Mixer, MetronomeDisplay, VexFlowExercise. Co-located *.css where present.
+Not for: Route composition only (that stays in screens/), or raw app bootstrap.
+
+src/Modals/
+Boundary: Overlay flows — auth, customize kit, mixer, sequencer, key bindings, practice sound settings. Modal-specific styles.
+Not for: Non-modal page layout (use screens/).
+
+src/store/
+Boundary: Global client state — configureStore, store.ts (includes localStorage hydrate/persist), RTK slices (drumKit, metronome, mixer), typed hooks.ts.
+Not for: DOM, routing, or long audio scheduling (those stay in utils/ or screen hooks).
+
+src/utils/
+Boundary: Shared non-UI services and config — audioManager, enhancedAudioManager, drumConfig, audioFilesConfig (loading/decoding, kit defaults, URLs).
+Not for: React components or route-specific orchestration (that belongs with the screen/component).
+
+src/types/
+Boundary: Shared TypeScript types used across slices, components, and data.
+Not for: Runtime values or React trees.
+
+src/data/
+Boundary: Static curriculum-style data (e.g. exercises.ts) — lists and definitions the app reads.
+Not for: API clients or user-generated persistence (there is no server; user data goes through Redux → localStorage).
+
+src/hooks/ and src/services/
+Boundary: Placeholders (.gitkeep only) — reserved for future shared hooks or API-style modules; no real boundaries yet.
+
+src/assets/
+Boundary: Static imports the bundler should own (images, small static files). Currently mostly placeholder.
+Large audio: typically under public/ at repo root (served as static URLs, not always under src/).
+
+Rule of thumb: screens/ = pages and wiring, components/ = reusable UI, Modals/ = dialogs, store/ = cross-app state, utils/ = audio/config helpers, types/ + data/ = shapes and static content. hooks/ / services/ are intentionally empty until you define those boundaries.
+
+---
+
+5. What are the rules the codebase must never violate?
+
+The repo does not define a written “constitution” of rules. What must not be violated if you want the project to stay healthy is whatever TypeScript, ESLint, and the lint script enforce.
+
+TypeScript (tsconfig.json) — build breaks if violated
+strict: true — no implicit any, strict null checks, etc.
+noUnusedLocals — unused locals are errors.
+noUnusedParameters — unused parameters are errors.
+noFallthroughCasesInSwitch — accidental switch fall-through is an error.
+npm run build runs tsc first, so these are hard gates for a production build.
+ESLint (.eslintrc.cjs + package.json) — npm run lint fails if violated
+--max-warnings 0 — any warning fails lint, not only errors. So “warn” rules behave like blockers.
+eslint:recommended — baseline JS correctness rules.
+plugin:@typescript-eslint/recommended — TS-specific lint rules.
+plugin:react-hooks/recommended — Rules of Hooks and dependency-array expectations for hooks.
+react-refresh/only-export-components (warn, but see above) — discourages non-component exports from files that should be Fast-Refresh–safe.
+@typescript-eslint/no-explicit-any (warn → effectively forbidden under --max-warnings 0).
+No automated “never” for architecture
+There are no checked rules in CI for things like “Redux must only live in store/” or “never call fetch from components”—those are conventions, not enforced invariants, unless you add tooling or tests later.
+
+Short answer: The codebase must not violate strict TypeScript, no unused locals/parameters, safe switch behavior, and ESLint (including React Hooks and zero warnings)—everything else is team discipline, not something the repo currently forbids by machine.
+
+DESIGN
+
+1. What is the visual language colors, typography, spacing?
+
+There is no shared design-token file (no CSS variables for a single palette). The “visual language” is implied by repeated patterns in index.css, App.css, and screen CSS (especially HomeScreen.css and Metronome.css), with some tension between files (for example :root in index.css vs body in App.css).
+
+Colors
+Dark, stage-like UI: Full-screen black (#000) or near-black page chrome, photo backgrounds (e.g. DrumStudio.png), and a darkening overlay (rgba(0, 0, 0, 0.35)) so foreground UI reads clearly.
+Primary text: White #ffffff on dark; secondary text muted white rgba(255, 255, 255, 0.6–0.75).
+Surfaces: Frosted / glass panels — rgba(255, 255, 255, 0.1) fills, rgba(255, 255, 255, 0.15–0.3) borders, backdrop-filter: blur(...) on tiles and controls.
+Accent — “go / time / active”: Green around #4caf50 (borders, glows, active beat).
+Accent — “downbeat / emphasis”: Orange #ff9800 (stronger glow on beat 1).
+Accent — “stop / danger”: Red in the rgba(244, 67, 54, …) family where “playing off” or stop-like emphasis appears.
+Supporting tints: Soft green-gray labels (e.g. #dcedc8 in metronome copy), shadows rgba(0, 0, 0, 0.3–0.75) for depth and readability on photos.
+Legacy / alternate lane in App.css: Light gray gradient page background (#f5f7fa → #c3cfe2), white cards at rgba(255, 255, 255, 0.9), purple tab active state #667eea / #764ba2, dark grays #2a2a2a–#333 — reads more “dashboard” than the drum-studio home/metronome screens.
+Typography
+Global intent (index.css): Inter first, then system-ui, Avenir, Helvetica, Arial; base font-weight: 400, line-height: 1.5, optimized legibility settings.
+Override path (App.css on body): System UI stack (-apple-system, Segoe UI, Roboto, …) — whichever loads last in the cascade wins for font-family on body.
+Product screens: Strong use of rem sizes, font-weight: 600–800, text-transform: uppercase and letter-spacing: 0.1em+ on small labels (metronome / sequence UI), plus text-shadow on text over imagery.
+Buttons: Often font-family: inherit (from index.css button rule) so they follow the active stack.
+Spacing and layout
+Scale: Mostly rem and px for fine UI (borders, scrollbars). Common rhythm: 0.5rem, 1rem, 1.5rem, 2rem, 2.5rem, 3rem for padding/gaps; gap in flex/grid is used heavily.
+Radius: border-radius: 8px, 14px, 16px for cards, tiles, and panels; full pills (50px) appear on older button patterns.
+Layout: Full-viewport shells (100vh / 100vw), centered content columns, max-width around 1200px on home tiles, responsive breakpoints in the 768px / 1024px / 1440px / 1920px range in Metronome.css and App.css.
+Interaction / focus
+Focus ring (index.css): outline: 2px solid #4a90e2, outline-offset: 2px on button:focus-visible (some components add their own focus styles).
+Honest summary
+The app reads as dark, cinematic practice rooms (photo + glass + green/orange beat language), while App.css still carries a lighter, card-based layout language for some shell pieces. There is no single enforced palette in code—consistency is by convention per screen, not by one global token layer.
+
+---
+
+2. What UI component library are you using?
+
+None. Dependencies are only React, React DOM, React Router, Redux Toolkit, React Redux, Tone.js, and VexFlow (package.json). UI is built with plain React and hand-written CSS (plus VexFlow for notation, which is not a general UI kit).
+
+---
+
+3. What does the layout look like at a high level?
+
+App shell (App.tsx)
+Everything routes inside a vertical flex layout: main.app-main holds the current page, and a persistent footer.app-footer sits under it on every route.
+
+Home (/)
+Full-viewport “stage”: fixed background photo (blurred / toned down) → dark overlay → foreground. Navigation sits at the top (brand, About, Settings, auth). The middle is a responsive grid of large tiles (Practice, Exercises, MIDI, Metronome, Progress, Settings) centered in the view.
+
+Metronome (/metronome)
+Same full-bleed background image pattern. NavBarHome at the top, then a horizontal strip of beat dots (and optional time-signature sequence summary). Below that, a three-column band: left (subdivision / basic vs advanced), center (BPM, big beat circle, bar counter / auto-BPM), right (settings).
+
+Practice (/practice)
+Full-viewport practice room: background image with absolutely positioned hit zones over the kit (percent / viewport-based layout). Before fullscreen: a simple back-to-home control and a fullscreen gate overlay (message + “Enter fullscreen”). In fullscreen: NavBarHome, optional MetronomeDisplay, the interactive kit layer, and a bottom instruction / key-hints strip plus modals (e.g. key bindings).
+
+Other routes (pattern)
+Screens like Exercises, Connect MIDI, Progress, Settings, About follow the same broad idea: full-height screen, often NavBarHome, content region with screen-specific CSS—not one rigid dashboard grid everywhere.
+
+In one line: The layout is mostly full-screen, layered “studio” pages (photo background + overlay + content), with a top nav on inner flows, home as a tile hub, and metronome as a clear three-column control strip under a beat-visualization row.
+
+
+PROCESS
+
+1. What are the major features broken into buildable units?
+
+Here is a practical breakdown into buildable units, aligned with how the repo is already split (routes, components, store, utils).
+
+1. App shell & routing
+App.tsx, main.tsx, routes — global layout, footer, Redux provider, router. Build: wire routes only, stub screens.
+
+2. Home hub
+HomeScreen + Navigation + tiles + HomeScreen.css. Build: landing grid and navigation to other units without those features implemented.
+
+3. Global state & persistence
+store/store.ts, store/slices/*, store/hooks.ts — Redux + localStorage hydrate/save. Build: slices and persistence as their own vertical slice; screens consume selectors/actions.
+
+4. Audio core (shared)
+utils/audioManager.ts, utils/enhancedAudioManager.ts, utils/drumConfig.ts, utils/audioFilesConfig.ts. Build: load/play samples, volumes, buffers — usable by Practice, Sequencer, Metronome paths.
+
+5. Practice / virtual kit
+Practice.tsx, Practice.css, hit-zone layout, fullscreen gate, keyboard handling. Build: interaction layer over the kit image without changing audio internals.
+
+6. Key bindings
+KeyBindingModal + integration with drumKit state. Build: map keys → pieces, persist via existing drum slice / localStorage.
+
+7. Drum kit customization
+CustomizeModal + drumKitSlice (custom samples, URLs, merging with defaults). Build: UI to assign sounds; serialization rules stay with store unit.
+
+8. Metronome (full feature)
+Metronome.tsx, screens/Metronome/* (useMetronomeEngine, panels, beat dots, sequence summary), metronomeSlice, Metronome.css. Build: engine + Redux + UI in slices (basic panels → advanced → auto-BPM ramp).
+
+9. Compact metronome (practice overlay)
+MetronomeDisplay — lighter UI used on Practice when fullscreen. Build: separately from full Metronome page if you want to ship practice first.
+
+10. Exercises / notation
+Exercises.tsx, VexFlowExercise, data/exercises.ts, types/exerciseTypes.ts, Exercises.css. Build: curriculum data + renderer + prev/next shell.
+
+11. Pattern sequencer
+PatternSequencer, groovePresets.ts, SequencerModal, localStorage keys for patterns. Build: grid editor + playback + save/load as one unit (depends on audio core + mixer optionally).
+
+12. Mixer
+Mixer, MixerModal, mixerSlice. Build: channel/global volume UI + state; can ship after basic kit audio.
+
+13. Practice sound settings
+PracticeSoundSettingsModal + whatever Redux/audio hooks it uses. Build: small focused modal unit.
+
+14. Demo authentication
+AuthModal, Navigation auth buttons, localStorage flags, gated UI (NavBarHome sequencer lock, Metronome advanced). Build: replaceable later with real auth without touching kit/metronome core.
+
+15. Navigation chrome (in-app)
+NavBarHome + modals it opens (mixer, sequencer, customize, etc.). Build: shell for non-home routes independently of page content.
+
+16. Placeholder / stub screens (thin vertical slices)
+Progress, ConnectMIDI, Settings, About — layout + background + title only today. Build: each as “screen shell + future content” without blocking core units.
+
+Dependency sketch (high level): (4) audio core and (3) store support (5) practice, (8) metronome, (11) sequencer, (7) customize; (10) exercises is mostly parallel once notation types/data exist; (14) auth is an optional gate on top of (8) and (11).
+
+--- 
+
+2. In what order should those units be built?
+
+Here is a sensible build order for a single track, based on dependencies first, then user-visible value, then richer features. You can parallelize some steps once the foundation exists (noted at the end).
+
+Phase 0 — Foundation
+App shell & routing — Every other unit hangs off this.
+Global state & persistence — configureStore, first drumKit slice + localStorage save/load pattern (other slices can stay minimal or stubbed).
+Audio core — Sample loading/playback used everywhere sound matters.
+Phase 1 — First shippable “product” slice
+Home hub — Lets you reach features; validates navigation and layout.
+Practice / virtual kit — Needs (2) + (3). This is the first full play + hear loop.
+NavBarHome + screen chrome — If not already done for Practice, finish it with the first inner screen so cross-page navigation feels real.
+Phase 2 — Deepen Practice
+Key bindings — Small, high leverage on Practice.
+Customize drum kit — Builds on drumKit + audio URLs; still mostly Practice-adjacent.
+Phase 3 — Shared “studio” controls
+Mixer — Global/channel control; Pattern sequencer already touches mixer volume in code, so having mixer before or with the sequencer avoids rework.
+Phase 4 — Time & reading
+Metronome (full page) — Own engine + metronome slice + UI; large enough to deserve its own phase after Practice is stable.
+
+MetronomeDisplay (practice overlay) — Easiest once metronome concepts (tempo, play state, sounds) exist; can be a thin reuse layer.
+
+Exercises / VexFlow — Mostly parallel to Metronome after (3) and basic (2) for types/data; slot it here if your priority is notation, or right after (6) if you want “learn” next to “play” early.
+
+Phase 5 — Rhythm authoring
+Pattern sequencer + SequencerModal — Depends on audio, drumKit, and mixer behavior; most moving parts.
+Phase 6 — Polish & gates
+Demo authentication — Late is fine; it only gates advanced bits until you need that for demos or tests.
+Practice sound settings — Narrow modal; after core audio + Practice UX exist.
+Placeholder screens (About, Settings, Progress, ConnectMIDI) — Anytime; lowest risk to defer.
+If product priority is “kit → exercises → metronome”: keep Phase 0 the same, ship Practice early, then do Exercises right after audio + store, and push Metronome to follow Exercises (still after audio is solid).
+
+Parallelization: After (3), one person can own Metronome while another owns Exercises, as long as Redux and audio contracts do not thrash. Sequencer should still wait until mixer + drum kit + audio are settled.
+
+---
+
+3. What does done look like for each unit?
+
+Below is what “done” looks like for each unit: observable behavior, not implementation detail. Adjust strictness if you want MVP vs polish.
+
+1. App shell & routing
+All primary routes resolve (/, /practice, /metronome, /exercises, /connectmidi, /progress, /about, /settings) without console errors.
+App wraps the tree with Router and Redux Provider as needed.
+A global footer (or deliberate removal) behaves consistently on every route.
+npm run build and npm run lint pass.
+2. Home hub
+Home loads full-viewport layout with background + overlay + content.
+Tiles navigate to the correct routes.
+Top Navigation works for About, Settings, and auth entry points (if auth exists).
+3. Global state & persistence
+Redux store initializes without errors.
+Chosen slices hydrate from localStorage on load and persist on change (or on explicit save—whatever you standardize on).
+Refreshing the page restores kit/metronome/mixer state that you claim to support, without breaking URLs or audio paths.
+Serialization never crashes the app (invalid stored JSON → safe fallback to defaults).
+4. Audio core
+Samples for default kit load and play reliably after a user gesture if the browser requires it.
+Errors (missing file, bad URL) fail gracefully (no white screen; user-visible or logged).
+Volume / mute hooks (if part of this unit) behave consistently across consumers.
+5. Practice / virtual kit
+User can enter fullscreen (or your chosen gate) and trigger every mapped piece via click/touch and/or keyboard.
+Each hit produces correct sound with acceptable latency.
+Leaving fullscreen / navigating away cleans up listeners and does not leak errors.
+Instructions / hints match actual bindings.
+6. Key bindings
+User can change bindings, save, refresh, and see bindings restored.
+Conflicts are prevented or resolved with clear UX (no silent overwrite unless intended).
+Modal is keyboard-accessible (Escape to close, focus trap reasonable).
+7. Customize drum kit
+User can assign per-piece samples (or URLs) and hear them immediately in Practice.
+After refresh, customizations persist (per your persistence story).
+Invalid uploads are rejected with clear feedback; large files do not freeze the tab unreasonably.
+8. Metronome (full page)
+Start/stop produces stable tempo at BPM edges (min/max).
+Time signature, subdivision, and accents match what you hear and what the UI shows.
+Advanced flows (if in scope) work only when allowed; basic mode always usable.
+Visual beat indicator stays in sync with audio under normal load (no systematic drift within a session).
+9. MetronomeDisplay (practice overlay)
+Shows only when Practice is in the intended mode (e.g. fullscreen).
+Controls map clearly to play/stop (and any other promised controls).
+Does not break Practice layout or steal focus in a broken way.
+10. Exercises / VexFlow
+Exercise list (or index) loads; prev/next cycles through all entries without breaking.
+Notation renders for each exercise; no VexFlow throw that blanks the screen.
+Any interaction defined for v1 (playback, highlight, check—whatever you scope) works end-to-end or is explicitly hidden until ready.
+11. Pattern sequencer (+ modal if applicable)
+User can create/edit a pattern, play it in time, and stop cleanly.
+Patterns save to localStorage and reload after refresh.
+BPM changes apply predictably; switching patterns does not corrupt state.
+12. Mixer
+All exposed channels / master affect audible levels in real time.
+Settings persist across refresh if that is a goal for this unit.
+Opening/closing the mixer modal does not reset unrelated Redux state.
+13. Practice sound settings
+Each exposed control changes audible behavior in Practice (or documented global behavior).
+Settings persist if that is in scope; otherwise reset is explicit and documented.
+14. Demo authentication
+Login and signup paths both set the same “logged in” behavior you define.
+Wrong credentials show a clear message; correct demo credentials always succeed.
+Logout clears flags and locks gated UI again.
+Gated features match the flag 100% (no “locked UI but still callable API” holes).
+15. NavBarHome / in-app navigation chrome
+Every linked route from the bar works; active styling (if any) matches current path.
+Modals launched from the bar open/close without routing bugs.
+Locked items (e.g. sequencer) show the promised tooltip/disabled state and never open when locked.
+16. Placeholder screens (About, Settings, Progress, ConnectMIDI)
+Each route renders a coherent shell: background, title, and either “coming soon” copy or real content—no broken layout or dead clicks that error.
+If a tile links to Settings but route is stub, behavior is intentional and explained on the page.
+Cross-unit “done” bar (optional but strong)
+
+Accessibility smoke: keyboard can reach primary actions; focus visible on default buttons.
+Mobile smoke: no horizontal overflow on key screens you care about.
+No regressions: lint + build green after the unit merges.
+If you want, these can be turned into a checklist per PR (one unit per PR is ideal).
