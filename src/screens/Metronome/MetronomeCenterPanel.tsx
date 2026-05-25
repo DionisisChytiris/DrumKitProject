@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setBpm, type Subdivision } from '@/store/slices/metronomeSlice';
 import { getMainBeatNumber } from './metronomeTiming';
+import { TimeSignatureBeatDots } from './TimeSignatureBeatDots';
 
 interface MetronomeCenterPanelProps {
   beat: number;
@@ -39,53 +40,32 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
   onAutoBpmEveryBarsChange,
 }) => {
   const dispatch = useAppDispatch();
-  const { bpm } = useAppSelector((state) => state.metronome);
-
-  const [bpmInputValue, setBpmInputValue] = useState<string>(bpm.toString());
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (inputRef.current !== document.activeElement) {
-      setBpmInputValue(bpm.toString());
-    }
-  }, [bpm]);
+  const { bpm, accentPattern } = useAppSelector((state) => state.metronome);
 
   const handleBpmChange = (newBpm: number) => {
     dispatch(setBpm(newBpm));
-  };
-
-  const handleBpmInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setBpmInputValue(value);
-
-    if (value !== '') {
-      const numValue = parseInt(value, 10);
-      if (!isNaN(numValue) && numValue >= 30 && numValue <= 400) {
-        handleBpmChange(numValue);
-      }
-    }
-  };
-
-  const handleBpmBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-    if (isNaN(value) || value < 30) {
-      dispatch(setBpm(30));
-      setBpmInputValue('30');
-    } else if (value > 400) {
-      dispatch(setBpm(400));
-      setBpmInputValue('400');
-    } else {
-      dispatch(setBpm(value));
-      setBpmInputValue(value.toString());
-    }
   };
 
   const mainBeatNumber = getMainBeatNumber(beat, subdivision, timeSignature, timeSignatureDenom);
 
   return (
     <div className="metronome-controls">
+      <TimeSignatureBeatDots
+        variant="top"
+        beat={beat}
+        isPlaying={isPlaying}
+        subdivision={subdivision}
+        timeSignature={timeSignature}
+        timeSignatureDenom={timeSignatureDenom}
+        accentPattern={accentPattern}
+      />
+                    {/* {useTimeSignatureSequence && timeSignatureSegments.length > 0 && (
+                        <div className="metronome-sequence-summary-shell">
+                            <MetronomeSequenceSummary segments={timeSignatureSegments} />
+                        </div>
+                    )} */}
       {/* BPM Control */}
-      <div className="bpm-control">
+      {/* <div className="bpm-control">
         <div className="bpm-input-group">
           <button
             className="bpm-button"
@@ -123,26 +103,54 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
             onChange={(e) => handleBpmChange(parseInt(e.target.value, 10))}
           />
         </div>
-      </div>
+      </div> */}
 
       {/* Beat count circle — tap to play / stop */}
       <div className="beat-indicator">
+        <button
+            className="bpm-button"
+            onClick={() => handleBpmChange(bpm - 1)}
+            disabled={bpm <= 30}
+          >
+            −
+          </button>
         <button
           type="button"
           className={`beat-circle ${isPlaying ? 'active' : ''} ${mainBeatNumber === 1 ? 'downbeat' : ''}`}
           style={{
             boxShadow:
               isPlaying && visualFlashIntensity > 0
-                ? `0 0 ${30 * visualFlashIntensity}px rgba(76, 175, 80, ${0.6 * visualFlashIntensity})`
+                ? `0 0 ${30 * visualFlashIntensity}px rgba(var(--accent-primary-rgb), ${0.6 * visualFlashIntensity})`
                 : undefined,
           }}
           onClick={toggleMetronome}
           aria-pressed={isPlaying}
           aria-label={isPlaying ? 'Stop metronome' : 'Start metronome'}
         >
-          <span className="beat-number">{mainBeatNumber}</span>
+          {/* <span className="beat-number">{mainBeatNumber}</span> */}
+          <span className="beat-number">{bpm}</span>
           <span className="beat-circle-action-label">{isPlaying ? 'Stop' : 'Play'}</span>
         </button>
+
+        <button
+            className="bpm-button"
+            onClick={() => handleBpmChange(bpm + 1)}
+            disabled={bpm >= 400}
+          >
+            +
+          </button>
+
+          <div className="bpm-slider-container">
+          <input
+            type="range"
+            className="bpm-slider"
+            min="30"
+            max="400"
+            step="1"
+            value={bpm}
+            onChange={(e) => handleBpmChange(parseInt(e.target.value, 10))}
+          />
+        </div>
       </div>
 
       <div className="metronome-bar-row">

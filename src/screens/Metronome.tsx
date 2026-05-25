@@ -55,7 +55,13 @@ const Metronome: React.FC = () => {
             <div className="metronome-background"></div>
             <div className="metronome-content">
                 <NavBarHome />
-                <div className="metronome-top-beat-dots">
+                <header className="metronome-header">
+                    <h1 className="metronome-title">Metronome</h1>
+                    <p className="metronome-onboarding">
+                        Tap the circle to start · Advanced needs demo login
+                    </p>
+                </header>
+                {/* <div className="metronome-top-beat-dots">
                     <TimeSignatureBeatDots
                         variant="top"
                         beat={beat}
@@ -70,7 +76,7 @@ const Metronome: React.FC = () => {
                             <MetronomeSequenceSummary segments={timeSignatureSegments} />
                         </div>
                     )}
-                </div>
+                </div> */}
                 <div className="metronome-wrapper">
                     {/* Subdivision Selector - Left Side */}
                     <div

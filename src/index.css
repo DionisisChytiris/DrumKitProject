@@ -5,8 +5,106 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  /* background-color: #26ad1a; */
   background-color: #242424;
+
+  /* Studio palette — templates/ui-content.md */
+  --bg-base: #000000;
+  --bg-secondary: #111111;
+  --bg-surface: rgba(255, 255, 255, 0.10);
+  --border-default: rgba(255, 255, 255, 0.18);
+  --bg-overlay: rgba(0, 0, 0, 0.35);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-muted: rgba(255, 255, 255, 0.60);
+  --accent-primary: #4caf50;
+  --accent-primary-hover: #66bb6a;
+  --accent-beat: #ff9800;
+  --state-error: #f44336;
+  --state-success: #4caf50;
+  --state-warning: #ff9800;
+  --focus-ring: #4a90e2;
+  --shadow-dark: rgba(0, 0, 0, 0.5);
+  --glass-highlight: rgba(255, 255, 255, 0.08);
+  --accent-primary-rgb: 76, 175, 80;
+  --accent-beat-rgb: 255, 152, 0;
+
+  /* Common opacity variants (shared across screens) */
+  --surface-05: rgba(255, 255, 255, 0.05);
+  --surface-06: rgba(255, 255, 255, 0.06);
+  --surface-15: rgba(255, 255, 255, 0.15);
+  --surface-22: rgba(255, 255, 255, 0.22);
+  --surface-25: rgba(255, 255, 255, 0.25);
+  --surface-28: rgba(255, 255, 255, 0.28);
+  --surface-32: rgba(255, 255, 255, 0.32);
+  --surface-35: rgba(255, 255, 255, 0.35);
+  --surface-45: rgba(255, 255, 255, 0.45);
+  --surface-50: rgba(255, 255, 255, 0.5);
+  --surface-52: rgba(255, 255, 255, 0.52);
+  --surface-55: rgba(255, 255, 255, 0.55);
+  --surface-58: rgba(255, 255, 255, 0.58);
+  --surface-62: rgba(255, 255, 255, 0.62);
+  --surface-65: rgba(255, 255, 255, 0.65);
+  --surface-72: rgba(255, 255, 255, 0.72);
+  --surface-82: rgba(255, 255, 255, 0.82);
+  --surface-85: rgba(255, 255, 255, 0.85);
+  --surface-90: rgba(255, 255, 255, 0.9);
+  --border-panel: rgba(255, 255, 255, 0.2);
+  --border-control: rgba(255, 255, 255, 0.3);
+  --border-emphasis: rgba(255, 255, 255, 0.5);
+  --border-active: rgba(255, 255, 255, 0.6);
+  --border-faint: rgba(255, 255, 255, 0.15);
+  --overlay-panel: rgba(0, 0, 0, 0.4);
+  --overlay-strong: rgba(0, 0, 0, 0.75);
+  --overlay-medium: rgba(0, 0, 0, 0.45);
+  --shadow-panel: rgba(0, 0, 0, 0.3);
+  --shadow-soft: rgba(0, 0, 0, 0.25);
+  --shadow-text: rgba(0, 0, 0, 0.7);
+  --shadow-text-strong: rgba(0, 0, 0, 0.75);
+  --shadow-text-heavy: rgba(0, 0, 0, 0.8);
+  --glow-white: rgba(255, 255, 255, 0.2);
+  --accent-primary-12: rgba(76, 175, 80, 0.12);
+  --accent-primary-15: rgba(76, 175, 80, 0.15);
+  --accent-primary-20: rgba(76, 175, 80, 0.2);
+  --accent-primary-25: rgba(76, 175, 80, 0.25);
+  --accent-primary-28: rgba(76, 175, 80, 0.28);
+  --accent-primary-30: rgba(76, 175, 80, 0.3);
+  --accent-primary-35: rgba(76, 175, 80, 0.35);
+  --accent-primary-40: rgba(76, 175, 80, 0.4);
+  --accent-primary-50: rgba(76, 175, 80, 0.5);
+  --accent-primary-55: rgba(76, 175, 80, 0.55);
+  --accent-primary-60: rgba(76, 175, 80, 0.6);
+  --accent-primary-65: rgba(76, 175, 80, 0.65);
+  --accent-primary-80: rgba(76, 175, 80, 0.8);
+  --accent-primary-85: rgba(76, 175, 80, 0.85);
+  --accent-primary-90: rgba(76, 175, 80, 0.9);
+  --accent-primary-95: rgba(76, 175, 80, 0.95);
+  --accent-primary-solid: rgba(76, 175, 80, 1);
+  --accent-beat-30: rgba(255, 152, 0, 0.3);
+  --accent-beat-40: rgba(255, 152, 0, 0.4);
+  --accent-beat-65: rgba(255, 152, 0, 0.65);
+  --accent-beat-75: rgba(255, 152, 0, 0.75);
+  --accent-beat-80: rgba(255, 152, 0, 0.8);
+  --accent-beat-90: rgba(255, 152, 0, 0.9);
+  --accent-beat-95: rgba(255, 152, 0, 0.95);
+  --accent-beat-solid: rgba(255, 152, 0, 1);
+  --accent-sequence-title: #dcedc8;
+  --accent-sequence-label: rgba(220, 237, 200, 0.92);
+  --accent-sequence-arrow: rgba(183, 225, 185, 0.75);
+  --accent-sequence-status: rgba(165, 214, 167, 0.95);
+  --accent-sequence-chevron: rgba(129, 199, 132, 0.95);
+  --accent-primary-light: #a5d6a7;
+  --accent-warm-soft: rgba(255, 220, 180, 0.98);
+  --accent-warm-mid: rgba(255, 200, 120, 0.85);
+  --accent-green-soft: rgba(200, 230, 200, 0.95);
+  --accent-danger-soft: rgba(255, 200, 200, 0.45);
+  --accent-danger-bg: rgba(255, 100, 100, 0.12);
+  --card-gradient-start: rgba(30, 35, 40, 0.65);
+  --card-gradient-end: rgba(12, 14, 18, 0.85);
+  --surface-14: rgba(255, 255, 255, 0.14);
+  --text-faint: rgba(255, 255, 255, 0.4);
+  --shadow-card: rgba(0, 0, 0, 0.2);
+  --shadow-card-deep: rgba(0, 0, 0, 0.28);
+  --overlay-tooltip: rgba(0, 0, 0, 0.6);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -51,7 +149,7 @@ button:focus {
 }
 
 button:focus-visible {
-  outline: 2px solid #4a90e2;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 

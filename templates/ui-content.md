@@ -16,7 +16,7 @@ Core visual characteristics:
 - Visual emphasis on rhythm, timing, and beat feedback
 - Layouts optimized primarily for desktop and laptop browsers
 
-> **Current reality:** the codebase does not yet have a shared design-token layer. Colors are repeated as literal `rgba(...)` / `#hex` values across `index.css`, `App.css`, and screen CSS in `src/screens/styles/`. The token table below is the recommended target — new screens should prefer CSS custom properties over inline literals so the palette can be unified later.
+> **Current reality:** the studio palette is defined as CSS custom properties on `:root` in `src/index.css`. New and migrated screens (including Metronome) should use those variables instead of literal `rgba(...)` / `#hex` values. Practice, Exercises, and other screen CSS may still contain literals until migrated.
 
 ---
 

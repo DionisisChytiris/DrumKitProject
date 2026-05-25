@@ -190,4 +190,34 @@ export const exercises: ExerciseDefinition[] = [
       });
     }
   },
+
+  // Exercise 8: Triplets with Snare on the 'Trip'
+  {
+    id: 8,
+    title: "Exercise 8: Triplet Snare on the 'Trip'",
+    description: "Hi-hat triplets on every position with snare on the second note of each triplet, plus a kick on beat 1 for orientation",
+    timeSignature: 4,
+    bars: 2,
+    noteDuration: "8t", // 8th note triplets
+    pattern: (beat, position) => {
+      const keys: string[] = [];
+
+      // Hi-hat on every triplet position (12 per bar, 3 per beat)
+      keys.push("x/5");
+
+      // Kick on the very first triplet of beat 1 as a downbeat anchor
+      if (beat === 1 && position === 0) keys.push("f/2");
+
+      // Snare on the second (middle) note of every triplet:
+      // beat 1 -> position 1, beat 2 -> 4, beat 3 -> 7, beat 4 -> 10
+      if (position % 3 === 1) keys.push("c/3");
+
+      return keys.map(key => {
+        if (key === "x/5") return { key, line: 5, customNoteHead: true };
+        if (key === "c/3") return { key, line: 3.5 };
+        if (key === "f/2") return { key, line: 1.5 };
+        return { key, line: 4 };
+      });
+    }
+  },
 ];
