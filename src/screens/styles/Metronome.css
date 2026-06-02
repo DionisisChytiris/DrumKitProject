@@ -205,7 +205,8 @@
 
 .metronome-header {
   position: absolute;
-  top: 4.5rem; /* below NavBarHome */
+  /* top: 4.5rem; */
+  top: 8%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
@@ -316,6 +317,334 @@
   max-width: 40vw;
   box-sizing: border-box;
   height: fit-content;
+}
+
+.metronome-left-controls {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: max-content;
+  min-width: 20rem;
+  max-width: 40vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  z-index: 3;
+}
+
+.metronome-left-section {
+  padding: 0.72rem 0.85rem;
+  background: var(--overlay-panel);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  width: max-content;
+  min-width: 20rem;
+  max-width: 40vw;
+}
+
+.metronome-left-section--wide {
+  min-width: 24rem;
+  max-width: 46vw;
+}
+
+.metronome-left-inline-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 0.55rem;
+  row-gap: 0.52rem;
+  align-items: start;
+}
+
+.metronome-left-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.metronome-left-section-head h3 {
+  margin: 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.metronome-help-btn {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 0.2rem;
+}
+
+.metronome-left-inline-row h3 {
+  grid-column: 1 / 2;
+  align-self: center;
+  margin: 0;
+  font-size: 0.70rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding-bottom: 0.18rem;
+}
+
+.metronome-left-inline-row > .metronome-help-btn {
+  grid-column: 2 / 3;
+  grid-row: 1;
+  justify-self: end;
+}
+
+.metronome-title-with-action {
+  grid-column: 1 / 2;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-self: start;
+}
+
+.metronome-title-with-action--centered {
+  justify-content: flex-start;
+  justify-self: start;
+  align-self: center;
+  gap: 0.95rem;
+}
+
+.metronome-title-with-action h3 {
+  margin: 0;
+  font-size: 0.70rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding-bottom: 0.18rem;
+}
+
+.metronome-left-inline-row > .subdivision-buttons,
+.metronome-left-inline-row > .time-signature-input-group,
+.metronome-left-inline-row > .time-signature-denominator-buttons,
+.metronome-left-inline-row > .accent-pattern-buttons,
+.metronome-left-inline-row > .metronome-inline-checkbox,
+.metronome-left-inline-row > .volume-control,
+.metronome-left-inline-row > .metronome-accent-expand {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.metronome-inline-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-primary);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.metronome-help-pop {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  line-height: 1.28;
+  color: var(--text-muted);
+}
+
+.metronome-segments-open {
+  width: auto;
+  border: 1px solid var(--border-control);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 0.42rem 0.56rem;
+  font-weight: 600;
+  font-size: 0.74rem;
+  cursor: pointer;
+  margin-left: 0.2rem;
+}
+
+.metronome-left-section .subdivision-buttons {
+  justify-content: flex-start;
+}
+
+.metronome-left-section .subdivision-button {
+  width: 34px;
+  height: 34px;
+  font-size: 0.82rem;
+}
+
+.metronome-left-section .time-signature-input-group,
+.metronome-left-section .time-signature-denominator-buttons {
+  justify-content: flex-start;
+}
+
+.metronome-left-section .time-signature-button {
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
+}
+
+.metronome-left-section .time-signature-input {
+  width: 40px;
+  height: 30px;
+  font-size: 1rem;
+}
+
+.metronome-left-section .time-signature-denom-button {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8rem;
+}
+
+.metronome-left-section .volume-control,
+.metronome-left-section .click-sound-buttons,
+.metronome-left-section .accent-pattern-buttons {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.metronome-left-section .accent-pattern-button {
+  width: 34px;
+  height: 34px;
+  font-size: 0.78rem;
+}
+
+.metronome-left-section .click-sound-button {
+  padding: 0.32rem 0.56rem;
+  font-size: 0.68rem;
+}
+
+.metronome-left-section .metronome-segments-open,
+.metronome-left-section .metronome-accent-expand {
+  padding: 0.28rem 0.45rem;
+  font-size: 0.64rem;
+}
+
+/* Keep left-panel accent controls compact (override later generic rules) */
+.metronome-left-section .accent-pattern-button {
+  width: 26px !important;
+  height: 26px !important;
+  font-size: 0.66rem !important;
+}
+
+.metronome-segments-open:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.metronome-accent-expand {
+  border: 1px solid var(--border-control);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 0.34rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  grid-column: 2 / 3;
+  justify-self: end;
+}
+
+.metronome-accent-expand:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.metronome-rail-section {
+  padding: 0;
+}
+
+.metronome-rail-section h3 {
+  margin: 0 0 0.8rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.metronome-rail-locked {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.metronome-rail-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+.metronome-rail-segments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metronome-rail-segment-row {
+  display: grid;
+  grid-template-columns: 1.25rem 4.2rem 4.2rem 1fr auto;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.metronome-segments-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10020;
+}
+
+.metronome-segments-modal {
+  width: min(52rem, 92vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--overlay-panel);
+  border: 1px solid var(--border-default);
+  border-radius: 14px;
+  padding: 1rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px var(--shadow-panel);
+}
+
+.metronome-click-sound-modal {
+  width: min(24rem, 92vw);
+}
+
+@media (max-width: 1023px) {
+  .metronome-left-controls {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    max-width: calc(100% - 2rem);
+    margin: 5rem auto 0;
+  }
+
+  .metronome-left-section,
+  .metronome-left-section--wide {
+    width: 100%;
+    min-width: auto;
+    max-width: 100%;
+  }
+
+  .metronome-left-inline-row {
+    flex-wrap: wrap;
+  }
 }
 
 /* BPM Control */
@@ -530,19 +859,19 @@
 .subdivision-buttons {
   display: flex;
   flex-direction: row;
-  gap: 0.75rem;
+  gap: 0.45rem;
   align-items: center;
   justify-content: center;
 }
 
 .subdivision-button {
-  width: 45px;
-  height: 45px;
+  width: 39px;
+  height: 39px;
   background: var(--bg-surface);
   border: 2px solid var(--border-control);
   border-radius: 8px;
   color: var(--text-primary);
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -742,7 +1071,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .time-signature-button {
@@ -773,13 +1102,13 @@
 }
 
 .time-signature-input {
-  width: 50px;
-  height: 40px;
+  width: 44px;
+  height: 34px;
   background: var(--bg-surface);
   border: 2px solid var(--border-control);
   border-radius: 8px;
   color: var(--text-primary);
-  font-size: 1.4rem;
+  font-size: 1.15rem;
   font-weight: 700;
   text-align: center;
   outline: none;
@@ -848,19 +1177,19 @@
 
 .time-signature-denominator-buttons {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.3rem;
   align-items: center;
   justify-content: center;
 }
 
 .time-signature-denom-button {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   background: var(--bg-surface);
   border: 2px solid var(--border-control);
   border-radius: 8px;
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1563,7 +1892,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   width: 100%;
 }
 
@@ -1653,7 +1982,7 @@
 }
 
 .volume-value {
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-primary);
   min-width: 40px;
@@ -1663,7 +1992,7 @@
 .click-sound-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.45rem;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -1671,12 +2000,12 @@
 
 .click-sound-button {
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.7rem;
   background: var(--bg-surface);
   border: 2px solid var(--border-control);
   border-radius: 8px;
   color: var(--text-primary);
-  font-size: 0.85rem;
+  font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
