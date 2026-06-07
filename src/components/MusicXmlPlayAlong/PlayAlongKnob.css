@@ -1,0 +1,92 @@
+.playalong-knob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 3.4rem;
+}
+
+.playalong-knob-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.playalong-knob-dial {
+  position: relative;
+  width: 2.65rem;
+  height: 2.65rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.playalong-knob-dial:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.playalong-knob--disabled .playalong-knob-dial {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.playalong-knob-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 28%, var(--surface-22) 0%, transparent 52%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0.35));
+  border: 1px solid var(--border-emphasis);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 3px 10px rgba(0, 0, 0, 0.28);
+}
+
+.playalong-knob-center {
+  position: absolute;
+  inset: 0.72rem;
+  border-radius: 50%;
+  background: var(--surface-06);
+  border: 1px solid var(--border-faint);
+}
+
+.playalong-knob-indicator {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.playalong-knob-indicator::after {
+  content: '';
+  position: absolute;
+  top: 0.34rem;
+  left: 50%;
+  width: 0.14rem;
+  height: 0.62rem;
+  margin-left: -0.07rem;
+  border-radius: 999px;
+  background: var(--accent-primary-hover);
+  box-shadow: 0 0 6px rgba(var(--accent-primary-rgb), 0.45);
+}
+
+.playalong-knob--volume .playalong-knob-indicator::after {
+  background: var(--accent-beat);
+  box-shadow: 0 0 6px rgba(var(--accent-beat-rgb), 0.45);
+}
+
+.playalong-knob-value {
+  font-family: var(--font-mono, SFMono-Regular, Consolas, 'Liberation Mono', monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1;
+  min-height: 0.85rem;
+}

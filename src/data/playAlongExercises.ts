@@ -26,7 +26,7 @@ export const playAlongExercises: PlayAlongExerciseDefinition[] = [
     playbackOffsetSeconds: 0,
   },
   {
-    id: 'funky-groove',
+    id: 'test-2',
     title: 'Test 2',
     subtitle: 'Drum set · MusicXML score + WAV play-along',
     scoreUrl: '/scores/funky-groove/testdrums.musicxml',

@@ -66,11 +66,11 @@ const Exercises: React.FC = () => {
                 <div className="exercises-picker-group">
                   <span className="exercises-picker-label">Play-along</span>
                   <div className="exercises-picker-buttons" role="list">
-                    {playAlongExercises.map((item) => {
+                    {playAlongExercises.map((item, index) => {
                       const pick: ExerciseSelection = { kind: 'playalong', id: item.id };
                       return (
                         <button
-                          key={selectionKey(pick)}
+                          key={`playalong-${item.id}-${index}`}
                           type="button"
                           role="listitem"
                           className="exercises-pick exercises-pick--playalong"

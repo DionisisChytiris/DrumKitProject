@@ -13,8 +13,56 @@ export interface PlaybackStep {
   sourceNotes: Note[];
 }
 
-const NOTE_COLOR_DEFAULT = '#000000';
-const NOTE_COLOR_ACTIVE = '#FF9800';
+export const OSMD_NOTE_COLOR_ON_DARK = '#b8c4d4';
+export const OSMD_NOTE_COLOR_ON_LIGHT = '#3d4451';
+export const OSMD_NOTE_COLOR_ACTIVE = '#FF9800';
+
+export type ScoreThemeMode = 'dark' | 'light';
+
+export interface ScoreThemeColors {
+  pageBackground: string;
+  noteColor: string;
+  activeNoteColor: string;
+}
+
+/** Soft studio dark — charcoal page, muted blue-gray notation */
+export const SCORE_THEME_DARK: ScoreThemeColors = {
+  pageBackground: '#252932',
+  noteColor: OSMD_NOTE_COLOR_ON_DARK,
+  activeNoteColor: '#FFAB40',
+};
+
+/** Warm paper light — cream page, soft ink notation */
+export const SCORE_THEME_LIGHT: ScoreThemeColors = {
+  pageBackground: '#f6f4f0',
+  noteColor: OSMD_NOTE_COLOR_ON_LIGHT,
+  activeNoteColor: '#E65100',
+};
+
+export function getScoreThemeColors(mode: ScoreThemeMode): ScoreThemeColors {
+  return mode === 'dark' ? SCORE_THEME_DARK : SCORE_THEME_LIGHT;
+}
+
+/** Custom palette — avoids OSMD's harsh pure black / white darkMode preset. */
+export function applyOsmdScoreTheme(osmd: OpenSheetMusicDisplay, mode: ScoreThemeMode): void {
+  const theme = getScoreThemeColors(mode);
+
+  osmd.setOptions({
+    darkMode: false,
+    defaultColorMusic: theme.noteColor,
+    defaultColorLabel: theme.noteColor,
+    defaultColorNotehead: theme.noteColor,
+    defaultColorStem: theme.noteColor,
+    defaultColorRest: theme.noteColor,
+  });
+
+  osmd.EngravingRules.PageBackgroundColor = theme.pageBackground;
+  osmd.EngravingRules.DefaultColorMusic = theme.noteColor;
+
+  if (typeof osmd.EngravingRules.applyDefaultColorMusic === 'function') {
+    osmd.EngravingRules.applyDefaultColorMusic(theme.noteColor);
+  }
+}
 
 const highlightColorOptions = {
   applyToStem: true,
@@ -158,21 +206,26 @@ export function applyStepHighlight(
   osmd: OpenSheetMusicDisplay,
   step: PlaybackStep,
   previousNotes: GraphicalNote[],
+  defaultNoteColor: string = OSMD_NOTE_COLOR_ON_LIGHT,
+  activeNoteColor: string = OSMD_NOTE_COLOR_ACTIVE,
 ): GraphicalNote[] {
-  clearNoteHighlights(previousNotes);
+  clearNoteHighlights(previousNotes, defaultNoteColor);
 
   const activeNotes = resolveGraphicalNotes(osmd, step.sourceNotes);
   for (const note of activeNotes) {
-    note.setColor(NOTE_COLOR_ACTIVE, highlightColorOptions);
+    note.setColor(activeNoteColor, highlightColorOptions);
   }
 
   return activeNotes;
 }
 
-export function clearNoteHighlights(notes: GraphicalNote[]): void {
+export function clearNoteHighlights(
+  notes: GraphicalNote[],
+  defaultNoteColor: string = OSMD_NOTE_COLOR_ON_LIGHT,
+): void {
   for (const note of notes) {
     try {
-      note.setColor(NOTE_COLOR_DEFAULT, highlightColorOptions);
+      note.setColor(defaultNoteColor, highlightColorOptions);
     } catch {
       // Ignore stale graphical notes after re-render.
     }
