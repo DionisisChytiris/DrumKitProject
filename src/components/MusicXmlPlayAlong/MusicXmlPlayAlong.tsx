@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { NavBarHome } from '@/components/Navigation/NavBarHome';
-import './styles/About.css';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
 import type { GraphicalNote } from 'opensheetmusicdisplay';
+import type { PlayAlongExerciseDefinition } from '@/types/playAlongTypes';
 import {
   applyStepHighlight,
   buildPlaybackMap,
@@ -13,11 +12,7 @@ import {
   playbackRateForTempo,
   type PlaybackStep,
 } from '@/utils/osmdPlaybackMap';
-
-const SCORE_URL = '/scores/funky-groove/testdrums.musicxml';
-const AUDIO_URL = '/playalongs/funky-groove-1/test.wav';
-/** Adjust if the WAV starts slightly before/after the first scored beat. */
-const PLAYBACK_OFFSET_SECONDS = 0;
+import './MusicXmlPlayAlong.css';
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -26,9 +21,20 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-const About: React.FC = () => {
+export interface MusicXmlPlayAlongProps {
+  exercise: PlayAlongExerciseDefinition;
+  /** page = full viewport panel (About-style); embedded = inside Exercises scroll area */
+  layout?: 'page' | 'embedded';
+}
+
+export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
+  exercise,
+  layout = 'embedded',
+}) => {
+  const playbackOffsetSeconds = exercise.playbackOffsetSeconds ?? 0;
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const playalongRef = useRef<HTMLElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
   const scoreViewportRef = useRef<HTMLDivElement | null>(null);
   const scoreContainerRef = useRef<HTMLDivElement | null>(null);
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null);
@@ -42,8 +48,8 @@ const About: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [scoreBpm, setScoreBpm] = useState(120);
-  const [manualBpm, setManualBpm] = useState(120);
+  const [scoreBpm, setScoreBpm] = useState(exercise.defaultBpm ?? 120);
+  const [manualBpm, setManualBpm] = useState(exercise.defaultBpm ?? 120);
   const [beatProgress, setBeatProgress] = useState(0);
 
   const fitScoreToViewport = useCallback(() => {
@@ -60,7 +66,7 @@ const About: React.FC = () => {
         playbackStepsRef.current,
         audio.currentTime,
         manualBpm,
-        PLAYBACK_OFFSET_SECONDS,
+        playbackOffsetSeconds,
       );
       const step = playbackStepsRef.current[stepIndex];
       if (step) {
@@ -68,7 +74,7 @@ const About: React.FC = () => {
         currentStepRef.current = stepIndex;
       }
     }
-  }, [manualBpm, scoreStatus]);
+  }, [manualBpm, playbackOffsetSeconds, scoreStatus]);
 
   const resetPlaybackVisuals = useCallback(() => {
     clearNoteHighlights(highlightedNotesRef.current);
@@ -82,6 +88,9 @@ const About: React.FC = () => {
     if (!container) return;
 
     let cancelled = false;
+    setScoreStatus('loading');
+    setScoreError('');
+    resetPlaybackVisuals();
 
     const osmd = new OpenSheetMusicDisplay(container, {
       autoResize: false,
@@ -95,7 +104,7 @@ const About: React.FC = () => {
     osmdRef.current = osmd;
 
     osmd
-      .load(SCORE_URL)
+      .load(exercise.scoreUrl)
       .then(() => {
         if (cancelled) return;
         osmd.render();
@@ -106,7 +115,7 @@ const About: React.FC = () => {
         }
 
         playbackStepsRef.current = steps;
-        const loadedBpm = clampPlaybackBpm(steps[0]?.bpm ?? 120);
+        const loadedBpm = clampPlaybackBpm(steps[0]?.bpm ?? exercise.defaultBpm ?? 120);
         setScoreBpm(loadedBpm);
         setManualBpm(loadedBpm);
         setScoreStatus('ready');
@@ -124,7 +133,7 @@ const About: React.FC = () => {
       playbackStepsRef.current = [];
       container.innerHTML = '';
     };
-  }, []);
+  }, [exercise.id, exercise.scoreUrl, exercise.defaultBpm, resetPlaybackVisuals]);
 
   useEffect(() => {
     if (scoreStatus !== 'ready') return;
@@ -136,17 +145,14 @@ const About: React.FC = () => {
     const viewport = scoreViewportRef.current;
     if (!viewport || scoreStatus !== 'ready') return;
 
-    const observer = new ResizeObserver(() => {
-      fitScoreToViewport();
-    });
+    const observer = new ResizeObserver(() => fitScoreToViewport());
     observer.observe(viewport);
-
     return () => observer.disconnect();
   }, [scoreStatus, fitScoreToViewport]);
 
   useEffect(() => {
     const onFullscreenChange = () => {
-      setIsFullscreen(document.fullscreenElement === playalongRef.current);
+      setIsFullscreen(document.fullscreenElement === panelRef.current);
       requestAnimationFrame(() => fitScoreToViewport());
     };
 
@@ -154,23 +160,31 @@ const About: React.FC = () => {
     return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
   }, [fitScoreToViewport]);
 
-  const syncScoreToAudio = useCallback((audioTime: number, tempoBpm: number) => {
-    const osmd = osmdRef.current;
-    const steps = playbackStepsRef.current;
-    if (!osmd || steps.length === 0) return;
+  const syncScoreToAudio = useCallback(
+    (audioTime: number, tempoBpm: number) => {
+      const osmd = osmdRef.current;
+      const steps = playbackStepsRef.current;
+      if (!osmd || steps.length === 0) return;
 
-    try {
-      const stepIndex = findPlaybackStepIndex(steps, audioTime, tempoBpm, PLAYBACK_OFFSET_SECONDS);
-      if (stepIndex === currentStepRef.current) return;
+      try {
+        const stepIndex = findPlaybackStepIndex(
+          steps,
+          audioTime,
+          tempoBpm,
+          playbackOffsetSeconds,
+        );
+        if (stepIndex === currentStepRef.current) return;
 
-      const step = steps[stepIndex];
-      currentStepRef.current = stepIndex;
-      highlightedNotesRef.current = applyStepHighlight(osmd, step, highlightedNotesRef.current);
-      setBeatProgress(Math.round((stepIndex / Math.max(steps.length - 1, 1)) * 100));
-    } catch (error) {
-      console.error('[About] Score sync failed:', error);
-    }
-  }, []);
+        const step = steps[stepIndex];
+        currentStepRef.current = stepIndex;
+        highlightedNotesRef.current = applyStepHighlight(osmd, step, highlightedNotesRef.current);
+        setBeatProgress(Math.round((stepIndex / Math.max(steps.length - 1, 1)) * 100));
+      } catch (error) {
+        console.error('[MusicXmlPlayAlong] Score sync failed:', error);
+      }
+    },
+    [playbackOffsetSeconds],
+  );
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -209,7 +223,7 @@ const About: React.FC = () => {
   };
 
   const toggleFullscreen = async () => {
-    const panel = playalongRef.current;
+    const panel = panelRef.current;
     if (!panel) return;
 
     try {
@@ -219,7 +233,7 @@ const About: React.FC = () => {
         await panel.requestFullscreen();
       }
     } catch (error) {
-      console.error('[About] Fullscreen failed:', error);
+      console.error('[MusicXmlPlayAlong] Fullscreen failed:', error);
     }
   };
 
@@ -280,116 +294,108 @@ const About: React.FC = () => {
     setManualBpm(clampPlaybackBpm(next));
   };
 
+  const layoutClass = layout === 'page' ? 'musicxml-playalong--page' : 'musicxml-playalong--embedded';
+
   return (
-    <div className="about-container">
-      <div className="about-background" aria-hidden="true" />
-      <div className="about-content">
-        <NavBarHome />
-        <header className="about-header">
-          <p className="about-subtitle">Play-along preview with sheet music and audio backing track</p>
-        </header>
+    <section
+      ref={panelRef}
+      className={`musicxml-playalong ${layoutClass}${isFullscreen ? ' musicxml-playalong--fullscreen' : ''}`}
+      aria-label={`Play-along: ${exercise.title}`}
+    >
+      <div className="musicxml-playalong-toolbar">
+        <div className="musicxml-playalong-heading">
+          <h2 className="musicxml-playalong-title">{exercise.title}</h2>
+          <p className="musicxml-playalong-meta">{exercise.subtitle}</p>
+        </div>
 
-        <section
-          ref={playalongRef}
-          className={`about-playalong${isFullscreen ? ' about-playalong--fullscreen' : ''}`}
-          aria-label="Play-along preview"
-        >
-          <div className="about-playalong-toolbar">
-            <div className="about-playalong-heading">
-              <h2 className="about-playalong-title">Funky Groove</h2>
-              <p className="about-playalong-meta">Drum set · MusicXML score + WAV play-along</p>
-            </div>
-
-            <div className="about-transport">
-              <div className="about-tempo-inline" aria-label="Tempo control">
-                <button
-                  type="button"
-                  className="about-tempo-inline-btn"
-                  onClick={() => changeManualBpm(manualBpm - 1)}
-                  disabled={scoreStatus !== 'ready' || manualBpm <= 40}
-                  aria-label="Decrease tempo"
-                >
-                  −
-                </button>
-                <span className="about-tempo-inline-value" aria-live="polite">
-                  {manualBpm}
-                </span>
-                <button
-                  type="button"
-                  className="about-tempo-inline-btn"
-                  onClick={() => changeManualBpm(manualBpm + 1)}
-                  disabled={scoreStatus !== 'ready' || manualBpm >= 240}
-                  aria-label="Increase tempo"
-                >
-                  +
-                </button>
-              </div>
-              <button
-                type="button"
-                className="about-transport-btn about-transport-btn--play"
-                onClick={play}
-                disabled={isPlaying || scoreStatus !== 'ready'}
-                aria-label="Play backing track"
-              >
-                Play
-              </button>
-              <button
-                type="button"
-                className="about-transport-btn about-transport-btn--stop"
-                onClick={stop}
-                aria-label="Stop backing track"
-              >
-                Stop
-              </button>
-              <button
-                type="button"
-                className="about-fullscreen-btn"
-                onClick={toggleFullscreen}
-                disabled={scoreStatus !== 'ready'}
-                aria-label={isFullscreen ? 'Exit full screen' : 'Enter full screen'}
-              >
-                {isFullscreen ? 'Exit full screen' : 'Full screen'}
-              </button>
-              <span className="about-transport-time" aria-live="polite">
-                {formatTime(time)} / {formatTime(duration)}
-              </span>
-            </div>
+        <div className="musicxml-playalong-transport">
+          <div className="musicxml-playalong-tempo" aria-label="Tempo control">
+            <button
+              type="button"
+              className="musicxml-playalong-tempo-btn"
+              onClick={() => changeManualBpm(manualBpm - 1)}
+              disabled={scoreStatus !== 'ready' || manualBpm <= 40}
+              aria-label="Decrease tempo"
+            >
+              −
+            </button>
+            <span className="musicxml-playalong-tempo-value" aria-live="polite">
+              {manualBpm}
+            </span>
+            <button
+              type="button"
+              className="musicxml-playalong-tempo-btn"
+              onClick={() => changeManualBpm(manualBpm + 1)}
+              disabled={scoreStatus !== 'ready' || manualBpm >= 240}
+              aria-label="Increase tempo"
+            >
+              +
+            </button>
           </div>
-
-          <div
-            className="about-progress"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={beatProgress}
-            aria-label="Score playback progress"
+          <button
+            type="button"
+            className="musicxml-playalong-transport-btn musicxml-playalong-transport-btn--play"
+            onClick={play}
+            disabled={isPlaying || scoreStatus !== 'ready'}
+            aria-label="Play backing track"
           >
-            <div className="about-progress-fill" style={{ width: `${beatProgress}%` }} />
-          </div>
-
-          <div ref={scoreViewportRef} className="about-score-viewport">
-            {scoreStatus === 'loading' && (
-              <p className="about-score-status" role="status">
-                Loading score…
-              </p>
-            )}
-            {scoreStatus === 'error' && (
-              <p className="about-score-status about-score-status--error" role="alert">
-                {scoreError}
-              </p>
-            )}
-            <div
-              ref={scoreContainerRef}
-              className={`about-score-canvas${scoreStatus === 'ready' ? ' about-score-canvas--ready' : ''}`}
-              aria-hidden={scoreStatus !== 'ready'}
-            />
-          </div>
-        </section>
-
-        <audio ref={audioRef} src={AUDIO_URL} preload="metadata" />
+            Play
+          </button>
+          <button
+            type="button"
+            className="musicxml-playalong-transport-btn musicxml-playalong-transport-btn--stop"
+            onClick={stop}
+            aria-label="Stop backing track"
+          >
+            Stop
+          </button>
+          <button
+            type="button"
+            className="musicxml-playalong-fullscreen-btn"
+            onClick={toggleFullscreen}
+            disabled={scoreStatus !== 'ready'}
+            aria-label={isFullscreen ? 'Exit full screen' : 'Enter full screen'}
+          >
+            {isFullscreen ? 'Exit full screen' : 'Full screen'}
+          </button>
+          <span className="musicxml-playalong-transport-time" aria-live="polite">
+            {formatTime(time)} / {formatTime(duration)}
+          </span>
+        </div>
       </div>
-    </div>
+
+      <div
+        className="musicxml-playalong-progress"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={beatProgress}
+        aria-label="Score playback progress"
+      >
+        <div className="musicxml-playalong-progress-fill" style={{ width: `${beatProgress}%` }} />
+      </div>
+
+      <div ref={scoreViewportRef} className="musicxml-playalong-score-viewport">
+        {scoreStatus === 'loading' && (
+          <p className="musicxml-playalong-score-status" role="status">
+            Loading score…
+          </p>
+        )}
+        {scoreStatus === 'error' && (
+          <p className="musicxml-playalong-score-status musicxml-playalong-score-status--error" role="alert">
+            {scoreError}
+          </p>
+        )}
+        <div
+          ref={scoreContainerRef}
+          className={`musicxml-playalong-score-canvas${scoreStatus === 'ready' ? ' musicxml-playalong-score-canvas--ready' : ''}`}
+          aria-hidden={scoreStatus !== 'ready'}
+        />
+      </div>
+
+      <audio ref={audioRef} src={exercise.audioUrl} preload="metadata" />
+    </section>
   );
 };
 
-export default About;
+export default MusicXmlPlayAlong;

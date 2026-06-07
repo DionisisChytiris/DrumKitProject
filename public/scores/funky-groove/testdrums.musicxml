@@ -1,0 +1,3232 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="4.0">
+  <work>
+    <work-title>Untitled Project 2</work-title>
+  </work>
+  <movement-title>Flow 1</movement-title>
+  <identification>
+    <encoding>
+      <software>Dorico 6.2.20.6183</software>
+      <encoding-date>2026-06-07</encoding-date>
+      <supports type="yes" element="print" attribute="new-system" value="yes"/>
+      <supports type="yes" element="print" attribute="new-page" value="yes"/>
+      <supports type="yes" element="accidental"/>
+      <supports type="yes" element="beam"/>
+      <supports type="yes" element="stem"/>
+    </encoding>
+  </identification>
+  <defaults>
+    <scaling>
+      <millimeters>6.99911</millimeters>
+      <tenths>40</tenths>
+    </scaling>
+    <page-layout>
+      <page-height>1695.56</page-height>
+      <page-width>1197.58</page-width>
+      <page-margins type="both">
+        <left-margin>84.6774</left-margin>
+        <right-margin>84.6774</right-margin>
+        <top-margin>84.6774</top-margin>
+        <bottom-margin>84.6774</bottom-margin>
+      </page-margins>
+    </page-layout>
+    <appearance>
+      <line-width type="beam">5</line-width>
+      <line-width type="bracket">5</line-width>
+      <line-width type="enclosure">1.25</line-width>
+      <line-width type="ending">2</line-width>
+      <line-width type="extend">0.625</line-width>
+      <line-width type="heavy barline">5</line-width>
+      <line-width type="leger">1.66667</line-width>
+      <line-width type="light barline">2</line-width>
+      <line-width type="octave shift">0.833333</line-width>
+      <line-width type="pedal">1.25</line-width>
+      <line-width type="slur middle">2</line-width>
+      <line-width type="slur tip">0.833333</line-width>
+      <line-width type="staff">1.25</line-width>
+      <line-width type="stem">1.2</line-width>
+      <line-width type="tie middle">2.5</line-width>
+      <line-width type="tie tip">1.25</line-width>
+      <line-width type="tuplet bracket">1.25</line-width>
+      <line-width type="wedge">1.66667</line-width>
+      <note-size type="cue">75</note-size>
+      <note-size type="grace">60</note-size>
+      <note-size type="grace-cue">45</note-size>
+      <distance type="hyphen">75</distance>
+    </appearance>
+    <music-font font-family="Bravura" font-size="19.84"/>
+    <word-font font-family="Academico" font-size="9.92"/>
+    <lyric-font font-family="Academico" font-size="10.912" name="verse"/>
+    <lyric-font font-family="Academico" font-style="italic" font-size="10.912" name="chorus"/>
+    <lyric-font font-family="Academico" font-style="italic" font-size="10.912" name="verse-translation"/>
+    <lyric-font font-family="Academico" font-style="italic" font-size="10.912" name="chorus-translation"/>
+  </defaults>
+  <credit page="1">
+    <credit-type>part name</credit-type>
+    <credit-words font-family="Academico" font-size="14" justify="left" valign="top" enclosure="rectangle" default-x="83.75" default-y="1598.12" xml:space="preserve">Drum Set</credit-words>
+  </credit>
+  <credit page="1">
+    <credit-type>title</credit-type>
+    <credit-words font-family="Academico" font-size="20" justify="center" valign="middle" default-x="593.75" default-y="1522.5" xml:space="preserve">Untitled Project 2</credit-words>
+  </credit>
+  <credit page="1">
+    <credit-words font-family="Academico" font-size="10" justify="left" valign="middle" default-x="83.75" default-y="1462.5" color="#C0C0C0" xml:space="preserve">Project Lyricist</credit-words>
+  </credit>
+  <credit page="1">
+    <credit-type>composer</credit-type>
+    <credit-words font-family="Academico" font-size="10" justify="right" valign="middle" default-x="1103.75" default-y="1462.5" color="#C0C0C0" xml:space="preserve">Project Composer</credit-words>
+  </credit>
+  <credit page="1">
+    <credit-type>flow title</credit-type>
+    <credit-words font-family="Academico" font-size="16" justify="center" valign="middle" default-x="593.75" default-y="1414.38" xml:space="preserve">1. Flow 1</credit-words>
+  </credit>
+  <credit page="1">
+    <credit-type>rights</credit-type>
+    <credit-words font-family="Academico" font-size="8" justify="center" valign="bottom" default-x="593.75" default-y="84.375" color="#C0C0C0" xml:space="preserve">Project Copyright</credit-words>
+  </credit>
+  <part-list>
+    <score-part id="P1">
+      <part-name print-object="no">Drum Set</part-name>
+      <part-name-display print-object="no">
+        <display-text/>
+      </part-name-display>
+      <part-abbreviation print-object="no">Dr.</part-abbreviation>
+      <part-abbreviation-display print-object="no">
+        <display-text/>
+      </part-abbreviation-display>
+      <score-instrument id="P1-X1">
+        <instrument-name>Splash Cymbal</instrument-name>
+        <instrument-sound>metal.cymbal.splash</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X2">
+        <instrument-name>China Cymbal</instrument-name>
+        <instrument-sound>metal.cymbal.chinese</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X3">
+        <instrument-name>Crash Cymbal 1</instrument-name>
+        <instrument-sound>metal.cymbal.crash</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X4">
+        <instrument-name>Crash Cymbal 2</instrument-name>
+        <instrument-sound>metal.cymbal.crash</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X5">
+        <instrument-name>Hi-hat</instrument-name>
+        <instrument-sound>metal.hi-hat</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X6">
+        <instrument-name>Ride Cymbal</instrument-name>
+        <instrument-sound>metal.cymbal.ride</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X7">
+        <instrument-name>Tom-tom 1</instrument-name>
+        <instrument-sound>drum.tom-tom</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X8">
+        <instrument-name>Tom-tom 2</instrument-name>
+        <instrument-sound>drum.tom-tom</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X9">
+        <instrument-name>Cowbell</instrument-name>
+        <instrument-sound>metal.bells.cowbell</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X10">
+        <instrument-name>Tom-tom 3</instrument-name>
+        <instrument-sound>drum.tom-tom</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X11">
+        <instrument-name>Wood Block 1</instrument-name>
+        <instrument-sound>wood.wood-block</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X12">
+        <instrument-name>Snare Drum</instrument-name>
+        <instrument-sound>drum.snare-drum</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X13">
+        <instrument-name>Wood Block 2</instrument-name>
+        <instrument-sound>wood.wood-block</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X14">
+        <instrument-name>Tom-tom 4</instrument-name>
+        <instrument-sound>drum.tom-tom</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X15">
+        <instrument-name>Floor tom 1</instrument-name>
+        <instrument-sound>drum.tom-tom</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X16">
+        <instrument-name>Floor tom 2</instrument-name>
+        <instrument-sound>drum.tom-tom</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X17">
+        <instrument-name>Kick Drum 1</instrument-name>
+        <instrument-sound>drum.kick-drum</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X18">
+        <instrument-name>Hi-hat (pedal)</instrument-name>
+        <instrument-sound>metal.hi-hat</instrument-sound>
+      </score-instrument>
+      <score-instrument id="P1-X19">
+        <instrument-name>Kick Drum 2</instrument-name>
+        <instrument-sound>drum.kick-drum</instrument-sound>
+      </score-instrument>
+    </score-part>
+  </part-list>
+  <part id="P1">
+    <measure number="1" width="251.875">
+      <print>
+        <system-layout>
+          <system-margins>
+            <left-margin>60</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <top-system-distance>278.125</top-system-distance>
+        </system-layout>
+      </print>
+      <attributes>
+        <divisions>12</divisions>
+        <key number="1">
+          <fifths>0</fifths>
+          <mode>none</mode>
+        </key>
+        <time>
+          <beats>4</beats>
+          <beat-type>4</beat-type>
+        </time>
+        <staves>1</staves>
+        <clef number="1">
+          <sign>percussion</sign>
+        </clef>
+      </attributes>
+      <note default-x="62.5">
+        <rest>
+          <display-step>B</display-step>
+          <display-octave>4</display-octave>
+        </rest>
+        <duration>24</duration>
+        <voice>5</voice>
+        <type>half</type>
+        <staff>1</staff>
+      </note>
+      <backup>
+        <duration>24</duration>
+      </backup>
+      <sound tempo="162"/>
+      <direction placement="above" directive="yes" system="only-top">
+        <direction-type>
+          <metronome font-family="Bravura Text" font-style="normal" font-weight="normal" font-size="15.624" default-y="30">
+            <beat-unit>quarter</beat-unit>
+            <per-minute font-family="Academico" font-style="normal" font-weight="normal" font-size="8.928">162</per-minute>
+          </metronome>
+        </direction-type>
+        <staff>1</staff>
+      </direction>
+      <forward>
+        <duration>24</duration>
+      </forward>
+      <note default-x="127.5">
+        <rest>
+          <display-step>B</display-step>
+          <display-octave>4</display-octave>
+        </rest>
+        <duration>12</duration>
+        <voice>5</voice>
+        <type>quarter</type>
+        <staff>1</staff>
+      </note>
+      <note default-x="173.125">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="25">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="199.375">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="25">up</stem>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="225.625">
+        <unpitched>
+          <display-step>E</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X8"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="25">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <backup>
+        <duration>48</duration>
+      </backup>
+      <note default-x="62.5">
+        <rest>
+          <display-step>B</display-step>
+          <display-octave>4</display-octave>
+        </rest>
+        <duration>24</duration>
+        <voice>6</voice>
+        <type>half</type>
+        <staff>1</staff>
+      </note>
+      <note default-x="127.5">
+        <rest>
+          <display-step>B</display-step>
+          <display-octave>4</display-octave>
+        </rest>
+        <duration>12</duration>
+        <voice>6</voice>
+        <type>quarter</type>
+        <staff>1</staff>
+      </note>
+      <forward>
+        <duration>12</duration>
+      </forward>
+    </measure>
+    <measure number="2" width="353.125">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <barline location="left">
+        <bar-style>heavy-light</bar-style>
+        <repeat direction="forward"/>
+      </barline>
+      <note default-x="36.875">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="38.75">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="40">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="63.125">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="90">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="116.25">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="142.5">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="168.75">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          <normal-type>eighth</normal-type>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="170.625">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="195">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="2">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+        <notations>
+          <articulations>
+            <accent placement="below"/>
+          </articulations>
+        </notations>
+      </note>
+      <note default-x="196.875">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="221.875">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="248.125">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="2"/>
+        </notations>
+      </note>
+      <note default-x="274.375">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="2">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="275.625">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="300.625">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="326.875">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="2"/>
+        </notations>
+      </note>
+    </measure>
+    <measure number="3" width="333.125">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <note default-x="16.875">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="2">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="43.125">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="70">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="2"/>
+        </notations>
+      </note>
+      <note default-x="71.25">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="96.25">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="3">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="122.5">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="148.75">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="3"/>
+        </notations>
+      </note>
+      <note default-x="175">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="3">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+        <notations>
+          <articulations>
+            <accent placement="below"/>
+          </articulations>
+        </notations>
+      </note>
+      <note default-x="176.875">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="201.875">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="228.125">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="3"/>
+        </notations>
+      </note>
+      <note default-x="254.375">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="3">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="280.625">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <backup>
+        <duration>2</duration>
+      </backup>
+      <direction placement="above">
+        <direction-type>
+          <words font-family="Academico" font-size="7.936" justify="left" line-height="105" xml:space="preserve" default-y="63.125">x12</words>
+        </direction-type>
+        <staff>1</staff>
+      </direction>
+      <forward>
+        <duration>2</duration>
+      </forward>
+      <note default-x="306.875">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="3"/>
+        </notations>
+      </note>
+      <note default-x="308.75">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+        <repeat direction="backward"/>
+      </barline>
+    </measure>
+    <measure number="4" width="368.75">
+      <print new-system="yes" new-page="no">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <system-distance>100</system-distance>
+        </system-layout>
+      </print>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <note default-x="35.625">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="4">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="36.875">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="40">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="63.125">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="90.625">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="4"/>
+        </notations>
+      </note>
+      <note default-x="118.75">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="4">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="146.25">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="174.375">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="4"/>
+        </notations>
+      </note>
+      <note default-x="175.625">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="201.875">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="5">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+        <notations>
+          <articulations>
+            <accent placement="below"/>
+          </articulations>
+        </notations>
+      </note>
+      <note default-x="203.75">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="230">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="257.5">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="5"/>
+        </notations>
+      </note>
+      <note default-x="285.625">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="5">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="286.875">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="313.125">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="340.625">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="5"/>
+        </notations>
+      </note>
+    </measure>
+    <measure number="5" width="280">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <note default-x="16.875">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="5">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="45">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="72.5">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="5"/>
+        </notations>
+      </note>
+      <note default-x="74.375">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="100.625">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="6">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="128.125">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="155.625">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="6"/>
+        </notations>
+      </note>
+      <note default-x="183.75">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <staff>1</staff>
+      </note>
+      <note default-x="185">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="231.875">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <staff>1</staff>
+      </note>
+      <note default-x="233.125">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+    </measure>
+    <measure number="6" width="370">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <barline location="left">
+        <bar-style>heavy-light</bar-style>
+        <repeat direction="forward"/>
+      </barline>
+      <note default-x="36.875">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="6">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="38.75">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="40">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="65">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="92.5">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="6"/>
+        </notations>
+      </note>
+      <note default-x="120.625">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="6">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="148.125">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="175.625">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="6"/>
+        </notations>
+      </note>
+      <note default-x="177.5">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="203.75">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+        <notations>
+          <articulations>
+            <accent placement="below"/>
+          </articulations>
+        </notations>
+      </note>
+      <note default-x="205">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="231.25">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="259.375">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="286.875">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="288.75">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="315">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="342.5">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+    </measure>
+    <measure number="7" width="356.25">
+      <print new-system="yes" new-page="no">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <system-distance>100.625</system-distance>
+        </system-layout>
+      </print>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <note default-x="35.625">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="61.875">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="88.75">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="90.625">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="115.625">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="142.5">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="169.375">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="195.625">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+        <notations>
+          <articulations>
+            <accent placement="below"/>
+          </articulations>
+        </notations>
+      </note>
+      <note default-x="197.5">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="222.5">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="249.375">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="276.25">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="303.125">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <backup>
+        <duration>2</duration>
+      </backup>
+      <direction placement="above">
+        <direction-type>
+          <words font-family="Academico" font-size="7.936" justify="left" line-height="114" xml:space="preserve" default-y="65">x4</words>
+        </direction-type>
+        <staff>1</staff>
+      </direction>
+      <forward>
+        <duration>2</duration>
+      </forward>
+      <note default-x="330">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="331.25">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+        <repeat direction="backward"/>
+      </barline>
+    </measure>
+    <measure number="8" width="358.125">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <note default-x="36.875">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="38.75">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="40">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="63.75">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="90.625">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="40">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="117.5">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="143.75">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="170.625">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="172.5">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="197.5">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+        <notations>
+          <articulations>
+            <accent placement="below"/>
+          </articulations>
+        </notations>
+      </note>
+      <note default-x="199.375">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="224.375">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="251.25">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="278.125">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="279.375">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="304.375">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="331.25">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+    </measure>
+    <measure number="9" width="304.375">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <note default-x="16.875">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="43.75">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="70.625">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="71.875">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="97.5">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="123.75">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="150.625">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>diamond</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="177.5">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <staff>1</staff>
+        <notations>
+          <articulations>
+            <accent placement="below"/>
+          </articulations>
+        </notations>
+      </note>
+      <note default-x="179.375">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="223.75">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="25">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="250.625">
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="25">up</stem>
+        <staff>1</staff>
+        <beam number="1">continue</beam>
+      </note>
+      <note default-x="277.5">
+        <unpitched>
+          <display-step>E</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X8"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="25">up</stem>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+    </measure>
+    <measure number="10" width="476.875">
+      <print new-system="yes" new-page="no">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <system-distance>100</system-distance>
+        </system-layout>
+      </print>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <barline location="left">
+        <bar-style>heavy-light</bar-style>
+        <repeat direction="forward"/>
+      </barline>
+      <note default-x="35.625">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <staff>1</staff>
+      </note>
+      <note default-x="36.875">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="116.25">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="116.25">
+        <chord/>
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+      </note>
+      <note default-x="117.5">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="163.125">
+        <rest>
+          <display-step>B</display-step>
+          <display-octave>4</display-octave>
+        </rest>
+        <duration>4</duration>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <staff>1</staff>
+      </note>
+      <note default-x="209.375">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <note default-x="256.25">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <staff>1</staff>
+      </note>
+      <note default-x="258.125">
+        <chord/>
+        <unpitched>
+          <display-step>A</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>12</duration>
+        <instrument id="P1-X4"/>
+        <voice>5</voice>
+        <type>quarter</type>
+        <stem default-y="37.5">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="336.875">
+        <unpitched>
+          <display-step>F</display-step>
+          <display-octave>4</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X17"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no" number="1">
+            <tuplet-actual>
+              <tuplet-number>3</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-actual>
+            <tuplet-normal>
+              <tuplet-number>2</tuplet-number>
+              <tuplet-type>eighth</tuplet-type>
+            </tuplet-normal>
+          </tuplet>
+        </notations>
+      </note>
+      <note default-x="336.875">
+        <chord/>
+        <unpitched>
+          <display-step>C</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X12"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <staff>1</staff>
+      </note>
+      <note default-x="338.75">
+        <chord/>
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note default-x="383.75">
+        <rest>
+          <display-step>B</display-step>
+          <display-octave>4</display-octave>
+        </rest>
+        <duration>4</duration>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <staff>1</staff>
+      </note>
+      <backup>
+        <duration>2</duration>
+      </backup>
+      <direction placement="above">
+        <direction-type>
+          <words font-family="Arial" font-size="8.00269" justify="left" letter-spacing="0.125965" line-height="85" xml:space="preserve" default-y="40.625">x8</words>
+        </direction-type>
+        <staff>1</staff>
+      </direction>
+      <forward>
+        <duration>2</duration>
+      </forward>
+      <note default-x="430.625">
+        <unpitched>
+          <display-step>G</display-step>
+          <display-octave>5</display-octave>
+        </unpitched>
+        <duration>4</duration>
+        <instrument id="P1-X5"/>
+        <voice>5</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+        </time-modification>
+        <stem default-y="35">up</stem>
+        <notehead>x</notehead>
+        <staff>1</staff>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop" bracket="no" number="1"/>
+        </notations>
+      </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+        <repeat direction="backward"/>
+      </barline>
+    </measure>
+    <measure number="11" width="63.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+        <measure-style>
+          <multiple-rest>10</multiple-rest>
+        </measure-style>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="12" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="13" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="14" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="15" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="16" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="17" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="18" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="19" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+    </measure>
+    <measure number="20" width="48.75">
+      <print new-system="no" new-page="no"/>
+      <attributes>
+        <divisions>12</divisions>
+      </attributes>
+      <forward>
+        <duration>48</duration>
+      </forward>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
+    </measure>
+  </part>
+</score-partwise>

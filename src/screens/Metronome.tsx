@@ -52,6 +52,10 @@ const Metronome: React.FC = () => {
   const [showSegmentsModal, setShowSegmentsModal] = useState(false);
   const [showClickSoundModal, setShowClickSoundModal] = useState(false);
   const [accentExpanded, setAccentExpanded] = useState(false);
+  const accentVisibleCount = accentExpanded
+    ? accentPattern.length
+    : Math.min(accentPattern.length, 12);
+  const accentNeedsWideLayout = accentPattern.length > 8;
 
   const { beat, toggleMetronome, barCount, resetBarCount } = useMetronomeEngine({
     enabled: autoBpmRampEnabled,
@@ -191,7 +195,14 @@ const Metronome: React.FC = () => {
               {openHelp === 'timeSigBottom' && <p className="metronome-help-pop">Bottom number (denominator): 2, 4, 8, or 16.</p>}
             </section>
 
-            <section className="metronome-left-section metronome-left-section--wide">
+            <section
+              className={`metronome-left-section${accentNeedsWideLayout ? ' metronome-left-section--accent-wide' : ''}`}
+              style={
+                accentNeedsWideLayout
+                  ? ({ '--accent-beats': String(accentVisibleCount) } as React.CSSProperties)
+                  : undefined
+              }
+            >
               <div className="metronome-left-inline-row">
                 <h3>Accent Pattern</h3>
                 {!isLoggedIn ? (
