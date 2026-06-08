@@ -501,6 +501,14 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
     resetPlaybackVisuals();
   };
 
+  const togglePlayback = () => {
+    if (isPlaying) {
+      stop();
+      return;
+    }
+    void play();
+  };
+
   const toggleMetronome = () => {
     setMetronomeEnabled((current) => {
       const next = !current;
@@ -672,13 +680,44 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
       className={`musicxml-playalong ${layoutClass}${themeClass}${isFullscreen ? ' musicxml-playalong--fullscreen' : ''}`}
       aria-label={`Play-along: ${exercise.title}`}
     >
-      <div className="musicxml-playalong-toolbar">
+      <header className="musicxml-playalong-header">
         <div className="musicxml-playalong-heading">
           <h2 className="musicxml-playalong-title">{exercise.title}</h2>
           <p className="musicxml-playalong-meta">{exercise.subtitle}</p>
         </div>
+      </header>
 
-        <div className="musicxml-playalong-transport">
+      <div
+        className="musicxml-playalong-progress"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={beatProgress}
+        aria-label="Score playback progress"
+      >
+        <div className="musicxml-playalong-progress-fill" style={{ width: `${beatProgress}%` }} />
+      </div>
+
+      <div ref={scoreViewportRef} className="musicxml-playalong-score-viewport">
+        {scoreStatus === 'loading' && (
+          <p className="musicxml-playalong-score-status" role="status">
+            Loading score…
+          </p>
+        )}
+        {scoreStatus === 'error' && (
+          <p className="musicxml-playalong-score-status musicxml-playalong-score-status--error" role="alert">
+            {scoreError}
+          </p>
+        )}
+        <div
+          ref={scoreContainerRef}
+          className={`musicxml-playalong-score-canvas${scoreStatus === 'ready' ? ' musicxml-playalong-score-canvas--ready' : ''}`}
+          aria-hidden={scoreStatus !== 'ready'}
+        />
+      </div>
+
+      <div className="musicxml-playalong-controls">
+        <div className="musicxml-playalong-controls-left">
           <div className="musicxml-playalong-knobs">
             <PlayAlongKnob
               label="Tempo"
@@ -707,43 +746,21 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
               onCommit={handleVolumeKnobCommit}
             />
           </div>
-          {/* <div className="musicxml-playalong-tempo-steppers" aria-label="Tempo fine adjust">
-            <button
-              type="button"
-              className="musicxml-playalong-tempo-btn"
-              onClick={() => commitManualBpm(tempoSliderBpm - 1)}
-              disabled={scoreStatus !== 'ready' || tempoSliderBpm <= MIN_PLAYBACK_BPM}
-              aria-label="Decrease tempo"
-            >
-              −
-            </button>
-            <button
-              type="button"
-              className="musicxml-playalong-tempo-btn"
-              onClick={() => commitManualBpm(tempoSliderBpm + 1)}
-              disabled={scoreStatus !== 'ready' || tempoSliderBpm >= MAX_PLAYBACK_BPM}
-              aria-label="Increase tempo"
-            >
-              +
-            </button>
-          </div> */}
+        </div>
+
+        <div className="musicxml-playalong-controls-center">
           <button
             type="button"
-            className="musicxml-playalong-transport-btn musicxml-playalong-transport-btn--play"
-            onClick={play}
-            disabled={isPlaying || scoreStatus !== 'ready'}
-            aria-label="Play backing track"
+            className={`musicxml-playalong-transport-btn musicxml-playalong-transport-btn--toggle${isPlaying ? ' musicxml-playalong-transport-btn--stop' : ' musicxml-playalong-transport-btn--play'}`}
+            onClick={togglePlayback}
+            disabled={scoreStatus !== 'ready'}
+            aria-label={isPlaying ? 'Stop backing track' : 'Play backing track'}
           >
-            Play
+            {isPlaying ? 'Stop' : 'Play'}
           </button>
-          <button
-            type="button"
-            className="musicxml-playalong-transport-btn musicxml-playalong-transport-btn--stop"
-            onClick={stop}
-            aria-label="Stop backing track"
-          >
-            Stop
-          </button>
+        </div>
+
+        <div className="musicxml-playalong-controls-right">
           <button
             type="button"
             className={`musicxml-playalong-metronome-btn${metronomeEnabled ? ' musicxml-playalong-metronome-btn--active' : ''}`}
@@ -779,35 +796,6 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
             {formatTime(time)} / {formatTime(duration)}
           </span>
         </div>
-      </div>
-
-      <div
-        className="musicxml-playalong-progress"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={beatProgress}
-        aria-label="Score playback progress"
-      >
-        <div className="musicxml-playalong-progress-fill" style={{ width: `${beatProgress}%` }} />
-      </div>
-
-      <div ref={scoreViewportRef} className="musicxml-playalong-score-viewport">
-        {scoreStatus === 'loading' && (
-          <p className="musicxml-playalong-score-status" role="status">
-            Loading score…
-          </p>
-        )}
-        {scoreStatus === 'error' && (
-          <p className="musicxml-playalong-score-status musicxml-playalong-score-status--error" role="alert">
-            {scoreError}
-          </p>
-        )}
-        <div
-          ref={scoreContainerRef}
-          className={`musicxml-playalong-score-canvas${scoreStatus === 'ready' ? ' musicxml-playalong-score-canvas--ready' : ''}`}
-          aria-hidden={scoreStatus !== 'ready'}
-        />
       </div>
 
       <audio ref={audioRef} src={exercise.audioUrl} preload="metadata" />

@@ -45,16 +45,17 @@
   border: none;
 }
 
-.musicxml-playalong-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem 1.25rem;
-  margin-bottom: 0.85rem;
+.musicxml-playalong-header {
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
 }
 
 .musicxml-playalong-heading {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem 0.85rem;
   min-width: 0;
 }
 
@@ -67,27 +68,70 @@
 }
 
 .musicxml-playalong-meta {
-  margin: 0.25rem 0 0;
+  margin: 0;
   font-size: 0.82rem;
   color: var(--text-muted);
 }
 
-.musicxml-playalong-transport {
+.musicxml-playalong-controls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+  padding-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.musicxml-playalong-controls-left {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  min-width: 0;
+}
+
+.musicxml-playalong-controls-center {
+  display: flex;
+  justify-content: center;
   align-items: center;
   gap: 0.55rem;
 }
 
+.musicxml-playalong-controls-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
 .musicxml-playalong-transport-btn {
-  border: 1px solid var(--border-control);
-  border-radius: 8px;
-  padding: 0.52rem 1.15rem;
+  border: 2px solid var(--border-control);
+  border-radius: 50%;
+  padding: 0;
   font-family: inherit;
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 700;
+  line-height: 1.1;
   cursor: pointer;
   color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.musicxml-playalong-transport-btn--toggle {
+  width: 3.9rem;
+  height: 3.9rem;
+}
+
+.musicxml-playalong-transport-btn:focus-visible {
+  outline: 2px solid var(--accent-primary-95);
+  outline-offset: 4px;
 }
 
 .musicxml-playalong-transport-btn:disabled {
@@ -372,12 +416,19 @@
 }
 
 @media (max-width: 720px) {
-  .musicxml-playalong-toolbar {
-    flex-direction: column;
-    align-items: stretch;
+  .musicxml-playalong-heading {
+    flex-direction: row;
+    align-items: baseline;
   }
 
-  .musicxml-playalong-transport {
-    justify-content: flex-start;
+  .musicxml-playalong-controls {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .musicxml-playalong-controls-left,
+  .musicxml-playalong-controls-center,
+  .musicxml-playalong-controls-right {
+    justify-content: center;
   }
 }
