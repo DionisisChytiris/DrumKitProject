@@ -1,0 +1,157 @@
+.metronome-settings-hud {
+  position: absolute;
+  top: 2.5rem;
+  right: 6.5rem;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.metronome-settings-hud-meter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Stacked numerator — bar — denominator, like printed music */
+.metronome-settings-hud-signature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.metronome-settings-hud-signature-num {
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 8px var(--shadow-dark);
+}
+
+.metronome-settings-hud-signature-bar {
+  display: block;
+  width: 2.25rem;
+  height: 2px;
+  margin: 0.2rem 0;
+  background: currentColor;
+  border-radius: 1px;
+  opacity: 0.92;
+}
+
+.metronome-settings-hud-subdivision {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-primary);
+}
+
+.metronome-settings-hud-subdivision-glyph {
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.metronome-settings-hud-subdivision-triplet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0.28rem;
+}
+
+.metronome-settings-hud-subdivision-triplet-line {
+  position: absolute;
+  top: 0.1rem;
+  left: 50%;
+  transform: translateX(-42%);
+  width: 1.65rem;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.metronome-settings-hud-dots {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.28rem;
+  width: max-content;
+  margin-top: 1.65rem;
+  padding-right: 1.15rem;
+}
+
+.metronome-settings-hud-dots--wide {
+  gap: 0.48rem;
+  min-width: calc(var(--hud-dot-count) * 0.34rem + (var(--hud-dot-count) - 1) * 0.48rem);
+}
+
+.metronome-settings-hud-dot {
+  flex-shrink: 0;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
+}
+
+.metronome-settings-hud-dot--accent {
+  width: 0.34rem;
+  height: 0.34rem;
+  background: var(--accent-beat);
+  border-color: var(--accent-beat);
+  box-shadow: 0 0 6px rgba(255, 152, 0, 0.65);
+}
+
+@media (max-width: 1023px) {
+  .metronome-settings-hud {
+    top: 2.25rem;
+    right: 4rem;
+  }
+
+  .metronome-settings-hud-signature-num {
+    font-size: 2.35rem;
+  }
+
+  .metronome-settings-hud-meter {
+    gap: 0.85rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .metronome-settings-hud {
+    top: 2rem;
+    right: 2.5rem;
+  }
+
+  .metronome-settings-hud-signature-num {
+    font-size: 2rem;
+  }
+
+  .metronome-settings-hud-meter {
+    gap: 0.75rem;
+  }
+
+  .metronome-settings-hud-subdivision-glyph {
+    font-size: 0.85rem;
+  }
+
+  .metronome-settings-hud-dots {
+    margin-top: 1.4rem;
+    padding-right: 0.95rem;
+  }
+
+  .metronome-settings-hud-dots--wide {
+    gap: 0.42rem;
+    min-width: calc(var(--hud-dot-count) * 0.34rem + (var(--hud-dot-count) - 1) * 0.42rem);
+  }
+}

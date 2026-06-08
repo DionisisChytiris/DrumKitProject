@@ -59,61 +59,11 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
         timeSignatureDenom={timeSignatureDenom}
         accentPattern={accentPattern}
       />
-                    {/* {useTimeSignatureSequence && timeSignatureSegments.length > 0 && (
-                        <div className="metronome-sequence-summary-shell">
-                            <MetronomeSequenceSummary segments={timeSignatureSegments} />
-                        </div>
-                    )} */}
-      {/* BPM Control */}
-      {/* <div className="bpm-control">
-        <div className="bpm-input-group">
-          <button
-            className="bpm-button"
-            onClick={() => handleBpmChange(bpm - 1)}
-            disabled={bpm <= 30}
-          >
-            −
-          </button>
-          <input
-            ref={inputRef}
-            type="number"
-            className="bpm-input"
-            value={bpmInputValue}
-            min={30}
-            max={400}
-            onChange={handleBpmInputChange}
-            onBlur={handleBpmBlur}
-          />
-          <button
-            className="bpm-button"
-            onClick={() => handleBpmChange(bpm + 1)}
-            disabled={bpm >= 400}
-          >
-            +
-          </button>
-        </div>
-        <div className="bpm-slider-container">
-          <input
-            type="range"
-            className="bpm-slider"
-            min="30"
-            max="400"
-            step="1"
-            value={bpm}
-            onChange={(e) => handleBpmChange(parseInt(e.target.value, 10))}
-          />
-        </div>
-      </div> */}
 
-      {/* Beat count circle — tap to play / stop */}
       <div className="beat-indicator">
-        <button
-            className="bpm-button"
-            onClick={() => handleBpmChange(bpm - 1)}
-            disabled={bpm <= 30}
-          >
-            −
-          </button>
+        <button className="bpm-button" onClick={() => handleBpmChange(bpm - 1)} disabled={bpm <= 30}>
+          −
+        </button>
         <button
           type="button"
           className={`beat-circle ${isPlaying ? 'active' : ''} ${mainBeatNumber === 1 ? 'downbeat' : ''}`}
@@ -127,20 +77,15 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
           aria-pressed={isPlaying}
           aria-label={isPlaying ? 'Stop metronome' : 'Start metronome'}
         >
-          {/* <span className="beat-number">{mainBeatNumber}</span> */}
           <span className="beat-number">{bpm}</span>
           <span className="beat-circle-action-label">{isPlaying ? 'Stop' : 'Play'}</span>
         </button>
 
-        <button
-            className="bpm-button"
-            onClick={() => handleBpmChange(bpm + 1)}
-            disabled={bpm >= 400}
-          >
-            +
-          </button>
+        <button className="bpm-button" onClick={() => handleBpmChange(bpm + 1)} disabled={bpm >= 400}>
+          +
+        </button>
 
-          <div className="bpm-slider-container">
+        <div className="bpm-slider-container">
           <input
             type="range"
             className="bpm-slider"
@@ -236,4 +181,3 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
     </div>
   );
 };
-

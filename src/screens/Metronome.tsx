@@ -4,6 +4,9 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import './styles/Metronome.css';
 import { useMetronomeEngine } from './Metronome/useMetronomeEngine';
 import { MetronomeCenterPanel } from './Metronome/MetronomeCenterPanel';
+import { MetronomeLeftFlyoutItem } from './Metronome/MetronomeLeftFlyoutItem';
+import { MetronomeSettingsHud } from './Metronome/MetronomeSettingsHud';
+import { MetronomeSequenceHead, MetronomeSequenceSummary } from './Metronome/MetronomeSequenceSummary';
 import {
   addTimeSignatureSegment,
   removeTimeSignatureSegment,
@@ -24,6 +27,11 @@ type HelpKey = 'subdivision' | 'timeSigTop' | 'timeSigBottom' | 'accentPattern' 
 
 const DENOMS: TimeSignatureDenominator[] = [2, 4, 8, 16];
 const CLICK_SOUNDS: ClickSound[] = ['tick', 'beep', 'wood', 'metallic'];
+
+function formatSegmentSummary(bars: number, numerator: number, denominator: number): string {
+  const barLabel = bars === 1 ? 'bar' : 'bars';
+  return `${bars} ${barLabel} → ${numerator}/${denominator}`;
+}
 
 const Metronome: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -50,7 +58,6 @@ const Metronome: React.FC = () => {
   const [autoBpmEveryBars, setAutoBpmEveryBars] = useState(4);
   const [openHelp, setOpenHelp] = useState<HelpKey | null>(null);
   const [showSegmentsModal, setShowSegmentsModal] = useState(false);
-  const [showClickSoundModal, setShowClickSoundModal] = useState(false);
   const [accentExpanded, setAccentExpanded] = useState(false);
   const accentVisibleCount = accentExpanded
     ? accentPattern.length
@@ -79,11 +86,31 @@ const Metronome: React.FC = () => {
     setOpenHelp((prev) => (prev === key ? null : key));
   };
 
+  const meterSegmentsActive = useTimeSignatureSequence && isLoggedIn;
+  const segmentCount = timeSignatureSegments.length;
+  const currentMeterLabel = `${timeSignature}/${timeSignatureDenom}`;
+  const timeSigLockedNotice =
+    'Controlled by Meter Segments while the sequence is enabled. Edit meters in the Meter Segments panel.';
+  const meterSegmentsActiveNotice = `Sequence is on — this sets the time signature as playback moves (${currentMeterLabel} now). Time Signature Top and Bottom are paused.`;
+
   return (
     <div className="metronome-container">
       <div className="metronome-background"></div>
       <div className="metronome-content">
         <NavBarHome />
+        <MetronomeSettingsHud />
+        {meterSegmentsActive && segmentCount > 0 && (
+          <div
+            className="metronome-sequence-display"
+            role="complementary"
+            aria-label="Meter loop sequence"
+          >
+            <MetronomeSequenceHead />
+            <div className="metronome-sequence-segments-scroll">
+              <MetronomeSequenceSummary segments={timeSignatureSegments} variant="stacked" />
+            </div>
+          </div>
+        )}
         <header className="metronome-header">
           <h1 className="metronome-title">Metronome</h1>
           <p className="metronome-onboarding">Tap the circle to start · Advanced needs demo login</p>
@@ -91,124 +118,137 @@ const Metronome: React.FC = () => {
 
         <div className="metronome-wrapper">
           <aside className="metronome-left-controls">
-            <section className="metronome-left-section">
-              <div className="metronome-left-inline-row">
-                <h3>Subdivision</h3>
-                <div className="subdivision-buttons">
-                  <button
-                    className={`subdivision-button ${subdivision === 'quarters' ? 'active' : ''}`}
-                    onClick={() => dispatch(setSubdivision('quarters' as Subdivision))}
-                    disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
-                  >
-                    ♩
-                  </button>
-                  <button
-                    className={`subdivision-button ${subdivision === 'eighths' ? 'active' : ''}`}
-                    onClick={() => dispatch(setSubdivision('eighths' as Subdivision))}
-                    disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
-                  >
-                    ♫
-                  </button>
-                  <button
-                    className={`subdivision-button ${subdivision === 'sixteenths' ? 'active' : ''}`}
-                    onClick={() => dispatch(setSubdivision('sixteenths' as Subdivision))}
-                    disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
-                  >
-                    ♬♬
-                  </button>
-                  <button
-                    className={`subdivision-button ${subdivision === 'triplets' ? 'active' : ''}`}
-                    onClick={() => dispatch(setSubdivision('triplets' as Subdivision))}
-                    disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
-                  >
-                    <div className="triplet-notation">
-                      <div className="triplet-line"></div>
-                      <span>♩♩♩</span>
-                    </div>
-                  </button>
-                </div>
-                <button className="metronome-help-btn" onClick={() => toggleHelp('subdivision')} aria-label="Subdivision help">?</button>
+            <MetronomeLeftFlyoutItem
+              title="Subdivision"
+              helpOpen={openHelp === 'subdivision'}
+              onToggleHelp={() => toggleHelp('subdivision')}
+              helpText="Choose quarter, eighth, sixteenth, or triplet notes. In x/8 or x/16, subdivision auto-locks."
+            >
+              <div className="subdivision-buttons">
+                <button
+                  className={`subdivision-button ${subdivision === 'quarters' ? 'active' : ''}`}
+                  onClick={() => dispatch(setSubdivision('quarters' as Subdivision))}
+                  disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
+                >
+                  ♩
+                </button>
+                <button
+                  className={`subdivision-button ${subdivision === 'eighths' ? 'active' : ''}`}
+                  onClick={() => dispatch(setSubdivision('eighths' as Subdivision))}
+                  disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
+                >
+                  ♫
+                </button>
+                <button
+                  className={`subdivision-button ${subdivision === 'sixteenths' ? 'active' : ''}`}
+                  onClick={() => dispatch(setSubdivision('sixteenths' as Subdivision))}
+                  disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
+                >
+                  ♬♬
+                </button>
+                <button
+                  className={`subdivision-button ${subdivision === 'triplets' ? 'active' : ''}`}
+                  onClick={() => dispatch(setSubdivision('triplets' as Subdivision))}
+                  disabled={isPlaying || timeSignatureDenom === 8 || timeSignatureDenom === 16}
+                >
+                  <div className="triplet-notation">
+                    <div className="triplet-line"></div>
+                    <span>♩♩♩</span>
+                  </div>
+                </button>
               </div>
-              {openHelp === 'subdivision' && (
-                <p className="metronome-help-pop">Choose 4th, 8th, 16th, or triplet notes. In x/8 or x/16, subdivision auto-locks with disabled opacity.</p>
-              )}
-            </section>
+            </MetronomeLeftFlyoutItem>
 
-            <section className="metronome-left-section">
-              <div className="metronome-left-inline-row">
-                <h3>Time Signature Top</h3>
-                <div className="time-signature-input-group">
+            <MetronomeLeftFlyoutItem
+              title="Time Signature Top"
+              panelLabel="Top (numerator)"
+              helpOpen={openHelp === 'timeSigTop'}
+              onToggleHelp={() => toggleHelp('timeSigTop')}
+              helpText="Top number (numerator), range 1–19. Disabled while Meter Segments sequence is on."
+              overridden={meterSegmentsActive}
+              titleBadge={meterSegmentsActive ? 'Segments' : undefined}
+              panelNotice={meterSegmentsActive ? timeSigLockedNotice : undefined}
+            >
+              <div className="time-signature-input-group">
+                <button
+                  className="time-signature-button"
+                  onClick={() => {
+                    if (timeSignature > 1) dispatch(setTimeSignature(timeSignature - 1));
+                  }}
+                  disabled={isPlaying || useTimeSignatureSequence || timeSignature <= 1}
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  className="time-signature-input"
+                  min="1"
+                  max="19"
+                  value={timeSignature}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    if (!Number.isNaN(value) && value >= 1 && value <= 19) dispatch(setTimeSignature(value));
+                  }}
+                  disabled={isPlaying || useTimeSignatureSequence}
+                />
+                <button
+                  className="time-signature-button"
+                  onClick={() => {
+                    if (timeSignature < 19) dispatch(setTimeSignature(timeSignature + 1));
+                  }}
+                  disabled={isPlaying || useTimeSignatureSequence || timeSignature >= 19}
+                >
+                  +
+                </button>
+              </div>
+            </MetronomeLeftFlyoutItem>
+
+            <MetronomeLeftFlyoutItem
+              title="Time Signature Bottom"
+              panelLabel="Bottom (denominator)"
+              helpOpen={openHelp === 'timeSigBottom'}
+              onToggleHelp={() => toggleHelp('timeSigBottom')}
+              helpText="Bottom number (denominator): 2, 4, 8, or 16. Disabled while Meter Segments sequence is on."
+              overridden={meterSegmentsActive}
+              titleBadge={meterSegmentsActive ? 'Segments' : undefined}
+              panelNotice={meterSegmentsActive ? timeSigLockedNotice : undefined}
+            >
+              <div className="time-signature-denominator-buttons">
+                {DENOMS.map((d) => (
                   <button
-                    className="time-signature-button"
-                    onClick={() => {
-                      if (timeSignature > 1) dispatch(setTimeSignature(timeSignature - 1));
-                    }}
-                    disabled={isPlaying || useTimeSignatureSequence || timeSignature <= 1}
-                  >
-                    −
-                  </button>
-                  <input
-                    type="number"
-                    className="time-signature-input"
-                    min="1"
-                    max="19"
-                    value={timeSignature}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value, 10);
-                      if (!Number.isNaN(value) && value >= 1 && value <= 19) dispatch(setTimeSignature(value));
-                    }}
+                    key={d}
+                    type="button"
+                    className={`time-signature-denom-button ${timeSignatureDenom === d ? 'active' : ''}`}
+                    onClick={() => dispatch(setTimeSignatureDenom(d))}
                     disabled={isPlaying || useTimeSignatureSequence}
-                  />
-                  <button
-                    className="time-signature-button"
-                    onClick={() => {
-                      if (timeSignature < 19) dispatch(setTimeSignature(timeSignature + 1));
-                    }}
-                    disabled={isPlaying || useTimeSignatureSequence || timeSignature >= 19}
                   >
-                    +
+                    {d}
                   </button>
-                </div>
-                <button className="metronome-help-btn" onClick={() => toggleHelp('timeSigTop')} aria-label="Time signature top help">?</button>
+                ))}
               </div>
-              {openHelp === 'timeSigTop' && <p className="metronome-help-pop">Top number (numerator), range 1–19.</p>}
-            </section>
+            </MetronomeLeftFlyoutItem>
 
-            <section className="metronome-left-section">
-              <div className="metronome-left-inline-row">
-                <h3>Time Signature Bottom</h3>
-                <div className="time-signature-denominator-buttons">
-                  {DENOMS.map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      className={`time-signature-denom-button ${timeSignatureDenom === d ? 'active' : ''}`}
-                      onClick={() => dispatch(setTimeSignatureDenom(d))}
-                      disabled={isPlaying || useTimeSignatureSequence}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-                <button className="metronome-help-btn" onClick={() => toggleHelp('timeSigBottom')} aria-label="Time signature bottom help">?</button>
-              </div>
-              {openHelp === 'timeSigBottom' && <p className="metronome-help-pop">Bottom number (denominator): 2, 4, 8, or 16.</p>}
-            </section>
-
-            <section
-              className={`metronome-left-section${accentNeedsWideLayout ? ' metronome-left-section--accent-wide' : ''}`}
-              style={
-                accentNeedsWideLayout
-                  ? ({ '--accent-beats': String(accentVisibleCount) } as React.CSSProperties)
-                  : undefined
+            <MetronomeLeftFlyoutItem
+              title="Accent Pattern"
+              helpOpen={openHelp === 'accentPattern'}
+              onToggleHelp={() => toggleHelp('accentPattern')}
+              helpText="Toggle accents per beat. At least one beat remains accented."
+              panelClassName={
+                accentNeedsWideLayout ? ' metronome-left-flyout-panel--accent-wide' : ''
               }
             >
-              <div className="metronome-left-inline-row">
-                <h3>Accent Pattern</h3>
-                {!isLoggedIn ? (
-                  <p className="metronome-rail-locked">Demo login required</p>
-                ) : (
-                  <div className="accent-pattern-buttons">
+              {!isLoggedIn ? (
+                <p className="metronome-rail-locked">Demo login required</p>
+              ) : (
+                <>
+                  <div
+                    className="accent-pattern-buttons"
+                    style={
+                      accentNeedsWideLayout
+                        ? ({ '--accent-beats': String(accentVisibleCount) } as React.CSSProperties)
+                        : undefined
+                    }
+                  >
                     {(accentExpanded ? accentPattern : accentPattern.slice(0, 12)).map((accented, index) => (
                       <button
                         key={index}
@@ -226,31 +266,42 @@ const Metronome: React.FC = () => {
                       </button>
                     ))}
                   </div>
-                )}
-                <button className="metronome-help-btn" onClick={() => toggleHelp('accentPattern')} aria-label="Accent pattern help">?</button>
-                {isLoggedIn && accentPattern.length > 12 && (
-                  <button
-                    className="metronome-accent-expand"
-                    type="button"
-                    onClick={() => setAccentExpanded((prev) => !prev)}
-                    disabled={isPlaying}
-                  >
-                    {accentExpanded ? 'Close expansion' : 'Expand full view'}
-                  </button>
-                )}
-              </div>
-              {openHelp === 'accentPattern' && <p className="metronome-help-pop">Toggle accents per beat. At least one beat remains accented.</p>}
-            </section>
+                  {accentPattern.length > 12 && (
+                    <button
+                      className="metronome-accent-expand"
+                      type="button"
+                      onClick={() => setAccentExpanded((prev) => !prev)}
+                      disabled={isPlaying}
+                    >
+                      {accentExpanded ? 'Close expansion' : 'Expand full view'}
+                    </button>
+                  )}
+                </>
+              )}
+            </MetronomeLeftFlyoutItem>
 
-            <section className="metronome-left-section">
-              <div className="metronome-left-inline-row">
-                <div className="metronome-title-with-action metronome-title-with-action--centered">
-                  <h3>Meter Segments</h3>
+            <MetronomeLeftFlyoutItem
+              title="Meter Segments"
+              helpOpen={openHelp === 'meterSegments'}
+              onToggleHelp={() => toggleHelp('meterSegments')}
+              helpText="Build a loop of meters — e.g. 4 bars of 4/4, then 2 of 5/4. When enabled, it replaces Time Signature Top and Bottom."
+              emphasized={meterSegmentsActive}
+              titleBadge={meterSegmentsActive ? currentMeterLabel : undefined}
+              panelNotice={
+                meterSegmentsActive
+                  ? `${meterSegmentsActiveNotice} ${segmentCount} segment${segmentCount === 1 ? '' : 's'} in loop.`
+                  : undefined
+              }
+            >
+              {!isLoggedIn ? (
+                <p className="metronome-rail-locked">Demo login required</p>
+              ) : (
+                <>
                   <label className="metronome-inline-checkbox">
                     <input
                       type="checkbox"
                       checked={useTimeSignatureSequence}
-                      disabled={isPlaying || !isLoggedIn}
+                      disabled={isPlaying}
                       onChange={(e) => {
                         dispatch(setUseTimeSignatureSequence(e.target.checked));
                         if (e.target.checked) {
@@ -262,47 +313,59 @@ const Metronome: React.FC = () => {
                     />
                     <span>Enable sequence</span>
                   </label>
-                </div>
-                <button className="metronome-help-btn" onClick={() => toggleHelp('meterSegments')} aria-label="Meter segments help">?</button>
-              </div>
-              {openHelp === 'meterSegments' && <p className="metronome-help-pop">Opens a larger editor for per-segment bars + meter settings.</p>}
-              {!isLoggedIn && <p className="metronome-rail-locked">Demo login required</p>}
-            </section>
-
-            <section className="metronome-left-section">
-              <div className="metronome-left-inline-row">
-                <div className="metronome-title-with-action metronome-title-with-action--centered">
-                  <h3>Click Sound</h3>
-                  <button className="metronome-segments-open" onClick={() => setShowClickSoundModal(true)}>
-                    Pick sound
+                  <button
+                    type="button"
+                    className="metronome-segments-open"
+                    onClick={() => setShowSegmentsModal(true)}
+                    disabled={!useTimeSignatureSequence}
+                  >
+                    Edit segments
                   </button>
-                </div>
-                <button className="metronome-help-btn" onClick={() => toggleHelp('clickSound')} aria-label="Click sound help">?</button>
-              </div>
-              {openHelp === 'clickSound' && <p className="metronome-help-pop">Open popup editor and choose Tick, Beep, Wood, or Metallic.</p>}
-            </section>
+                </>
+              )}
+            </MetronomeLeftFlyoutItem>
 
-            <section className="metronome-left-section">
-              <div className="metronome-left-inline-row">
-                <h3>Volume</h3>
-                <div className="volume-control">
-                  <div className="volume-slider-container">
-                    <div className="volume-progress-bar" style={{ width: `${volume * 100}%` }}></div>
-                    <input
-                      type="range"
-                      className="volume-slider"
-                      min="0"
-                      max="1"
-                      step="0.01"
-                      value={volume}
-                      onChange={(e) => dispatch(setVolume(parseFloat(e.target.value)))}
-                    />
-                  </div>
-                </div>
-                <button className="metronome-help-btn" onClick={() => toggleHelp('volume')} aria-label="Volume help">?</button>
+            <MetronomeLeftFlyoutItem
+              title="Click Sound"
+              helpOpen={openHelp === 'clickSound'}
+              onToggleHelp={() => toggleHelp('clickSound')}
+              helpText="Choose Tick, Beep, Wood, or Metallic."
+            >
+              <div className="click-sound-buttons">
+                {CLICK_SOUNDS.map((sound) => (
+                  <button
+                    key={sound}
+                    type="button"
+                    className={`click-sound-button ${clickSound === sound ? 'active' : ''}`}
+                    onClick={() => dispatch(setClickSound(sound))}
+                  >
+                    {sound === 'tick' ? 'Tick' : sound.charAt(0).toUpperCase() + sound.slice(1)}
+                  </button>
+                ))}
               </div>
-              {openHelp === 'volume' && <p className="metronome-help-pop">Adjust metronome click playback level.</p>}
-            </section>
+            </MetronomeLeftFlyoutItem>
+
+            <MetronomeLeftFlyoutItem
+              title="Volume"
+              helpOpen={openHelp === 'volume'}
+              onToggleHelp={() => toggleHelp('volume')}
+              helpText="Adjust metronome click playback level."
+            >
+              <div className="volume-control">
+                <div className="volume-slider-container">
+                  <div className="volume-progress-bar" style={{ width: `${volume * 100}%` }}></div>
+                  <input
+                    type="range"
+                    className="volume-slider"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={(e) => dispatch(setVolume(parseFloat(e.target.value)))}
+                  />
+                </div>
+              </div>
+            </MetronomeLeftFlyoutItem>
           </aside>
 
           <MetronomeCenterPanel
@@ -344,7 +407,7 @@ const Metronome: React.FC = () => {
                 <div className="metronome-rail-segments">
                   {timeSignatureSegments.map((seg, index) => (
                     <div key={seg.id} className="metronome-rail-segment-row">
-                      <span>{index + 1}</span>
+                      <span className="metronome-rail-segment-index">{index + 1}</span>
                       <input
                         type="number"
                         className="ts-sequence-input"
@@ -391,6 +454,9 @@ const Metronome: React.FC = () => {
                           </button>
                         ))}
                       </div>
+                      <span className="metronome-rail-segment-summary" aria-live="polite">
+                        {formatSegmentSummary(seg.bars, seg.numerator, seg.denominator)}
+                      </span>
                       <button
                         type="button"
                         className="ts-sequence-remove"
@@ -406,28 +472,6 @@ const Metronome: React.FC = () => {
                   </button>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {showClickSoundModal && (
-          <div className="metronome-segments-modal-overlay" onClick={() => setShowClickSoundModal(false)}>
-            <div className="metronome-segments-modal metronome-click-sound-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="metronome-left-section-head">
-                <h3>Click Sound</h3>
-                <button className="metronome-help-btn" onClick={() => setShowClickSoundModal(false)} aria-label="Close click sound">×</button>
-              </div>
-              <div className="click-sound-buttons">
-                {CLICK_SOUNDS.map((sound) => (
-                  <button
-                    key={sound}
-                    className={`click-sound-button ${clickSound === sound ? 'active' : ''}`}
-                    onClick={() => dispatch(setClickSound(sound))}
-                  >
-                    {sound === 'tick' ? 'Tick' : sound.charAt(0).toUpperCase() + sound.slice(1)}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         )}
