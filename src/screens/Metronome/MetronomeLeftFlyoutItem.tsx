@@ -11,6 +11,8 @@ export interface MetronomeLeftFlyoutItemProps {
   overridden?: boolean;
   /** Highlight title — this control is the active source */
   emphasized?: boolean;
+  /** Demo login required — shows lock styling on the rail label */
+  locked?: boolean;
   /** Short badge next to the title (e.g. current meter or "Segments") */
   titleBadge?: string;
   /** Shown at top of flyout panel when set */
@@ -27,6 +29,7 @@ export const MetronomeLeftFlyoutItem: React.FC<MetronomeLeftFlyoutItemProps> = (
   panelClassName = '',
   overridden = false,
   emphasized = false,
+  locked = false,
   titleBadge,
   panelNotice,
   children,
@@ -54,6 +57,7 @@ export const MetronomeLeftFlyoutItem: React.FC<MetronomeLeftFlyoutItemProps> = (
     open ? 'metronome-left-flyout-item--open' : '',
     overridden ? 'metronome-left-flyout-item--overridden' : '',
     emphasized ? 'metronome-left-flyout-item--emphasized' : '',
+    locked ? 'metronome-left-flyout-item--locked' : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -72,6 +76,7 @@ export const MetronomeLeftFlyoutItem: React.FC<MetronomeLeftFlyoutItemProps> = (
       }}
     >
       <span className="metronome-left-flyout-title">
+        {locked ? '🔒 ' : ''}
         {title}
         {titleBadge && (
           <span className="metronome-left-flyout-title-badge">{titleBadge}</span>

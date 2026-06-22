@@ -47,8 +47,8 @@ function SubdivisionIcon({ kind }: { kind: Subdivision | 'half' | 'eighth-beat' 
   }
 }
 
-export const MetronomeSettingsHud: FC = () => {
-  const { timeSignature, timeSignatureDenom, accentPattern, subdivision } = useAppSelector(
+export const MetronomeSettingsHud: FC<{ accentPattern: boolean[] }> = ({ accentPattern }) => {
+  const { timeSignature, timeSignatureDenom, subdivision } = useAppSelector(
     (state) => state.metronome
   );
 

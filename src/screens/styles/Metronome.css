@@ -602,6 +602,14 @@
   text-shadow: 0 0 12px rgba(var(--accent-beat-rgb), 0.35);
 }
 
+.metronome-left-flyout-item--locked .metronome-left-flyout-title {
+  opacity: 0.72;
+}
+
+.metronome-left-flyout-item--locked.metronome-left-flyout-item--open .metronome-left-flyout-title {
+  opacity: 1;
+}
+
 .metronome-left-flyout-title-badge {
   display: inline-block;
   padding: 0.12rem 0.38rem;
@@ -2675,6 +2683,16 @@
   border-radius: 14px;
   flex: 1 1 200px;
   max-width: 280px;
+}
+
+.metronome-auto-bpm-ramp--locked {
+  align-items: center;
+  justify-content: center;
+}
+
+.metronome-auto-bpm-ramp--locked .metronome-rail-locked {
+  margin: 0;
+  text-align: center;
 }
 
 .metronome-auto-bpm-toggle {

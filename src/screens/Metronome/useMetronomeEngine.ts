@@ -14,7 +14,18 @@ export type AutoBpmRampConfig = {
   everyBars: number;
 };
 
-export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
+export type MetronomeEngineOptions = {
+  autoBpmRamp: AutoBpmRampConfig;
+  /** When false, meter segments and custom accent patterns are not applied. */
+  advancedFeaturesEnabled: boolean;
+  accentPattern: boolean[];
+};
+
+export const useMetronomeEngine = ({
+  autoBpmRamp,
+  advancedFeaturesEnabled,
+  accentPattern,
+}: MetronomeEngineOptions) => {
   const dispatch = useAppDispatch();
   const {
     bpm,
@@ -25,7 +36,6 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
     volume,
     clickSound,
     swing,
-    accentPattern,
     useTimeSignatureSequence,
     timeSignatureSegments,
   } = useAppSelector((state) => state.metronome);
@@ -41,13 +51,17 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
   bpmRef.current = bpm;
   const autoRampRef = useRef(autoBpmRamp);
   autoRampRef.current = autoBpmRamp;
+  const advancedFeaturesRef = useRef(advancedFeaturesEnabled);
+  advancedFeaturesRef.current = advancedFeaturesEnabled;
+  const accentPatternRef = useRef(accentPattern);
+  accentPatternRef.current = accentPattern;
   const timingRef = useRef({ subdivision, timeSignature, timeSignatureDenom });
   timingRef.current = { subdivision, timeSignature, timeSignatureDenom };
   const segmentAdvanceRef = useRef(false);
   const segmentIndexRef = useRef(0);
   const barsCompletedInSegmentRef = useRef(0);
-  const sequenceEnabledRef = useRef(useTimeSignatureSequence);
-  sequenceEnabledRef.current = useTimeSignatureSequence;
+  const sequenceEnabledRef = useRef(useTimeSignatureSequence && advancedFeaturesEnabled);
+  sequenceEnabledRef.current = useTimeSignatureSequence && advancedFeaturesEnabled;
   const segmentsRef = useRef(timeSignatureSegments);
   segmentsRef.current = timeSignatureSegments;
 
@@ -78,8 +92,9 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
     const isDownbeat = mainBeatNumber === 1 && mainClick;
 
     // Check if this beat should be accented (based on accent pattern)
-    const beatIndex = (mainBeatNumber - 1) % accentPattern.length;
-    const isAccented = accentPattern[beatIndex] && mainClick;
+    const pattern = accentPatternRef.current;
+    const beatIndex = (mainBeatNumber - 1) % pattern.length;
+    const isAccented = pattern[beatIndex] && mainClick;
 
     // Different pitches and base volumes: downbeat (highest), accented beats (high), main clicks (medium), ghost clicks (lowest)
     let frequency = 600;
@@ -254,7 +269,7 @@ export const useMetronomeEngine = (autoBpmRamp: AutoBpmRampConfig) => {
     const { enabled, increment, everyBars } = autoRampRef.current;
     const step = Math.max(0, Math.floor(increment));
     const interval = Math.max(1, Math.floor(everyBars));
-    if (!enabled || step <= 0) return;
+    if (!advancedFeaturesRef.current || !enabled || step <= 0) return;
     if (barCount <= 1) return;
     if ((barCount - 1) % interval !== 0) return;
     if (lastAutoRampBarRef.current === barCount) return;

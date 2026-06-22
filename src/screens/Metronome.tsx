@@ -27,6 +27,17 @@ type HelpKey = 'subdivision' | 'timeSigTop' | 'timeSigBottom' | 'accentPattern' 
 
 const DENOMS: TimeSignatureDenominator[] = [2, 4, 8, 16];
 const CLICK_SOUNDS: ClickSound[] = ['tick', 'beep', 'wood', 'metallic'];
+const DRUMKIT_AUTH_CHANGE_EVENT = 'drumkit-auth-change';
+
+function readLoggedIn(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('drumkitAuth.loggedIn') === 'true';
+}
+
+function buildDefaultAccentPattern(beats: number): boolean[] {
+  const count = Math.max(1, beats);
+  return Array.from({ length: count }, (_, index) => index === 0);
+}
 
 function formatSegmentSummary(bars: number, numerator: number, denominator: number): string {
   const barLabel = bars === 1 ? 'bar' : 'bars';
@@ -48,10 +59,7 @@ const Metronome: React.FC = () => {
     volume,
   } = useAppSelector((state) => state.metronome);
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem('drumkitAuth.loggedIn') === 'true';
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => readLoggedIn());
 
   const [autoBpmRampEnabled, setAutoBpmRampEnabled] = useState(false);
   const [autoBpmIncrement, setAutoBpmIncrement] = useState(1);
@@ -64,23 +72,43 @@ const Metronome: React.FC = () => {
     : Math.min(accentPattern.length, 12);
   const accentNeedsWideLayout = accentPattern.length > 8;
 
+  const effectiveAccentPattern = isLoggedIn
+    ? accentPattern
+    : buildDefaultAccentPattern(timeSignature);
+
   const { beat, toggleMetronome, barCount, resetBarCount } = useMetronomeEngine({
-    enabled: autoBpmRampEnabled,
-    increment: autoBpmIncrement,
-    everyBars: autoBpmEveryBars,
+    autoBpmRamp: {
+      enabled: isLoggedIn && autoBpmRampEnabled,
+      increment: autoBpmIncrement,
+      everyBars: autoBpmEveryBars,
+    },
+    advancedFeaturesEnabled: isLoggedIn,
+    accentPattern: effectiveAccentPattern,
   });
 
   useEffect(() => {
-    const onStorage = () => {
-      const logged = localStorage.getItem('drumkitAuth.loggedIn') === 'true';
-      setIsLoggedIn(logged);
-      if (!logged) {
-        setShowSegmentsModal(false);
-      }
+    const syncLogin = () => {
+      setIsLoggedIn(readLoggedIn());
     };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    window.addEventListener('storage', syncLogin);
+    window.addEventListener('focus', syncLogin);
+    window.addEventListener(DRUMKIT_AUTH_CHANGE_EVENT, syncLogin);
+    return () => {
+      window.removeEventListener('storage', syncLogin);
+      window.removeEventListener('focus', syncLogin);
+      window.removeEventListener(DRUMKIT_AUTH_CHANGE_EVENT, syncLogin);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setShowSegmentsModal(false);
+      setAutoBpmRampEnabled(false);
+      if (useTimeSignatureSequence) {
+        dispatch(setUseTimeSignatureSequence(false));
+      }
+    }
+  }, [dispatch, isLoggedIn, useTimeSignatureSequence]);
 
   const toggleHelp = (key: HelpKey) => {
     setOpenHelp((prev) => (prev === key ? null : key));
@@ -98,7 +126,7 @@ const Metronome: React.FC = () => {
       <div className="metronome-background"></div>
       <div className="metronome-content">
         <NavBarHome />
-        <MetronomeSettingsHud />
+        <MetronomeSettingsHud accentPattern={effectiveAccentPattern} />
         {meterSegmentsActive && segmentCount > 0 && (
           <div
             className="metronome-sequence-display"
@@ -175,7 +203,7 @@ const Metronome: React.FC = () => {
                   onClick={() => {
                     if (timeSignature > 1) dispatch(setTimeSignature(timeSignature - 1));
                   }}
-                  disabled={isPlaying || useTimeSignatureSequence || timeSignature <= 1}
+                  disabled={isPlaying || meterSegmentsActive || timeSignature <= 1}
                 >
                   −
                 </button>
@@ -189,14 +217,14 @@ const Metronome: React.FC = () => {
                     const value = parseInt(e.target.value, 10);
                     if (!Number.isNaN(value) && value >= 1 && value <= 19) dispatch(setTimeSignature(value));
                   }}
-                  disabled={isPlaying || useTimeSignatureSequence}
+                  disabled={isPlaying || meterSegmentsActive}
                 />
                 <button
                   className="time-signature-button"
                   onClick={() => {
                     if (timeSignature < 19) dispatch(setTimeSignature(timeSignature + 1));
                   }}
-                  disabled={isPlaying || useTimeSignatureSequence || timeSignature >= 19}
+                  disabled={isPlaying || meterSegmentsActive || timeSignature >= 19}
                 >
                   +
                 </button>
@@ -220,7 +248,7 @@ const Metronome: React.FC = () => {
                     type="button"
                     className={`time-signature-denom-button ${timeSignatureDenom === d ? 'active' : ''}`}
                     onClick={() => dispatch(setTimeSignatureDenom(d))}
-                    disabled={isPlaying || useTimeSignatureSequence}
+                    disabled={isPlaying || meterSegmentsActive}
                   >
                     {d}
                   </button>
@@ -230,6 +258,7 @@ const Metronome: React.FC = () => {
 
             <MetronomeLeftFlyoutItem
               title="Accent Pattern"
+              locked={!isLoggedIn}
               helpOpen={openHelp === 'accentPattern'}
               onToggleHelp={() => toggleHelp('accentPattern')}
               helpText="Toggle accents per beat. At least one beat remains accented."
@@ -282,6 +311,7 @@ const Metronome: React.FC = () => {
 
             <MetronomeLeftFlyoutItem
               title="Meter Segments"
+              locked={!isLoggedIn}
               helpOpen={openHelp === 'meterSegments'}
               onToggleHelp={() => toggleHelp('meterSegments')}
               helpText="Build a loop of meters — e.g. 4 bars of 4/4, then 2 of 5/4. When enabled, it replaces Time Signature Top and Bottom."
@@ -374,6 +404,7 @@ const Metronome: React.FC = () => {
             subdivision={subdivision}
             timeSignature={timeSignature}
             timeSignatureDenom={timeSignatureDenom}
+            accentPattern={effectiveAccentPattern}
             visualFlashIntensity={visualFlashIntensity}
             toggleMetronome={toggleMetronome}
             barCount={barCount}
@@ -384,6 +415,7 @@ const Metronome: React.FC = () => {
             onAutoBpmIncrementChange={setAutoBpmIncrement}
             autoBpmEveryBars={autoBpmEveryBars}
             onAutoBpmEveryBarsChange={setAutoBpmEveryBars}
+            advancedFeaturesEnabled={isLoggedIn}
           />
         </div>
 

@@ -52,6 +52,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose, onS
     // Client-only "auth"
     localStorage.setItem('drumkitAuth.loggedIn', 'true');
     localStorage.setItem('drumkitAuth.email', DEMO_EMAIL);
+    window.dispatchEvent(new Event('drumkit-auth-change'));
     onSuccess(DEMO_EMAIL);
     onClose();
   };

@@ -10,6 +10,7 @@ interface MetronomeCenterPanelProps {
   subdivision: Subdivision;
   timeSignature: number;
   timeSignatureDenom: number;
+  accentPattern: boolean[];
   visualFlashIntensity: number;
   toggleMetronome: () => void;
   barCount: number;
@@ -20,6 +21,7 @@ interface MetronomeCenterPanelProps {
   onAutoBpmIncrementChange: (value: number) => void;
   autoBpmEveryBars: number;
   onAutoBpmEveryBarsChange: (value: number) => void;
+  advancedFeaturesEnabled: boolean;
 }
 
 export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
@@ -28,6 +30,7 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
   subdivision,
   timeSignature,
   timeSignatureDenom,
+  accentPattern,
   visualFlashIntensity,
   toggleMetronome,
   barCount,
@@ -38,9 +41,10 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
   onAutoBpmIncrementChange,
   autoBpmEveryBars,
   onAutoBpmEveryBarsChange,
+  advancedFeaturesEnabled,
 }) => {
   const dispatch = useAppDispatch();
-  const { bpm, accentPattern } = useAppSelector((state) => state.metronome);
+  const { bpm } = useAppSelector((state) => state.metronome);
 
   const handleBpmChange = (newBpm: number) => {
     dispatch(setBpm(newBpm));
@@ -131,7 +135,11 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
           </div>
         </div>
 
-        <div className="metronome-auto-bpm-ramp">
+        <div className={`metronome-auto-bpm-ramp${!advancedFeaturesEnabled ? ' metronome-auto-bpm-ramp--locked' : ''}`}>
+          {!advancedFeaturesEnabled ? (
+            <p className="metronome-rail-locked">Demo login required for Auto +BPM</p>
+          ) : (
+            <>
           <label className="metronome-auto-bpm-toggle">
             <input
               type="checkbox"
@@ -176,6 +184,8 @@ export const MetronomeCenterPanel: React.FC<MetronomeCenterPanelProps> = ({
               />
             </label>
           </div>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -34,6 +34,7 @@ export const Navigation: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('drumkitAuth.loggedIn');
     localStorage.removeItem('drumkitAuth.email');
+    window.dispatchEvent(new Event('drumkit-auth-change'));
     setIsLoggedIn(false);
   };
 
