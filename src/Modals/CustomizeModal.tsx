@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { DrumPiece } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateDrumPiece, addCustomSample, DrumSample } from '@/store/slices/drumKitSlice';
+import { updateDrumPiece, addCustomSample, DrumSample, setCustomizeKitLinkActive, setHoveredDrumId } from '@/store/slices/drumKitSlice';
 import { getAudioFilesForType, getAudioUrlFromConfig } from '@/utils/audioFilesConfig';
 import { defaultDrumKit } from '@/utils/drumConfig';
+import { audioManager } from '@/utils/audioManager';
+import { enhancedAudioManager } from '@/utils/enhancedAudioManager';
 import './CustomizeModal.css';
 
 interface CustomizeModalProps {
@@ -13,25 +15,58 @@ interface CustomizeModalProps {
 
 export const CustomizeModal: React.FC<CustomizeModalProps> = ({ isOpen, onClose }) => {
   const dispatch = useAppDispatch();
-  const { drumKit, customSamples } = useAppSelector((state) => state.drumKit);
+  const { drumKit, customSamples, hoveredDrumId } = useAppSelector((state) => state.drumKit);
   const [selectedDrum, setSelectedDrum] = useState<DrumPiece | null>(null);
-  const [showUpload, setShowUpload] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const drumItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    dispatch(setCustomizeKitLinkActive(isOpen));
+    return () => {
+      dispatch(setCustomizeKitLinkActive(false));
+    };
+  }, [dispatch, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !hoveredDrumId) return;
+    const item = drumItemRefs.current[hoveredDrumId];
+    item?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [hoveredDrumId, isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSampleSelect = (drum: DrumPiece, sample: DrumSample) => {
-    // Update the drum piece with the selected sample
+  const normalizeAudioUrl = (url?: string): string => {
+    if (!url) return '';
+    try {
+      return new URL(url, window.location.origin).href;
+    } catch {
+      return url;
+    }
+  };
+
+  const applySampleToDrum = (drum: DrumPiece, sample: DrumSample) => {
+    if (!sample.audioUrl) return;
+
     dispatch(updateDrumPiece({
       id: drum.id,
-      updates: { audioUrl: sample.audioUrl }
+      updates: { audioUrl: sample.audioUrl },
     }));
-    setSelectedDrum(null);
+
+    audioManager.clearSoundCache(drum.id);
+    enhancedAudioManager.clearSoundCache(drum.id);
+    void audioManager.preloadSounds([{ id: drum.id, url: sample.audioUrl }]);
+    void enhancedAudioManager.preloadAudio(drum.id, sample.audioUrl);
+    void audioManager.playSound(drum.id, sample.audioUrl);
+  };
+
+  const handleSampleSelect = (drum: DrumPiece, sample: DrumSample) => {
+    applySampleToDrum(drum, sample);
+    setSelectedDrum(drum);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, drum: DrumPiece) => {
     const file = event.target.files?.[0];
-    if (!file || !selectedDrum) return;
+    if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith('audio/')) {
@@ -67,13 +102,13 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({ isOpen, onClose 
       dispatch(addCustomSample({ type: drum.type, sample: customSample }));
       
       // Automatically select the new sample
-      handleSampleSelect(drum, customSample);
+      applySampleToDrum(drum, customSample);
       
       // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      const input = fileInputRefs.current[drum.id];
+      if (input) {
+        input.value = '';
       }
-      setShowUpload(false);
     } catch (error) {
       console.error('Error uploading file:', error);
       alert('Failed to upload file. Please try again.');
@@ -100,11 +135,10 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({ isOpen, onClose 
 
   const getCurrentSample = (drum: DrumPiece): DrumSample | undefined => {
     const samples = getAvailableSamples(drum);
-    // Find sample that matches the current audioUrl
-    const matching = samples.find((s) => s.audioUrl === drum.audioUrl);
+    const currentUrl = normalizeAudioUrl(drum.audioUrl);
+    const matching = samples.find((s) => normalizeAudioUrl(s.audioUrl) === currentUrl);
     if (matching) return matching;
     
-    // If no match found, return first available sample or undefined
     return samples.length > 0 ? samples[0] : undefined;
   };
 
@@ -122,12 +156,17 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({ isOpen, onClose 
   };
 
   const handleResetToDefault = () => {
-    // Reset all drums to their default audioUrls from drumConfig
     defaultDrumKit.forEach((defaultDrum) => {
       dispatch(updateDrumPiece({
         id: defaultDrum.id,
-        updates: { audioUrl: defaultDrum.audioUrl }
+        updates: { audioUrl: defaultDrum.audioUrl },
       }));
+      audioManager.clearSoundCache(defaultDrum.id);
+      enhancedAudioManager.clearSoundCache(defaultDrum.id);
+      if (defaultDrum.audioUrl) {
+        void audioManager.preloadSounds([{ id: defaultDrum.id, url: defaultDrum.audioUrl }]);
+        void enhancedAudioManager.preloadAudio(defaultDrum.id, defaultDrum.audioUrl);
+      }
     });
     setSelectedDrum(null);
   };
@@ -144,26 +183,40 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({ isOpen, onClose 
         </div>
         <div className="customize-modal-body">
           <p>Customize your drum kit settings here.</p>
-          {/* Add your customization options here */}
-          
+
+          <div className="customizer-scroll">
           <div className="customizer-panel">
           <h3>🎨 Drum Kit Customization</h3>
           <p className="customizer-description">
-            Select a drum to change its sample
+            Hover a drum on the kit or a button below to link them. Click to change its sample.
           </p>
 
           <div className="drum-selector-grid">
             {drumKit.map((drum: DrumPiece, index: number) => {
               const isSelected = selectedDrum?.id === drum.id;
+              const isKitHovered = hoveredDrumId === drum.id;
               const isBottomRow = index >= 6; // Items 7-11 (0-indexed, so 6-10)
 
               return (
-                <div key={drum.id} className="drum-selector-item">
+                <div
+                  key={drum.id}
+                  className="drum-selector-item"
+                  ref={(element) => {
+                    drumItemRefs.current[drum.id] = element;
+                  }}
+                >
                   <button
-                    className={`drum-selector-button ${isSelected ? 'selected' : ''}`}
+                    type="button"
+                    className={`drum-selector-button ${isSelected ? 'selected' : ''}${isKitHovered ? ' drum-selector-button--kit-hover' : ''}`}
                     onClick={() =>
                       setSelectedDrum(isSelected ? null : drum)
                     }
+                    onMouseEnter={() => dispatch(setHoveredDrumId(drum.id))}
+                    onMouseLeave={() => {
+                      if (hoveredDrumId === drum.id) {
+                        dispatch(setHoveredDrumId(null));
+                      }
+                    }}
                   >
                     <span className="drum-selector-name">{drum.name}</span>
                     <span className="drum-selector-sample">
@@ -177,42 +230,45 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({ isOpen, onClose 
                         Available Samples:
                         <button
                           className="upload-sample-button"
-                          onClick={() => {
-                            setShowUpload(!showUpload);
-                            if (!showUpload && fileInputRef.current) {
-                              fileInputRef.current.click();
-                            }
-                          }}
+                          type="button"
+                          onClick={() => fileInputRefs.current[drum.id]?.click()}
                           title="Upload custom sample"
                         >
                           📁 Upload
                         </button>
                       </div>
                       <input
-                        ref={fileInputRef}
+                        ref={(element) => {
+                          fileInputRefs.current[drum.id] = element;
+                        }}
                         type="file"
                         accept="audio/*"
                         style={{ display: 'none' }}
-                        onChange={(e) => handleFileUpload(e, drum)}
+                        onChange={(e) => void handleFileUpload(e, drum)}
                       />
-                      {getAvailableSamples(drum).map((sample) => (
+                      {getAvailableSamples(drum).map((sample) => {
+                        const isActive = normalizeAudioUrl(drum.audioUrl) === normalizeAudioUrl(sample.audioUrl);
+                        return (
                         <button
                           key={sample.id}
+                          type="button"
                           className={`sample-item ${
-                            drum.audioUrl === sample.audioUrl ? 'active' : ''
+                            isActive ? 'active' : ''
                           } ${sample.isCustom ? 'custom-sample' : ''}`}
                           onClick={() => handleSampleSelect(drum, sample)}
                         >
                           {sample.isCustom && '🎵 '}
                           {sample.name}
-                          {drum.audioUrl === sample.audioUrl && ' ✓'}
+                          {isActive && ' ✓'}
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
               );
             })}
+          </div>
           </div>
           </div>
 

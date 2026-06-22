@@ -71,12 +71,15 @@ export const NavBarHome: React.FC = () => {
     setIsPracticeSoundSettingsModalOpen(false);
   };
 
-  const handleCloseAllModals = () => {
-    console.log('[NavBar] handleCloseAllModals called - closing all modals');
-    setIsMixerModalOpen(false);
-    setIsModalOpen(false);
-    setIsSequencerModalOpen(false);
+  const closeOtherModals = (keep?: 'mixer' | 'customize' | 'sequencer') => {
+    if (keep !== 'mixer') setIsMixerModalOpen(false);
+    if (keep !== 'customize') setIsModalOpen(false);
+    if (keep !== 'sequencer') setIsSequencerModalOpen(false);
     setIsPracticeSoundSettingsModalOpen(false);
+  };
+
+  const handleCloseAllModals = () => {
+    closeOtherModals();
   };
 
   return (
@@ -104,10 +107,7 @@ export const NavBarHome: React.FC = () => {
                   e.stopPropagation();
                   handleMixerClick(e);
                 }}
-                onMouseEnter={() => {
-                  console.log('[NavBar] Mixer onMouseEnter fired');
-                  handleCloseAllModals();
-                }}
+                onMouseEnter={() => closeOtherModals('mixer')}
                 onMouseOver={() => {
                   // Fallback in case onMouseEnter doesn't work
                   console.log('[NavBar] Mixer onMouseOver fired');
@@ -118,14 +118,14 @@ export const NavBarHome: React.FC = () => {
               <div
                 className='nav-link1'
                 onClick={handleCustomizeClick}
-                onMouseEnter={handleCloseAllModals}
+                onMouseEnter={() => closeOtherModals('customize')}
               >
                 Customize
               </div>
               <div
                 className={`nav-link1 ${!isLoggedIn ? 'nav-locked' : ''}`}
                 onClick={handleSequencerClick}
-                onMouseEnter={handleCloseAllModals}
+                onMouseEnter={() => closeOtherModals('sequencer')}
               >
                 <span className="nav-auth-locked-label">
                   {!isLoggedIn ? '🔒 Sequencer' : 'Sequencer'}

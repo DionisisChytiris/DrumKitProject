@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { audioManager } from '../utils/audioManager';
 import { DrumPiece } from '../types';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setHoveredDrumId } from '@/store/slices/drumKitSlice';
 import { KeyBindingModal } from '@/Modals/KeyBindingModal';
 import MetronomeDisplay from '@/components/MetronomeDisplay/MetronomeDisplay';
 import './styles/Practice.css';
@@ -15,7 +16,8 @@ const BASE_HEIGHT = 1080;
 
 const Practice: React.FC = () => {
     const navigate = useNavigate();
-    const { drumKit } = useAppSelector((state) => state.drumKit);
+    const dispatch = useAppDispatch();
+    const { drumKit, hoveredDrumId, customizeKitLinkActive } = useAppSelector((state) => state.drumKit);
     const [activeDrums, setActiveDrums] = useState<Set<string>>(new Set());
     const [viewportSize, setViewportSize] = useState({ width: window.innerWidth, height: window.innerHeight });
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -388,10 +390,13 @@ const Practice: React.FC = () => {
                                 transforms.push('scale(1.1)');
                             }
 
+                            const isHovered = hoveredDrumId === drumPiece.id;
+                            const hitZoneInteractive = isFullscreen || customizeKitLinkActive;
+
                             return (
                                 <div
                                     key={drumPiece.id}
-                                    className={`practice-drum-hit-zone ${isActive ? 'active' : ''}`}
+                                    className={`practice-drum-hit-zone ${isActive ? 'active' : ''}${isHovered ? ' practice-drum-hit-zone--linked-hover' : ''}`}
                                     style={{
                                         left: `${adjustedX}%`,
                                         top: `${adjustedY}%`,
@@ -400,10 +405,20 @@ const Practice: React.FC = () => {
                                         borderRadius: customPos.borderRadius || '50%',
                                         transform: transforms.join(' '),
                                         transformOrigin: customPos.transformOrigin || 'center center',
-                                        pointerEvents: isFullscreen ? 'all' : 'none',
-                                        opacity: isFullscreen ? 1 : 0.3,
+                                        pointerEvents: hitZoneInteractive ? 'all' : 'none',
+                                        opacity: hitZoneInteractive ? 1 : 0.3,
                                     }}
                                     onClick={() => handleDrumClick(drumPiece)}
+                                    onMouseEnter={() => {
+                                        if (customizeKitLinkActive) {
+                                            dispatch(setHoveredDrumId(drumPiece.id));
+                                        }
+                                    }}
+                                    onMouseLeave={() => {
+                                        if (customizeKitLinkActive && hoveredDrumId === drumPiece.id) {
+                                            dispatch(setHoveredDrumId(null));
+                                        }
+                                    }}
                                     role="button"
                                     tabIndex={0}
                                     aria-label={`${drumPiece.name} (${drumPiece.keyBinding || 'No key'})`}

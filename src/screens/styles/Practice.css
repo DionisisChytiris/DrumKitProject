@@ -131,6 +131,16 @@
   /* Scale animation is handled inline */
 }
 
+.practice-drum-hit-zone--linked-hover {
+  border-color: rgba(255, 183, 77, 0.95);
+  background: rgba(255, 183, 77, 0.18);
+  box-shadow: 0 0 18px rgba(255, 183, 77, 0.45);
+}
+
+.practice-drum-hit-zone--linked-hover .practice-drum-key-hint {
+  opacity: 1;
+}
+
 .practice-drum-key-hint {
   position: absolute;
   top: 50%;

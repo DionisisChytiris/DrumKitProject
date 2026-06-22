@@ -36,6 +36,10 @@ const loadState = () => {
         });
       });
     }
+    if (parsed.drumKit) {
+      parsed.drumKit.hoveredDrumId = null;
+      parsed.drumKit.customizeKitLinkActive = false;
+    }
     if (parsed.metronome) {
       if (typeof parsed.metronome.useTimeSignatureSequence !== 'boolean') {
         parsed.metronome.useTimeSignatureSequence = false;
@@ -70,7 +74,14 @@ export const store = configureStore({
 store.subscribe(() => {
   try {
     const state = store.getState();
-    const serializedState = JSON.stringify(state);
+    const serializedState = JSON.stringify({
+      drumKit: {
+        drumKit: state.drumKit.drumKit,
+        customSamples: state.drumKit.customSamples,
+      },
+      metronome: state.metronome,
+      mixer: state.mixer,
+    });
     localStorage.setItem('drumKitState', serializedState);
     
     // Also save mixer state separately for easier access

@@ -97,9 +97,15 @@
   padding: 2rem;
   color: rgba(255, 255, 255, 0.9);
   flex: 1;
-  overflow-y: auto;
-  overflow-x: visible; /* Allow horizontal overflow for popups */
+  overflow: visible;
   position: relative;
+}
+
+.customizer-scroll {
+  max-height: calc(100vh - 14rem);
+  overflow-y: auto;
+  overflow-x: visible;
+  padding-right: 0.25rem;
 }
 
 .customize-modal-body p {
@@ -225,6 +231,19 @@ grid-template-columns: repeat(4, 1fr);
   background: #333;
   border-color: #4caf50;
   box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.drum-selector-button--kit-hover {
+  background: #3a3428;
+  border-color: #ffb74d;
+  box-shadow: 0 0 14px rgba(255, 183, 77, 0.45);
+}
+
+.drum-selector-button.selected.drum-selector-button--kit-hover {
+  border-color: #ffb74d;
+  box-shadow:
+    0 0 10px rgba(76, 175, 80, 0.3),
+    0 0 14px rgba(255, 183, 77, 0.4);
 }
 
 .drum-selector-name {

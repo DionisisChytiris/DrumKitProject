@@ -20,6 +20,38 @@ class EnhancedAudioManager {
   private audioCache: Map<string, HTMLAudioElement> = new Map();
   private audioBufferCache: Map<string, AudioBuffer> = new Map();
   private audioContext: AudioContext | null = null;
+
+  private getCacheKey(soundId: string, audioUrl?: string): string {
+    return audioUrl ? `${soundId}::${audioUrl}` : soundId;
+  }
+
+  private purgeSoundCache(soundId: string): void {
+    for (const key of [...this.audioCache.keys()]) {
+      if (key === soundId || key.startsWith(`${soundId}::`)) {
+        this.audioCache.delete(key);
+      }
+    }
+    for (const key of [...this.audioBufferCache.keys()]) {
+      if (key === soundId || key.startsWith(`${soundId}::`)) {
+        this.audioBufferCache.delete(key);
+      }
+    }
+  }
+
+  private urlsMatch(cachedSrc: string, audioUrl: string): boolean {
+    if (cachedSrc === audioUrl) return true;
+    try {
+      return new URL(cachedSrc, window.location.origin).href
+        === new URL(audioUrl, window.location.origin).href;
+    } catch {
+      return false;
+    }
+  }
+
+  clearSoundCache(soundId: string): void {
+    this.purgeSoundCache(soundId);
+  }
+
   private masterGain: GainNode | null = null;
   private masterReverb: ConvolverNode | null = null;
   private masterCompressor: DynamicsCompressorNode | null = null;
@@ -183,7 +215,7 @@ class EnhancedAudioManager {
       
       // If velocity is 0, this is a preload call - just decode, don't play
       if (velocity === 0 && audioUrl) {
-        this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+        this.decodeAndCacheAudio(this.getCacheKey(soundId, audioUrl), audioUrl).catch(() => {
           // Silent fail
         });
         return;
@@ -251,15 +283,15 @@ class EnhancedAudioManager {
   /**
    * Decode and cache audio buffer
    */
-  private async decodeAndCacheAudio(soundId: string, audioUrl: string): Promise<void> {
-    if (this.audioBufferCache.has(soundId)) {
+  private async decodeAndCacheAudio(cacheKey: string, audioUrl: string): Promise<void> {
+    if (this.audioBufferCache.has(cacheKey)) {
       return;
     }
     try {
       const audioBuffer = await this.decodeAudioData(audioUrl);
-      this.audioBufferCache.set(soundId, audioBuffer);
+      this.audioBufferCache.set(cacheKey, audioBuffer);
     } catch (error) {
-      console.warn(`Failed to decode audio for ${soundId}:`, error);
+      console.warn(`Failed to decode audio for ${cacheKey}:`, error);
     }
   }
 
@@ -273,31 +305,29 @@ class EnhancedAudioManager {
     settings: EffectSettings,
     audioContext: AudioContext
   ): void {
-    // ALWAYS prefer AudioBuffer for better reliability and quality
-    const audioBuffer = this.audioBufferCache.get(soundId);
-    
+    const cacheKey = this.getCacheKey(soundId, audioUrl);
+    const audioBuffer = this.audioBufferCache.get(cacheKey);
+
     if (audioBuffer) {
       // Use pre-decoded AudioBuffer for instant playback (lowest latency, most reliable)
       this.playAudioBufferWithEffects(soundId, audioBuffer, velocity, settings, audioContext);
       return;
     }
-    
+
     // If buffer not ready, try to decode it asynchronously for next time
-    // But use HTML Audio as fallback for now
     if (audioUrl) {
-      // Try to decode in background for next playback
-      this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+      this.decodeAndCacheAudio(cacheKey, audioUrl).catch(() => {
         // Silent fail - will use HTML Audio fallback
       });
     }
-    
+
     // Fallback to HTML Audio if buffer not ready yet
-    let audio = this.audioCache.get(soundId);
-    
-    if (!audio || (audio.src && audio.src !== audioUrl && !audioUrl.startsWith('blob:'))) {
+    let audio = this.audioCache.get(cacheKey);
+
+    if (!audio || !this.urlsMatch(audio.src, audioUrl)) {
       audio = new Audio(audioUrl);
       audio.preload = 'auto';
-      this.audioCache.set(soundId, audio);
+      this.audioCache.set(cacheKey, audio);
     }
 
     if (audio.readyState < 2) {
@@ -433,16 +463,14 @@ class EnhancedAudioManager {
       console.error(`[EnhancedAudioManager] Failed to play audio for ${soundId}:`, err);
       // If play fails, try to decode and use AudioBuffer next time
       if (audioUrl) {
-        this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+        this.decodeAndCacheAudio(cacheKey, audioUrl).catch(() => {
           // Silent fail
         });
       }
     });
-    
-    // Try to decode and cache for next time (async, non-blocking)
-    // This ensures future playbacks use AudioBuffer (more reliable)
-    if (audioUrl && !this.audioBufferCache.has(soundId)) {
-      this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+
+    if (audioUrl && !this.audioBufferCache.has(cacheKey)) {
+      this.decodeAndCacheAudio(cacheKey, audioUrl).catch(() => {
         // Silent fail - will use HTML Audio fallback
       });
     }
@@ -908,24 +936,23 @@ class EnhancedAudioManager {
    * Preload sounds - decodes to AudioBuffer for low latency
    */
   async preloadSounds(sounds: Array<{ id: string; url: string }>): Promise<void> {
-    // Preload HTML Audio as fallback
     sounds.forEach(({ id, url }) => {
-      if (!this.audioCache.has(id)) {
+      const cacheKey = this.getCacheKey(id, url);
+      if (!this.audioCache.has(cacheKey)) {
         const audio = new Audio(url);
         audio.preload = 'auto';
         audio.load();
-        this.audioCache.set(id, audio);
+        this.audioCache.set(cacheKey, audio);
       } else {
-        const audio = this.audioCache.get(id)!;
+        const audio = this.audioCache.get(cacheKey)!;
         if (audio.readyState < 2) {
           audio.load();
         }
       }
     });
 
-    // Decode all audio files into AudioBuffers for low-latency playback
-    const decodePromises = sounds.map(({ id, url }) => 
-      this.decodeAndCacheAudio(id, url).catch(() => {
+    const decodePromises = sounds.map(({ id, url }) =>
+      this.decodeAndCacheAudio(this.getCacheKey(id, url), url).catch(() => {
         // Silent fail - HTML Audio will be used as fallback
       })
     );
@@ -938,11 +965,12 @@ class EnhancedAudioManager {
    * Call this when component mounts to ensure all audio is ready
    */
   async preloadAudio(soundId: string, audioUrl: string): Promise<void> {
-    if (this.audioBufferCache.has(soundId)) {
-      return; // Already decoded
+    const cacheKey = this.getCacheKey(soundId, audioUrl);
+    if (this.audioBufferCache.has(cacheKey)) {
+      return;
     }
     try {
-      await this.decodeAndCacheAudio(soundId, audioUrl);
+      await this.decodeAndCacheAudio(cacheKey, audioUrl);
       console.log(`[EnhancedAudioManager] Preloaded audio for ${soundId}`);
     } catch (error) {
       console.warn(`[EnhancedAudioManager] Failed to preload audio for ${soundId}:`, error);

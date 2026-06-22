@@ -14,11 +14,17 @@ export interface DrumSample {
 export interface DrumKitState {
   drumKit: DrumPiece[];
   customSamples: Record<string, DrumSample[]>; // key: drum type, value: array of samples
+  /** Synced hover between practice kit and customize modal */
+  hoveredDrumId: string | null;
+  /** True while customize kit modal is open */
+  customizeKitLinkActive: boolean;
 }
 
 const initialState: DrumKitState = {
   drumKit: defaultDrumKit,
   customSamples: {},
+  hoveredDrumId: null,
+  customizeKitLinkActive: false,
 };
 
 const drumKitSlice = createSlice({
@@ -48,6 +54,15 @@ const drumKitSlice = createSlice({
         state.customSamples[type] = state.customSamples[type].filter(s => s.id !== sampleId);
       }
     },
+    setHoveredDrumId: (state, action: PayloadAction<string | null>) => {
+      state.hoveredDrumId = action.payload;
+    },
+    setCustomizeKitLinkActive: (state, action: PayloadAction<boolean>) => {
+      state.customizeKitLinkActive = action.payload;
+      if (!action.payload) {
+        state.hoveredDrumId = null;
+      }
+    },
     loadState: (state, action: PayloadAction<DrumKitState>) => {
       return action.payload;
     },
@@ -59,6 +74,8 @@ export const {
   updateDrumPiece, 
   addCustomSample, 
   removeCustomSample,
+  setHoveredDrumId,
+  setCustomizeKitLinkActive,
   loadState 
 } = drumKitSlice.actions;
 

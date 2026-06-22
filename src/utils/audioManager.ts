@@ -12,6 +12,33 @@ class AudioManager {
   private audioContext: AudioContext | null = null;
   private volume: number = 0.7;
 
+  private getCacheKey(soundId: string, audioUrl?: string): string {
+    return audioUrl ? `${soundId}::${audioUrl}` : soundId;
+  }
+
+  private purgeSoundCache(soundId: string): void {
+    for (const key of [...this.audioCache.keys()]) {
+      if (key === soundId || key.startsWith(`${soundId}::`)) {
+        this.audioCache.delete(key);
+      }
+    }
+    for (const key of [...this.audioBufferCache.keys()]) {
+      if (key === soundId || key.startsWith(`${soundId}::`)) {
+        this.audioBufferCache.delete(key);
+      }
+    }
+  }
+
+  private urlsMatch(cachedSrc: string, audioUrl: string): boolean {
+    if (cachedSrc === audioUrl) return true;
+    try {
+      return new URL(cachedSrc, window.location.origin).href
+        === new URL(audioUrl, window.location.origin).href;
+    } catch {
+      return false;
+    }
+  }
+
   /**
    * Get or create AudioContext - optimized for low latency
    * Reuses Tone.js AudioContext if available to avoid conflicts
@@ -80,26 +107,20 @@ class AudioManager {
     try {
       if (audioUrl) {
         const audioContext = this.getAudioContext();
-        const audioBuffer = this.audioBufferCache.get(soundId);
+        const cacheKey = this.getCacheKey(soundId, audioUrl);
+        const audioBuffer = this.audioBufferCache.get(cacheKey);
 
         if (audioBuffer) {
           // Use pre-decoded AudioBuffer for instant playback (lowest latency)
           this.playAudioBuffer(audioBuffer, audioContext);
         } else {
           // Fallback to HTML Audio if buffer not ready yet
-          let audio = this.audioCache.get(soundId);
-          
-          // Check if cached audio URL matches the new URL, if not, create new audio
-          if (!audio || (audio.src && audio.src !== audioUrl && !audioUrl.startsWith('blob:'))) {
-            if (audio && audioUrl.startsWith('blob:')) {
-              audio = new Audio(audioUrl);
-              audio.preload = 'auto';
-              this.audioCache.set(soundId, audio);
-            } else if (!audio || audio.src !== audioUrl) {
-              audio = new Audio(audioUrl);
-              audio.preload = 'auto';
-              this.audioCache.set(soundId, audio);
-            }
+          let audio = this.audioCache.get(cacheKey);
+
+          if (!audio || !this.urlsMatch(audio.src, audioUrl)) {
+            audio = new Audio(audioUrl);
+            audio.preload = 'auto';
+            this.audioCache.set(cacheKey, audio);
           }
 
           // Ensure audio is ready
@@ -126,7 +147,7 @@ class AudioManager {
           }
 
           // Try to decode and cache for next time (async, non-blocking)
-          this.decodeAndCacheAudio(soundId, audioUrl).catch(() => {
+          this.decodeAndCacheAudio(cacheKey, audioUrl).catch(() => {
             // Silent fail - will use HTML Audio fallback
           });
         }
@@ -220,18 +241,16 @@ class AudioManager {
   /**
    * Decode and cache audio file asynchronously
    */
-  private async decodeAndCacheAudio(soundId: string, audioUrl: string): Promise<void> {
-    // Skip if already cached
-    if (this.audioBufferCache.has(soundId)) {
+  private async decodeAndCacheAudio(cacheKey: string, audioUrl: string): Promise<void> {
+    if (this.audioBufferCache.has(cacheKey)) {
       return;
     }
 
     try {
       const audioBuffer = await this.decodeAudioData(audioUrl);
-      this.audioBufferCache.set(soundId, audioBuffer);
+      this.audioBufferCache.set(cacheKey, audioBuffer);
     } catch (error) {
-      // Silent fail - will continue using HTML Audio
-      console.warn(`Failed to decode audio for ${soundId}, using HTML Audio fallback`);
+      console.warn(`Failed to decode audio for ${cacheKey}, using HTML Audio fallback`);
     }
   }
 
@@ -239,7 +258,7 @@ class AudioManager {
    * Clear cache for a specific sound (useful when audioUrl changes)
    */
   clearSoundCache(soundId: string): void {
-    this.audioCache.delete(soundId);
+    this.purgeSoundCache(soundId);
   }
 
   /**
@@ -315,24 +334,23 @@ class AudioManager {
    * Decodes audio files into AudioBuffers for ultra-low latency
    */
   async preloadSounds(sounds: Array<{ id: string; url: string }>): Promise<void> {
-    // Preload HTML Audio as fallback
     sounds.forEach(({ id, url }) => {
-      if (!this.audioCache.has(id)) {
+      const cacheKey = this.getCacheKey(id, url);
+      if (!this.audioCache.has(cacheKey)) {
         const audio = new Audio(url);
         audio.preload = 'auto';
         audio.load();
-        this.audioCache.set(id, audio);
+        this.audioCache.set(cacheKey, audio);
       } else {
-        const audio = this.audioCache.get(id)!;
+        const audio = this.audioCache.get(cacheKey)!;
         if (audio.readyState < 2) {
           audio.load();
         }
       }
     });
 
-    // Decode all audio files into AudioBuffers for low-latency playback
-    const decodePromises = sounds.map(({ id, url }) => 
-      this.decodeAndCacheAudio(id, url).catch(() => {
+    const decodePromises = sounds.map(({ id, url }) =>
+      this.decodeAndCacheAudio(this.getCacheKey(id, url), url).catch(() => {
         // Silent fail - HTML Audio will be used as fallback
       })
     );
