@@ -67,7 +67,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 28, y: 50 },
     size: { width: 140, height: 140 },
     keyBinding: 'H',
-    audioUrl: getAudioPath('hihat'), // Add your hihat.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('hihat1', 'wav'),
   },
   // Crash cymbal (16") - top left
   {
@@ -77,7 +77,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 22, y: 28 },
     size: { width: 160, height: 160 },
     keyBinding: 'C',
-    audioUrl: getAudioPath('crash'), // Add your crash.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('crash1', 'wav'),
   },
   // Crash cymbal 2 (16") - second crash, typically positioned on right side
   {
@@ -87,7 +87,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 75, y: 28 },
     size: { width: 160, height: 160 },
     keyBinding: 'V',
-    audioUrl: getAudioPath('crash-2'), // Add your crash-2.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('crash2', 'wav'),
   },
   // High tom (10") - left of snare, slightly higher
   {
@@ -97,7 +97,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 38, y: 42 },
     size: { width: 100, height: 100 },
     keyBinding: 'T',
-    audioUrl: getAudioPath('high-tom'), // Add your high-tom.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('tom1', 'wav'),
   },
   // Mid tom (12") - right of snare, slightly higher
   {
@@ -107,7 +107,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 62, y: 42 },
     size: { width: 120, height: 120 },
     keyBinding: 'M',
-    audioUrl: getAudioPath('mid-tom'), // Add your mid-tom.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('tom2', 'wav'),
   },
   // Floor tom (16") - right side, lower position
   {
@@ -117,7 +117,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 72, y: 68 },
     size: { width: 160, height: 160 },
     keyBinding: 'F',
-    audioUrl: getAudioPath('floor-tom'), // Add your floor-tom.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('tom3', 'wav'),
   },
   // Ride cymbal (20") - top right, largest cymbal
   {
@@ -127,7 +127,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 78, y: 32 },
     size: { width: 200, height: 200 },
     keyBinding: 'R',
-    audioUrl: getAudioPath('ride'), // Add your ride.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('ride1', 'wav'),
   },
   // Low Floor Tom (18") - extra low floor tom, positioned lower than regular floor tom
   {
@@ -137,7 +137,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 80, y: 75 },
     size: { width: 180, height: 180 },
     keyBinding: 'L',
-    audioUrl: getAudioPath('low-floor-tom'), // Add your low-floor-tom.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('rocktom4', 'wav'),
   },
   // China cymbal (18") - positioned on right side, often lower
   {
@@ -147,7 +147,7 @@ export const defaultDrumKit: DrumPiece[] = [
     position: { x: 85, y: 45 },
     size: { width: 180, height: 180 },
     keyBinding: 'X',
-    audioUrl: getAudioPath('china'), // Add your china.wav/mp3/ogg to public/audio/
+    audioUrl: getAudioPath('china1', 'wav'),
   },
 ];
 

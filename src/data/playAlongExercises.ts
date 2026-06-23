@@ -34,4 +34,15 @@ export const playAlongExercises: PlayAlongExerciseDefinition[] = [
     defaultBpm: 162,
     playbackOffsetSeconds: 0,
   },
+  {
+    id: 'snare-1',
+    title: 'Snare 1',
+    subtitle: 'Snare · play along with your e-drum kit',
+    scoreUrl: '/scores/snare1.musicxml',
+    audioUrl: '/playalongs/snare1.wav',
+    defaultBpm: 120,
+    playbackOffsetSeconds: 0,
+    kitPractice: true,
+    kitPracticeDrumId: 'snare',
+  },
 ];

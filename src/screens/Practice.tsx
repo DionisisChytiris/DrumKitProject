@@ -1,11 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { audioManager } from '../utils/audioManager';
 import { DrumPiece } from '../types';
+import type { MidiNoteEvent } from '@/types/midiTypes';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setHoveredDrumId } from '@/store/slices/drumKitSlice';
 import { KeyBindingModal } from '@/Modals/KeyBindingModal';
 import MetronomeDisplay from '@/components/MetronomeDisplay/MetronomeDisplay';
+import { useMidiInput } from '@/hooks/useMidiInput';
+import { buildMidiNoteDrumMap } from '@/utils/midi/midiNoteToDrumId';
+import { acceptMidiHihatHit } from '@/utils/midi/midiHitCoalescing';
 import './styles/Practice.css';
 import { NavBarHome } from '@/components/Navigation/NavBarHome';
 
@@ -22,6 +26,74 @@ const Practice: React.FC = () => {
     const [viewportSize, setViewportSize] = useState({ width: window.innerWidth, height: window.innerHeight });
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isKeyBindingModalOpen, setIsKeyBindingModalOpen] = useState(false);
+    const isFullscreenRef = useRef(isFullscreen);
+    const midiNoteDrumMapRef = useRef(buildMidiNoteDrumMap(drumKit));
+    const drumKeyMapRef = useRef<Map<string, DrumPiece>>(new Map());
+    const audioPrimedRef = useRef(false);
+    const visualClearTimeoutsRef = useRef<Map<string, number>>(new Map());
+    const visualRafRef = useRef(0);
+    const pendingVisualDrumsRef = useRef<Set<string>>(new Set());
+    const handleMidiNoteRef = useRef<(event: MidiNoteEvent) => void>(() => {});
+    const lastMidiHihatWallMsRef = useRef(0);
+
+    useEffect(() => {
+        midiNoteDrumMapRef.current = buildMidiNoteDrumMap(drumKit);
+
+        const keyMap = new Map<string, DrumPiece>();
+        for (const drum of drumKit) {
+            if (!drum.keyBinding) continue;
+            const normalized =
+                drum.keyBinding.toUpperCase() === 'SPACE' ? 'Space' : drum.keyBinding.toUpperCase();
+            keyMap.set(normalized, drum);
+        }
+        drumKeyMapRef.current = keyMap;
+    }, [drumKit]);
+
+    useEffect(() => {
+        isFullscreenRef.current = isFullscreen;
+    }, [isFullscreen]);
+
+    const soundsToPreload = useMemo(
+        () =>
+            drumKit
+                .filter((drum) => drum.audioUrl)
+                .map((drum) => ({ id: drum.id, url: drum.audioUrl! })),
+        [drumKit],
+    );
+
+    const primeAudioIfNeeded = useCallback(() => {
+        if (audioPrimedRef.current) return;
+        audioPrimedRef.current = true;
+        void audioManager.warmUp();
+        if (soundsToPreload.length > 0) {
+            void audioManager.preloadSounds(soundsToPreload);
+        }
+    }, [soundsToPreload]);
+
+    // Preload drum samples so MIDI and keyboard hits play with minimal latency.
+    useEffect(() => {
+        if (soundsToPreload.length > 0) {
+            void audioManager.preloadSounds(soundsToPreload);
+        }
+    }, [soundsToPreload]);
+
+    // Prime Web Audio on fullscreen (user gesture) so MIDI hits don't wait on resume/decode.
+    useEffect(() => {
+        if (!isFullscreen || soundsToPreload.length === 0) return;
+
+        let cancelled = false;
+        const primeAudio = async () => {
+            await audioManager.warmUp();
+            if (cancelled) return;
+            audioPrimedRef.current = true;
+            await audioManager.preloadSounds(soundsToPreload);
+        };
+
+        void primeAudio();
+        return () => {
+            cancelled = true;
+        };
+    }, [isFullscreen, soundsToPreload]);
 
     // Check if currently in fullscreen
     const checkFullscreen = useCallback(() => {
@@ -48,10 +120,15 @@ const Practice: React.FC = () => {
             } else if ((element as any).msRequestFullscreen) {
                 await (element as any).msRequestFullscreen();
             }
+            await audioManager.warmUp();
+            audioPrimedRef.current = true;
+            if (soundsToPreload.length > 0) {
+                await audioManager.preloadSounds(soundsToPreload);
+            }
         } catch (error) {
             console.error('Error requesting fullscreen:', error);
         }
-    }, []);
+    }, [soundsToPreload]);
 
     // Monitor fullscreen changes
     useEffect(() => {
@@ -74,28 +151,105 @@ const Practice: React.FC = () => {
         };
     }, [checkFullscreen]);
 
+    const flushVisualUpdates = useCallback(() => {
+        visualRafRef.current = 0;
+        const pending = pendingVisualDrumsRef.current;
+        if (pending.size === 0) return;
+
+        const toAdd = new Set(pending);
+        pending.clear();
+
+        setActiveDrums((prev) => {
+            let changed = false;
+            const next = new Set(prev);
+            for (const id of toAdd) {
+                if (!next.has(id)) {
+                    next.add(id);
+                    changed = true;
+                }
+            }
+            return changed ? next : prev;
+        });
+
+        for (const id of toAdd) {
+            const existing = visualClearTimeoutsRef.current.get(id);
+            if (existing !== undefined) {
+                window.clearTimeout(existing);
+            }
+
+            const timeoutId = window.setTimeout(() => {
+                setActiveDrums((prev) => {
+                    if (!prev.has(id)) return prev;
+                    const next = new Set(prev);
+                    next.delete(id);
+                    return next;
+                });
+                visualClearTimeoutsRef.current.delete(id);
+            }, 120);
+
+            visualClearTimeoutsRef.current.set(id, timeoutId);
+        }
+    }, []);
+
+    const scheduleDrumVisual = useCallback(
+        (drumId: string) => {
+            pendingVisualDrumsRef.current.add(drumId);
+            if (!visualRafRef.current) {
+                visualRafRef.current = requestAnimationFrame(flushVisualUpdates);
+            }
+        },
+        [flushVisualUpdates],
+    );
+
+    const triggerDrumHit = useCallback(
+        (drumPiece: DrumPiece) => {
+            primeAudioIfNeeded();
+            audioManager.playSound(drumPiece.id, drumPiece.audioUrl);
+            scheduleDrumVisual(drumPiece.id);
+        },
+        [primeAudioIfNeeded, scheduleDrumVisual],
+    );
+
+    useEffect(() => {
+        handleMidiNoteRef.current = (event: MidiNoteEvent) => {
+            if (!isFullscreenRef.current) return;
+
+            const drumPiece = midiNoteDrumMapRef.current.get(event.note);
+            if (!drumPiece) return;
+
+            if (drumPiece.id === 'hihat' && !acceptMidiHihatHit(lastMidiHihatWallMsRef)) {
+                return;
+            }
+
+            primeAudioIfNeeded();
+            audioManager.playSound(drumPiece.id, drumPiece.audioUrl);
+            scheduleDrumVisual(drumPiece.id);
+        };
+    }, [primeAudioIfNeeded, scheduleDrumVisual]);
+
     const handleDrumClick = useCallback((drumPiece: DrumPiece) => {
-        // Only allow clicks when in fullscreen
-        if (!isFullscreen) {
+        if (!isFullscreenRef.current) {
             return;
         }
 
-        // Debug: Log what we're trying to play
-        console.log(`[Practice] Playing ${drumPiece.id}, audioUrl:`, drumPiece.audioUrl);
+        triggerDrumHit(drumPiece);
+    }, [triggerDrumHit]);
 
-        // Play sound
-        audioManager.playSound(drumPiece.id, drumPiece.audioUrl);
+    const handleMidiNote = useCallback((event: MidiNoteEvent) => {
+        handleMidiNoteRef.current(event);
+    }, []);
 
-        // Visual feedback
-        setActiveDrums((prev) => new Set(prev).add(drumPiece.id));
-        setTimeout(() => {
-            setActiveDrums((prev) => {
-                const next = new Set(prev);
-                next.delete(drumPiece.id);
-                return next;
-            });
-        }, 150);
-    }, [isFullscreen]);
+    const {
+        supported: midiSupported,
+        status: midiStatus,
+        selectedInputName,
+    } = useMidiInput({
+        autoConnect: true,
+        trackLastNote: false,
+        onNoteOn: handleMidiNote,
+    });
+
+    const isMidiConnected = midiSupported && midiStatus === 'connected';
 
     // Handle window resize for responsive positioning
     useEffect(() => {
@@ -118,7 +272,6 @@ const Practice: React.FC = () => {
         if (!isFullscreen) return;
 
         const handleKeyPress = (event: KeyboardEvent) => {
-            // Handle Space key specially
             let key = event.key;
             if (key === ' ') {
                 key = 'Space';
@@ -126,26 +279,16 @@ const Practice: React.FC = () => {
                 key = key.toUpperCase();
             }
 
-            const drumPiece = drumKit.find(
-                (drum) => {
-                    const binding = drum.keyBinding?.toUpperCase();
-                    // Handle Space key binding
-                    if (binding === 'SPACE' && event.key === ' ') {
-                        return true;
-                    }
-                    return binding === key;
-                }
-            );
+            const drumPiece = drumKeyMapRef.current.get(key);
+            if (!drumPiece) return;
 
-            if (drumPiece) {
-                event.preventDefault();
-                handleDrumClick(drumPiece);
-            }
+            event.preventDefault();
+            triggerDrumHit(drumPiece);
         };
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [handleDrumClick, isFullscreen, drumKit]);
+    }, [isFullscreen, triggerDrumHit]);
 
     // Custom positions to match the actual drum kit in DrumStudio1.png background
     // Positions are relative to the right-side overlay (50% width, positioned on right)
@@ -311,6 +454,11 @@ const Practice: React.FC = () => {
             )}
             {/* Only show metronome when in fullscreen */}
             {isFullscreen && <MetronomeDisplay />}
+            {isFullscreen && isMidiConnected && selectedInputName && (
+                <p className="practice-midi-badge" role="status">
+                    MIDI · {selectedInputName}
+                </p>
+            )}
             <div className="practice-background"></div>
             <div className="practice-content">
                 {!isFullscreen && (
@@ -437,7 +585,10 @@ const Practice: React.FC = () => {
                     </div>
                     <div className="practice-instructions">
                         <div className="practice-instructions-header">
-                            <p>Click on the drum kit or use keyboard keys to play</p>
+                            <p>
+                                Click the drum kit, use keyboard keys, or hit pads on a connected
+                                e-drum kit
+                            </p>
                             <button
                                 className="practice-edit-keys-button"
                                 onClick={() => setIsKeyBindingModalOpen(true)}
@@ -453,6 +604,12 @@ const Practice: React.FC = () => {
                                 </span>
                             ))}
                         </p>
+                        {isFullscreen && midiSupported && !isMidiConnected && (
+                            <p className="practice-midi-hint">
+                                Connect your kit on the Connect MIDI page, then return here to play
+                                with pads.
+                            </p>
+                        )}
                     </div>
                     <KeyBindingModal
                         isOpen={isKeyBindingModalOpen}

@@ -144,11 +144,12 @@ export function buildPlaybackMap(osmd: OpenSheetMusicDisplay): PlaybackStep[] {
   return rawSteps.map((step, index) => ({ ...step, stepIndex: index }));
 }
 
-/** Beat-perfect lookup at a given BPM (manual tempo overrides score tempo here). */
+/** Beat-perfect lookup: map audio file time to steps using the score/backing reference BPM. */
 export function findPlaybackStepIndex(
   steps: PlaybackStep[],
   audioTimeSeconds: number,
-  bpm: number,
+  /** BPM the score and backing track were authored at (not the live playbackRate tempo). */
+  referenceBpm: number,
   offsetSeconds = 0,
 ): number {
   if (steps.length === 0) return 0;
@@ -160,7 +161,7 @@ export function findPlaybackStepIndex(
 
   while (low <= high) {
     const mid = (low + high) >> 1;
-    const stepSeconds = wholeNotesToSeconds(steps[mid].timestampWholeNotes, bpm);
+    const stepSeconds = wholeNotesToSeconds(steps[mid].timestampWholeNotes, referenceBpm);
     if (stepSeconds <= time) {
       result = mid;
       low = mid + 1;
@@ -219,6 +220,19 @@ export function applyStepHighlight(
   return activeNotes;
 }
 
+/** Set all graphical notes for a step to a single color (e.g. live kit-practice grades). */
+export function applyStepColor(
+  osmd: OpenSheetMusicDisplay,
+  step: PlaybackStep,
+  color: string,
+): GraphicalNote[] {
+  const graphicalNotes = resolveGraphicalNotes(osmd, step.sourceNotes);
+  for (const note of graphicalNotes) {
+    note.setColor(color, highlightColorOptions);
+  }
+  return graphicalNotes;
+}
+
 export function clearNoteHighlights(
   notes: GraphicalNote[],
   defaultNoteColor: string = OSMD_NOTE_COLOR_ON_LIGHT,
@@ -268,6 +282,21 @@ export function scrollToStepNotes(
 export function countMeasures(steps: PlaybackStep[]): number {
   if (steps.length === 0) return 0;
   return steps.reduce((max, step) => Math.max(max, step.measureNumber), 0);
+}
+
+/** Media time (seconds) when the last scored note finishes — one beat after the final step. */
+export function getExerciseEndMediaSeconds(
+  steps: PlaybackStep[],
+  referenceBpm: number,
+  offsetSeconds = 0,
+): number {
+  if (steps.length === 0) return 0;
+
+  const last = steps[steps.length - 1];
+  const lastNoteTime =
+    wholeNotesToSeconds(last.timestampWholeNotes, referenceBpm) + offsetSeconds;
+  const beatDuration = wholeNotesToSeconds(0.25, referenceBpm);
+  return lastNoteTime + beatDuration;
 }
 
 /** Scale OSMD so the full rendered score fits inside the viewport element. */

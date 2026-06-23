@@ -8,7 +8,8 @@
 | Build Tool | Vite 5 | Fast development server, HMR, and optimized frontend bundling |
 | Routing | React Router DOM v6 | Client-side navigation between Practice, Exercises, Metronome, Settings, and other screens |
 | State Management | Redux Toolkit + React Redux | Centralized global state for drum kit configuration, metronome settings, mixer state, and UI synchronization |
-| Audio Engine | Tone.js | Web Audio scheduling, timing, playback, metronome ticks, and drum sound management |
+| Audio Engine | Tone.js + Web Audio API | Metronome scheduling, drum sample playback (decoded `AudioBuffer`s), and backing-track graphs |
+| MIDI Input | Web MIDI API (browser built-in) | Electric drum kit pad input on Connect MIDI and Practice — no extra npm package |
 | Music Notation | VexFlow | Rendering drum notation and rhythm exercises directly in the browser |
 | Styling | Plain CSS | Screen-level and component-level styling using custom CSS files |
 | Persistence | localStorage | Client-side persistence for auth flags, drum settings, mixer state, sequencer patterns, and saved configuration |
@@ -21,11 +22,12 @@
 ## System Boundaries
 
 - `src/screens/` — Owns route-level pages and screen composition for Practice, Metronome, Exercises, Settings, About, Progress, and ConnectMIDI
-- `src/components/` — Owns reusable UI components such as VirtualDrumKit, PatternSequencer, Navigation, Mixer, and notation components
+- `src/components/` — Owns reusable UI components such as VirtualDrumKit, PatternSequencer, MusicXmlPlayAlong, Navigation, Mixer, and notation components
 - `src/Modals/` — Owns modal-based workflows including authentication, mixer controls, sequencer, customization, and settings overlays
 - `src/store/` — Owns Redux store configuration, slices, typed hooks, and localStorage persistence logic
-- `src/utils/` — Owns shared non-UI utilities such as audio managers, drum configuration, audio file configuration, and playback helpers
-- `src/data/` — Owns static curriculum and exercise definitions used by the Exercises feature
+- `src/utils/` — Owns shared non-UI utilities such as audio managers, drum configuration, OSMD playback mapping, metronome click helpers, and MIDI parsing/mapping (`src/utils/midi/`)
+- `src/hooks/` — Owns shared React hooks (`useMidiInput`, play-along count-in, metronome clicks, etc.)
+- `src/data/` — Owns static curriculum, play-along catalog, and exercise definitions
 - `src/types/` — Owns shared TypeScript types and interfaces across the application
 - `src/assets/` — Owns bundled static assets and images used by the UI
 - `public/` — Owns publicly served static assets such as drum audio samples and large media files
@@ -36,7 +38,7 @@
 ## Storage Model
 
 - **Redux Store (In-Memory State)**: Active runtime state for drum kits, metronome controls, mixer settings, playback flags, UI state, and sequencer data
-- **localStorage**: Persistent browser storage for drumKitState, mixerState, authentication flags, sequencer patterns, and user configuration
+- **localStorage**: Persistent browser storage for drumKitState, mixerState, authentication flags, sequencer patterns, selected MIDI input id (`drumkit.midi.selectedInputId`), and user configuration
 - **Static Asset Storage**: Drum samples, background images, and media files stored inside `/public` and `/src/assets`
 - **Browser Memory / Audio Buffers**: Decoded audio buffers and temporary playback state used during active sessions
 - **No Database**: The application currently has no backend database or ORM layer

@@ -23,9 +23,9 @@ For deeper grounding, `wExplanationFiles/ImportantQuestions.txt` and `wExplanati
 ## Rules of engagement
 
 1. **Honor the templates.** If a request conflicts with `templates/architecture.md` (e.g. introduces a backend, a database, or a service worker) or `templates/code-standards.md` (e.g. adds CSS Modules, Tailwind, or a UI library), call it out before doing the work and ask the user how to proceed.
-2. **Match what already ships.** Do not describe placeholder screens (Connect MIDI, Progress, Settings, About) or MIDI as working features. They are placeholders per `templates/project-overview.md`.
+2. **Match what actually ships.** Connect MIDI and Practice MIDI pad playback are working (Web MIDI, General MIDI default map). Do not describe Progress, Settings, or About as fully implemented — they remain placeholders per `templates/project-overview.md`. Play-along MIDI scoring is not implemented yet.
 3. **No new dependencies without asking.** The stack is fixed in `templates/architecture.md`. Adding a UI library, icon library, CSS framework, test runner, or auth provider requires explicit user approval.
-4. **Use existing folder ownership.** Put new code where `templates/architecture.md` says it belongs (`screens/`, `components/`, `Modals/`, `store/`, `utils/`, `types/`, `data/`). Do not invent new top-level folders without asking.
+4. **Use existing folder ownership.** Put new code where `templates/architecture.md` says it belongs (`screens/`, `components/`, `Modals/`, `store/`, `utils/`, `types/`, `data/`, `hooks/`). Do not invent new top-level folders without asking.
 5. **Keep the studio visual language.** Follow the dark / glass / green-orange-red accent system documented in `templates/ui-content.md`. Prefer CSS custom properties over new hardcoded literals in new files.
 6. **Quality gates are non-negotiable.** `npm run build` (TypeScript strict) and `npm run lint` (zero warnings) must still pass after any change.
 7. **When the templates are wrong, fix the templates.** If the codebase has moved on, propose an edit to the relevant template alongside the code change so the source of truth stays accurate.

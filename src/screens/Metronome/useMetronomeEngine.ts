@@ -6,7 +6,13 @@ import {
   setTimeSignature,
   setTimeSignatureDenom,
 } from '@/store/slices/metronomeSlice';
-import { getSubdivisionConfig, getMainBeatNumber, isMainClick } from './metronomeTiming';
+import { getSubdivisionConfig } from './metronomeTiming';
+import {
+  buildAccentPatternForMeter,
+  ensureMetronomeAudioContext,
+  startMetronomeScheduler,
+  type MetronomeSchedulerHandle,
+} from '@/utils/metronomeClick';
 
 export type AutoBpmRampConfig = {
   enabled: boolean;
@@ -42,7 +48,7 @@ export const useMetronomeEngine = ({
 
   const [beat, setBeat] = useState<number>(0);
   const [barCount, setBarCount] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const schedulerRef = useRef<MetronomeSchedulerHandle | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   /** Tracks previous `beat` so we can detect bar wrap in an effect (not inside setBeat — Strict Mode may run that updater twice in dev). */
   const prevBeatForBarRef = useRef<number | null>(null);
@@ -57,6 +63,8 @@ export const useMetronomeEngine = ({
   accentPatternRef.current = accentPattern;
   const timingRef = useRef({ subdivision, timeSignature, timeSignatureDenom });
   timingRef.current = { subdivision, timeSignature, timeSignatureDenom };
+  const clickSettingsRef = useRef({ volume, clickSound });
+  clickSettingsRef.current = { volume, clickSound };
   const segmentAdvanceRef = useRef(false);
   const segmentIndexRef = useRef(0);
   const barsCompletedInSegmentRef = useRef(0);
@@ -70,94 +78,20 @@ export const useMetronomeEngine = ({
     setBarCount(0);
   }, []);
 
-  // Initialize AudioContext
   useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioContextRef.current = ensureMetronomeAudioContext(audioContextRef.current);
     return () => {
-      audioContextRef.current?.close();
+      schedulerRef.current?.stop();
+      schedulerRef.current = null;
+      audioContextRef.current?.close().catch(() => {});
+      audioContextRef.current = null;
     };
   }, []);
 
-  // Play click sound (depends on current beat)
-  const playClick = useCallback(() => {
-    if (!audioContextRef.current) return;
-
-    const audioContext = audioContextRef.current;
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    // Determine if this is a main click or ghost click
-    const mainClick = isMainClick(beat, subdivision, timeSignatureDenom);
-    const mainBeatNumber = getMainBeatNumber(beat, subdivision, timeSignature, timeSignatureDenom);
-    const isDownbeat = mainBeatNumber === 1 && mainClick;
-
-    // Check if this beat should be accented (based on accent pattern)
-    const pattern = accentPatternRef.current;
-    const beatIndex = (mainBeatNumber - 1) % pattern.length;
-    const isAccented = pattern[beatIndex] && mainClick;
-
-    // Different pitches and base volumes: downbeat (highest), accented beats (high), main clicks (medium), ghost clicks (lowest)
-    let frequency = 600;
-    let baseVolume = 0.2;
-    let oscillatorType: OscillatorType = 'sine';
-
-    if (isDownbeat) {
-      frequency = 800;
-      baseVolume = 0.3;
-    } else if (isAccented) {
-      frequency = 700;
-      baseVolume = 0.28;
-    } else if (mainClick) {
-      frequency = 600;
-      baseVolume = 0.25;
-    } else {
-      frequency = 400;
-      baseVolume = 0.1;
-    }
-
-    // Adjust frequency and type based on click sound selection
-    switch (clickSound) {
-      case 'tick':
-        oscillatorType = 'sine';
-        break;
-      case 'beep':
-        oscillatorType = 'square';
-        frequency *= 1.2;
-        break;
-      case 'wood':
-        oscillatorType = 'sawtooth';
-        frequency *= 0.8;
-        break;
-      case 'metallic':
-        oscillatorType = 'triangle';
-        frequency *= 1.5;
-        break;
-    }
-
-    // Apply user volume setting
-    const finalVolume = baseVolume * volume;
-
-    oscillator.frequency.value = frequency;
-    oscillator.type = oscillatorType;
-
-    gainNode.gain.setValueAtTime(finalVolume, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.1);
-  }, [beat, subdivision, timeSignature, timeSignatureDenom, volume, clickSound, accentPattern]);
-
-  // Start/Stop metronome
   const toggleMetronome = useCallback(() => {
     if (isPlaying) {
-      // Stop
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      schedulerRef.current?.stop();
+      schedulerRef.current = null;
       dispatch(setIsPlaying(false));
       prevBeatForBarRef.current = null;
       lastAutoRampBarRef.current = null;
@@ -180,18 +114,19 @@ export const useMetronomeEngine = ({
       }
       dispatch(setIsPlaying(true));
       setBeat(0);
-      setBarCount(1); // bar #1 begins at beat index 0
+      setBarCount(1);
     }
   }, [dispatch, isPlaying]);
 
-  // Update interval when BPM/subdivision/timeSignature changes
   useEffect(() => {
+    schedulerRef.current?.stop();
+    schedulerRef.current = null;
+
     if (!isPlaying) return;
 
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    const audioContext = ensureMetronomeAudioContext(audioContextRef.current);
+    if (!audioContext) return;
+    audioContextRef.current = audioContext;
 
     prevBeatForBarRef.current = null;
     const skipFullRestart = segmentAdvanceRef.current;
@@ -204,31 +139,36 @@ export const useMetronomeEngine = ({
     }
 
     const config = getSubdivisionConfig(subdivision, timeSignature, timeSignatureDenom);
+    const effectiveAccent = buildAccentPatternForMeter(timeSignature, accentPatternRef.current);
 
-    const interval = setInterval(() => {
-      setBeat((prevBeat) => {
-        const cfg = getSubdivisionConfig(
-          timingRef.current.subdivision,
-          timingRef.current.timeSignature,
-          timingRef.current.timeSignatureDenom
-        );
-        const n = cfg.beatsPerMeasure;
-        return (prevBeat + 1) % n;
-      });
-    }, (60 / bpm) * 1000 * config.intervalMultiplier);
-
-    intervalRef.current = interval;
+    schedulerRef.current = startMetronomeScheduler(audioContext, {
+      bpm,
+      beatsPerMeasure: config.beatsPerMeasure,
+      intervalMultiplier: config.intervalMultiplier,
+      getClickContext: (beatIndex) => {
+        const timing = timingRef.current;
+        const clickSettings = clickSettingsRef.current;
+        return {
+          beat: beatIndex,
+          subdivision: timing.subdivision,
+          timeSignature: timing.timeSignature,
+          timeSignatureDenom: timing.timeSignatureDenom,
+          volume: clickSettings.volume,
+          clickSound: clickSettings.clickSound,
+          accentPattern: effectiveAccent,
+        };
+      },
+      onBeat: (beatIndex) => {
+        setBeat(beatIndex);
+      },
+    });
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      schedulerRef.current?.stop();
+      schedulerRef.current = null;
     };
-  }, [bpm, isPlaying, subdivision, timeSignature, timeSignatureDenom, swing]);
+  }, [bpm, isPlaying, subdivision, timeSignature, timeSignatureDenom, swing, volume, clickSound]);
 
-  // One bar = one full cycle of `beat` (0..n-1). Increment only when we wrap (n-1)->0.
-  // Done here instead of inside setBeat's updater so React Strict Mode's double-invocation in dev cannot double-count.
   useEffect(() => {
     if (!isPlaying) {
       prevBeatForBarRef.current = null;
@@ -260,7 +200,6 @@ export const useMetronomeEngine = ({
     }
   }, [beat, isPlaying, subdivision, timeSignature, timeSignatureDenom, dispatch]);
 
-  // After every N completed bars (barCount 2 = first bar finished), optionally raise BPM (capped at 400).
   useEffect(() => {
     if (!isPlaying) {
       lastAutoRampBarRef.current = null;
@@ -277,20 +216,5 @@ export const useMetronomeEngine = ({
     dispatch(setBpm(Math.min(400, bpmRef.current + step)));
   }, [barCount, isPlaying, dispatch]);
 
-  // Play click on beat change
-  useEffect(() => {
-    if (isPlaying) {
-      playClick();
-    }
-  }, [beat, isPlaying, playClick]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
   return { beat, toggleMetronome, barCount, resetBarCount };
 };
-

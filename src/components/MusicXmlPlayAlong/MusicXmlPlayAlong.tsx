@@ -2,16 +2,32 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
 import type { GraphicalNote } from 'opensheetmusicdisplay';
 import type { PlayAlongExerciseDefinition } from '@/types/playAlongTypes';
+import type { MidiNoteEvent } from '@/types/midiTypes';
 import { useMetronomeClicks } from '@/hooks/useMetronomeClicks';
+import { useMidiInput } from '@/hooks/useMidiInput';
+import { PLAY_ALONG_COUNT_IN_BEATS, usePlayAlongCountIn } from '@/hooks/usePlayAlongCountIn';
 import { useAppSelector } from '@/store/hooks';
+import { mapMidiNoteToDrumId } from '@/utils/midi/midiNoteToDrumId';
+import {
+  scorePlayAlongTiming,
+  estimateMedianHitOffsetSeconds,
+  type PlayAlongScoreResult,
+  type RecordedPlayAlongHit,
+} from '@/utils/playAlongScoring';
+import {
+  KIT_PRACTICE_GRADE_COLORS,
+  LivePracticeGrader,
+} from '@/utils/playAlongLiveGrading';
 import {
   applyOsmdScoreTheme,
+  applyStepColor,
   applyStepHighlight,
   buildPlaybackMap,
   clampPlaybackBpm,
   clearNoteHighlights,
   findPlaybackStepIndex,
   fitOsmdToContainer,
+  getExerciseEndMediaSeconds,
   getScoreThemeColors,
   playbackRateForTempo,
   type PlaybackStep,
@@ -172,7 +188,14 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
   defaultScoreTheme = 'dark',
 }) => {
   const playbackOffsetSeconds = exercise.playbackOffsetSeconds ?? 0;
-  const { clickSound, volume, accentPattern } = useAppSelector((state) => state.metronome);
+  const isKitPractice = exercise.kitPractice === true;
+  const kitPracticeDrumId = exercise.kitPracticeDrumId ?? 'snare';
+  const {
+    clickSound,
+    volume,
+    accentPattern,
+    timeSignatureDenom,
+  } = useAppSelector((state) => state.metronome);
 
   const [scoreTheme, setScoreTheme] = useState<ScoreThemeMode>(() => {
     if (typeof window === 'undefined') return defaultScoreTheme;
@@ -195,6 +218,18 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
   const playbackStepsRef = useRef<PlaybackStep[]>([]);
   const currentStepRef = useRef(-1);
   const highlightedNotesRef = useRef<GraphicalNote[]>([]);
+  const recordedHitsRef = useRef<RecordedPlayAlongHit[]>([]);
+  const isRecordingHitsRef = useRef(false);
+  const isFinishingPlaybackRef = useRef(false);
+  const handleMidiNoteRef = useRef<(event: MidiNoteEvent) => void>(() => {});
+  const liveGraderRef = useRef(new LivePracticeGrader());
+  const timingAlignOffsetRef = useRef(0);
+  const persistedStepGradesRef = useRef<PlayAlongScoreResult['stepGrades'] | null>(null);
+
+  const KIT_PRACTICE_MATCH_WINDOW_MS = 125;
+  const KIT_PRACTICE_ON_TIME_WINDOW_MS = 65;
+
+  const [practiceScore, setPracticeScore] = useState<PlayAlongScoreResult | null>(null);
 
   const [scoreStatus, setScoreStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [scoreError, setScoreError] = useState('');
@@ -209,6 +244,7 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
   const manualBpmRef = useRef(manualBpm);
   const scoreBpmRef = useRef(scoreBpm);
   const tempoCommitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const playbackPhaseAnchorRef = useRef<number | null>(null);
   const [beatsPerMeasure, setBeatsPerMeasure] = useState(4);
   const [metronomeEnabled, setMetronomeEnabled] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -219,6 +255,168 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
 
   manualBpmRef.current = manualBpm;
   scoreBpmRef.current = scoreBpm;
+
+  const {
+    supported: midiSupported,
+    status: midiStatus,
+    selectedInputName,
+  } = useMidiInput({
+    autoConnect: isKitPractice,
+    trackLastNote: false,
+    onNoteOn: (event) => handleMidiNoteRef.current(event),
+  });
+
+  const isMidiConnected = midiSupported && midiStatus === 'connected';
+
+  const getLiveGradingOptions = useCallback(
+    () => ({
+      referenceBpm: scoreBpmRef.current,
+      offsetSeconds: playbackOffsetSeconds + timingAlignOffsetRef.current,
+      matchWindowMs: KIT_PRACTICE_MATCH_WINDOW_MS,
+      onTimeWindowMs: KIT_PRACTICE_ON_TIME_WINDOW_MS,
+    }),
+    [playbackOffsetSeconds],
+  );
+
+  const applyPracticeScoreColors = useCallback(
+    (stepGrades: PlayAlongScoreResult['stepGrades']) => {
+      const osmd = osmdRef.current;
+      const steps = playbackStepsRef.current;
+      if (!osmd || !isKitPractice) return;
+
+      liveGraderRef.current.syncFromStepGrades(stepGrades);
+      for (const stepGrade of stepGrades) {
+        const step = steps[stepGrade.stepIndex];
+        if (!step) continue;
+        applyStepColor(osmd, step, KIT_PRACTICE_GRADE_COLORS[stepGrade.grade]);
+      }
+    },
+    [isKitPractice],
+  );
+
+  const reapplyGradedStepColors = useCallback(() => {
+    const osmd = osmdRef.current;
+    const steps = playbackStepsRef.current;
+    if (!osmd || !isKitPractice) return;
+
+    for (const stepIndex of liveGraderRef.current.getGradedStepIndices()) {
+      const step = steps[stepIndex];
+      const grade = liveGraderRef.current.getGrade(stepIndex);
+      if (!step || !grade) continue;
+      applyStepColor(osmd, step, KIT_PRACTICE_GRADE_COLORS[grade]);
+    }
+  }, [isKitPractice]);
+
+  const reapplyPersistedPracticeColors = useCallback(() => {
+    if (!isKitPractice) return;
+
+    const persisted = persistedStepGradesRef.current;
+    if (persisted && persisted.length > 0) {
+      applyPracticeScoreColors(persisted);
+      return;
+    }
+
+    reapplyGradedStepColors();
+  }, [applyPracticeScoreColors, isKitPractice, reapplyGradedStepColors]);
+
+  const resetKitPracticeGrades = useCallback(() => {
+    liveGraderRef.current.reset();
+    timingAlignOffsetRef.current = 0;
+    persistedStepGradesRef.current = null;
+    const osmd = osmdRef.current;
+    const steps = playbackStepsRef.current;
+    if (!osmd) return;
+
+    for (const step of steps) {
+      applyStepColor(osmd, step, defaultNoteColor);
+    }
+  }, [defaultNoteColor]);
+
+  const reconcileLiveGrades = useCallback(
+    (audioTimeSeconds: number) => {
+      if (!isKitPractice) return;
+
+      const steps = playbackStepsRef.current;
+      const hits = recordedHitsRef.current;
+      if (steps.length === 0) return;
+
+      timingAlignOffsetRef.current = estimateMedianHitOffsetSeconds(
+        steps,
+        hits,
+        scoreBpmRef.current,
+        playbackOffsetSeconds,
+      );
+
+      const options = getLiveGradingOptions();
+      liveGraderRef.current.reset();
+      const sortedHits = [...hits].sort((a, b) => a.audioTimeSeconds - b.audioTimeSeconds);
+      for (const hit of sortedHits) {
+        liveGraderRef.current.tryGradeHit(steps, hit.audioTimeSeconds, options);
+      }
+      if (isRecordingHitsRef.current) {
+        liveGraderRef.current.finalizeElapsedSteps(steps, audioTimeSeconds, options);
+      }
+      reapplyGradedStepColors();
+    },
+    [getLiveGradingOptions, isKitPractice, playbackOffsetSeconds, reapplyGradedStepColors],
+  );
+
+  const gradeLiveKitHit = useCallback(
+    (hitTimeSeconds: number) => {
+      if (!isKitPractice || !isRecordingHitsRef.current) return;
+      reconcileLiveGrades(hitTimeSeconds);
+    },
+    [isKitPractice, reconcileLiveGrades],
+  );
+
+  const finalizePracticeScore = useCallback(() => {
+    if (!isKitPractice) return;
+
+    isRecordingHitsRef.current = false;
+    const steps = playbackStepsRef.current;
+    if (steps.length === 0) return;
+
+    const result = scorePlayAlongTiming(
+      steps,
+      recordedHitsRef.current,
+      scoreBpmRef.current,
+      playbackOffsetSeconds,
+      {
+        autoAlignOffset: true,
+        matchWindowMs: KIT_PRACTICE_MATCH_WINDOW_MS,
+        onTimeWindowMs: KIT_PRACTICE_ON_TIME_WINDOW_MS,
+      },
+    );
+    timingAlignOffsetRef.current = estimateMedianHitOffsetSeconds(
+      steps,
+      recordedHitsRef.current,
+      scoreBpmRef.current,
+      playbackOffsetSeconds,
+    );
+    persistedStepGradesRef.current = result.stepGrades;
+    applyPracticeScoreColors(result.stepGrades);
+    setPracticeScore(result);
+    return result;
+  }, [applyPracticeScoreColors, isKitPractice, playbackOffsetSeconds]);
+
+  useEffect(() => {
+    handleMidiNoteRef.current = (event: MidiNoteEvent) => {
+      if (!isKitPractice || !isRecordingHitsRef.current) return;
+
+      const drumId = mapMidiNoteToDrumId(event.note);
+      if (drumId !== kitPracticeDrumId) return;
+
+      const audio = audioRef.current;
+      if (!audio || audio.ended) return;
+
+      recordedHitsRef.current.push({
+        audioTimeSeconds: audio.currentTime,
+        note: event.note,
+        velocity: event.velocity,
+      });
+      gradeLiveKitHit(audio.currentTime);
+    };
+  }, [gradeLiveKitHit, isKitPractice, kitPracticeDrumId]);
 
   const resolveBackingGain = useCallback((percent: number) => {
     return backingPercentToGain(percent, sourcePeakRef.current);
@@ -249,42 +447,116 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
     return false;
   }, [backingVolumePercent, resolveBackingGain]);
 
-  useMetronomeClicks({
+  const getPlayAlongAudioContext = useCallback(
+    () => backingAudioContextRef.current,
+    [],
+  );
+
+  const getMetronomeMediaTime = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || audio.paused || audio.ended) return null;
+    return audio.currentTime;
+  }, []);
+
+  const getPlaybackRate = useCallback(() => {
+    const audio = audioRef.current;
+    if (audio && audio.playbackRate > 0) {
+      return audio.playbackRate;
+    }
+    return playbackRateForTempo(manualBpmRef.current, scoreBpmRef.current);
+  }, []);
+
+  const {
+    isCountingIn,
+    countInBeat,
+    startCountIn,
+    cancelCountIn,
+  } = usePlayAlongCountIn({
     bpm: manualBpm,
-    enabled: metronomeEnabled,
-    isRunning: isPlaying,
-    timeSignature: beatsPerMeasure,
     volume,
     clickSound,
     accentPattern,
+    getAudioContext: getPlayAlongAudioContext,
+  });
+
+  const isTransportActive = isPlaying || isCountingIn;
+
+  useMetronomeClicks({
+    bpm: manualBpm,
+    scoreBpm,
+    enabled: metronomeEnabled,
+    isRunning: isPlaying && !isCountingIn,
+    timeSignature: beatsPerMeasure,
+    timeSignatureDenom,
+    subdivision: 'quarters',
+    volume,
+    clickSound,
+    accentPattern,
+    playbackOffsetSeconds,
+    getAudioContext: getPlayAlongAudioContext,
+    getMediaTime: getMetronomeMediaTime,
+    getPlaybackRate,
+    phaseAnchorRef: playbackPhaseAnchorRef,
   });
 
   const syncHighlightAtTime = useCallback(
-    (audioTime: number, tempoBpm: number) => {
+    (audioTime: number) => {
       const osmd = osmdRef.current;
       const steps = playbackStepsRef.current;
-      if (!osmd || steps.length === 0) return;
+      const referenceBpm = scoreBpmRef.current;
+      if (!osmd || steps.length === 0 || referenceBpm <= 0) return;
+
+      if (isKitPractice && isRecordingHitsRef.current) {
+        liveGraderRef.current.finalizeElapsedSteps(steps, audioTime, getLiveGradingOptions());
+      }
 
       const stepIndex = findPlaybackStepIndex(
         steps,
         audioTime,
-        tempoBpm,
+        referenceBpm,
         playbackOffsetSeconds,
       );
       const step = steps[stepIndex];
       if (!step) return;
 
       currentStepRef.current = stepIndex;
-      highlightedNotesRef.current = applyStepHighlight(
-        osmd,
-        step,
-        highlightedNotesRef.current,
-        defaultNoteColor,
-        activeNoteColor,
-      );
+
+      if (isKitPractice && isRecordingHitsRef.current) {
+        if (!liveGraderRef.current.isGraded(stepIndex)) {
+          highlightedNotesRef.current = applyStepHighlight(
+            osmd,
+            step,
+            highlightedNotesRef.current,
+            defaultNoteColor,
+            activeNoteColor,
+          );
+        } else {
+          clearNoteHighlights(highlightedNotesRef.current, defaultNoteColor);
+          highlightedNotesRef.current = [];
+        }
+        reapplyGradedStepColors();
+      } else if (isKitPractice && liveGraderRef.current.getGradedStepIndices().length > 0) {
+        reapplyGradedStepColors();
+      } else {
+        highlightedNotesRef.current = applyStepHighlight(
+          osmd,
+          step,
+          highlightedNotesRef.current,
+          defaultNoteColor,
+          activeNoteColor,
+        );
+      }
+
       setBeatProgress(Math.round((stepIndex / Math.max(steps.length - 1, 1)) * 100));
     },
-    [activeNoteColor, defaultNoteColor, playbackOffsetSeconds],
+    [
+      activeNoteColor,
+      defaultNoteColor,
+      getLiveGradingOptions,
+      isKitPractice,
+      playbackOffsetSeconds,
+      reapplyGradedStepColors,
+    ],
   );
 
   const fitScoreToViewport = useCallback(() => {
@@ -297,16 +569,78 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
 
     const audio = audioRef.current;
     if (audio && !audio.paused) {
-      syncHighlightAtTime(audio.currentTime, manualBpm);
+      syncHighlightAtTime(audio.currentTime);
+    } else {
+      reapplyPersistedPracticeColors();
     }
-  }, [manualBpm, scoreStatus, syncHighlightAtTime]);
+  }, [reapplyPersistedPracticeColors, scoreStatus, syncHighlightAtTime]);
 
   const resetPlaybackVisuals = useCallback(() => {
     clearNoteHighlights(highlightedNotesRef.current, defaultNoteColor);
     highlightedNotesRef.current = [];
     currentStepRef.current = -1;
     setBeatProgress(0);
-  }, [defaultNoteColor]);
+    reapplyPersistedPracticeColors();
+  }, [defaultNoteColor, reapplyPersistedPracticeColors]);
+
+  const finishPlayback = useCallback(
+    (reason: 'manual' | 'complete' = 'manual') => {
+      if (isFinishingPlaybackRef.current) return;
+      isFinishingPlaybackRef.current = true;
+
+      try {
+        const wasRecording = isRecordingHitsRef.current;
+        cancelCountIn();
+        playbackPhaseAnchorRef.current = null;
+
+        if (isKitPractice && wasRecording) {
+          finalizePracticeScore();
+        }
+
+        const audio = audioRef.current;
+        if (audio) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+
+        setIsPlaying(false);
+        setTime(0);
+        isRecordingHitsRef.current = false;
+        resetPlaybackVisuals();
+        requestAnimationFrame(() => {
+          reapplyPersistedPracticeColors();
+        });
+
+        if (reason === 'complete') {
+          setMetronomeEnabled(false);
+          localStorage.setItem(METRONOME_STORAGE_KEY, 'false');
+        }
+      } finally {
+        isFinishingPlaybackRef.current = false;
+      }
+    },
+    [cancelCountIn, finalizePracticeScore, isKitPractice, reapplyPersistedPracticeColors, resetPlaybackVisuals],
+  );
+
+  const tryAutoFinishAtExerciseEnd = useCallback(
+    (audioTime: number) => {
+      const audio = audioRef.current;
+      if (!audio || audio.paused || audio.ended) return;
+
+      const steps = playbackStepsRef.current;
+      if (steps.length === 0) return;
+
+      const endTime = getExerciseEndMediaSeconds(
+        steps,
+        scoreBpmRef.current,
+        playbackOffsetSeconds,
+      );
+      if (audioTime >= endTime - 0.001) {
+        finishPlayback('complete');
+      }
+    },
+    [finishPlayback, playbackOffsetSeconds],
+  );
 
   useEffect(() => {
     const container = scoreContainerRef.current;
@@ -315,7 +649,10 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
     let cancelled = false;
     setScoreStatus('loading');
     setScoreError('');
-    resetPlaybackVisuals();
+    setPracticeScore(null);
+    liveGraderRef.current.reset();
+    timingAlignOffsetRef.current = 0;
+    persistedStepGradesRef.current = null;
 
     const osmd = new OpenSheetMusicDisplay(container, {
       autoResize: false,
@@ -343,7 +680,15 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
 
         playbackStepsRef.current = steps;
         setBeatsPerMeasure(steps[0]?.beatsPerMeasure ?? 4);
-        const loadedBpm = clampPlaybackBpm(steps[0]?.bpm ?? exercise.defaultBpm ?? 120);
+
+        const sheet = osmd.Sheet;
+        const hasScoreTempo =
+          (sheet.DefaultStartTempoInBpm ?? 0) > 0 ||
+          sheet.SourceMeasures.some((measure) => (measure.TempoInBPM ?? 0) > 0);
+        const mapBpm = steps[0]?.bpm ?? exercise.defaultBpm ?? 120;
+        const loadedBpm = clampPlaybackBpm(
+          hasScoreTempo ? mapBpm : (exercise.defaultBpm ?? mapBpm),
+        );
         setScoreBpm(loadedBpm);
         setManualBpm(loadedBpm);
         setTempoSliderBpm(loadedBpm);
@@ -380,9 +725,19 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
 
     const audio = audioRef.current;
     if (audio && !audio.paused) {
-      syncHighlightAtTime(audio.currentTime, manualBpm);
+      syncHighlightAtTime(audio.currentTime);
+    } else {
+      reapplyPersistedPracticeColors();
     }
-  }, [scoreTheme, scoreStatus, themeColors.noteColor, manualBpm, syncHighlightAtTime]);
+  }, [reapplyPersistedPracticeColors, scoreStatus, scoreTheme, syncHighlightAtTime, themeColors.noteColor]);
+
+  useEffect(() => {
+    if (!isKitPractice || !practiceScore || scoreStatus !== 'ready') return;
+    const frame = requestAnimationFrame(() => {
+      reapplyPersistedPracticeColors();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isKitPractice, practiceScore, scoreStatus, reapplyPersistedPracticeColors]);
 
   useEffect(() => {
     if (scoreStatus !== 'ready') return;
@@ -410,7 +765,7 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
   }, [fitScoreToViewport]);
 
   const syncScoreToAudio = useCallback(
-    (audioTime: number, tempoBpm: number) => {
+    (audioTime: number) => {
       const osmd = osmdRef.current;
       const steps = playbackStepsRef.current;
       if (!osmd || steps.length === 0) return;
@@ -419,12 +774,12 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
         const stepIndex = findPlaybackStepIndex(
           steps,
           audioTime,
-          tempoBpm,
+          scoreBpmRef.current,
           playbackOffsetSeconds,
         );
         if (stepIndex === currentStepRef.current) return;
 
-        syncHighlightAtTime(audioTime, tempoBpm);
+        syncHighlightAtTime(audioTime);
       } catch (error) {
         console.error('[MusicXmlPlayAlong] Score sync failed:', error);
       }
@@ -473,40 +828,78 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
     currentStepRef.current = -1;
     const audio = audioRef.current;
     if (audio && !audio.paused) {
-      syncScoreToAudio(audio.currentTime, manualBpmRef.current);
+      syncScoreToAudio(audio.currentTime);
     }
   }, [manualBpm, syncScoreToAudio]);
 
-  const play = async () => {
-    if (!audioRef.current || scoreStatus !== 'ready') return;
+  const beginExerciseAtDownbeat = useCallback(
+    (downbeatTime: number) => {
+      playbackPhaseAnchorRef.current = downbeatTime;
 
-    try {
-      ensureBackingAudioGraph();
-      await resumeBackingTrackContext(backingAudioContextRef.current);
-      await audioRef.current.play();
-      setIsPlaying(true);
-      syncScoreToAudio(audioRef.current.currentTime, manualBpm);
-    } catch (err) {
-      console.error('Audio failed to play:', err);
+      if (isKitPractice) {
+        isRecordingHitsRef.current = true;
+      }
+
+      const audio = audioRef.current;
+      const ctx = backingAudioContextRef.current;
+      const gain = backingGainRef.current;
+
+      if (audio && ctx) {
+        audio.currentTime = 0;
+        applyPlaybackRate(manualBpmRef.current);
+
+        const targetGain = resolveBackingGain(volumeSliderPercent);
+        const now = ctx.currentTime;
+        if (gain) {
+          gain.gain.cancelScheduledValues(now);
+          if (now >= downbeatTime - 0.005) {
+            gain.gain.setValueAtTime(targetGain, now);
+          } else {
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.setValueAtTime(targetGain, downbeatTime);
+          }
+        }
+
+        void audio.play().then(() => {
+          syncScoreToAudio(0);
+          setIsPlaying(true);
+        }).catch((err) => {
+          console.error('Audio failed to play:', err);
+          playbackPhaseAnchorRef.current = null;
+        });
+      } else {
+        setIsPlaying(true);
+      }
+    },
+    [applyPlaybackRate, isKitPractice, resolveBackingGain, syncScoreToAudio, volumeSliderPercent],
+  );
+
+  const play = () => {
+    if (!audioRef.current || scoreStatus !== 'ready' || isCountingIn) return;
+
+    if (isKitPractice) {
+      recordedHitsRef.current = [];
+      setPracticeScore(null);
+      isRecordingHitsRef.current = false;
+      resetKitPracticeGrades();
     }
+
+    ensureBackingAudioGraph();
+    void resumeBackingTrackContext(backingAudioContextRef.current);
+
+    startCountIn(beginExerciseAtDownbeat);
   };
 
-  const stop = () => {
-    if (!audioRef.current) return;
-
-    audioRef.current.pause();
-    audioRef.current.currentTime = 0;
-    setIsPlaying(false);
-    setTime(0);
-    resetPlaybackVisuals();
-  };
+  const stop = useCallback(() => {
+    finishPlayback('manual');
+  }, [finishPlayback]);
 
   const togglePlayback = () => {
-    if (isPlaying) {
+    if (isTransportActive) {
       stop();
       return;
     }
-    void play();
+    play();
   };
 
   const toggleMetronome = () => {
@@ -547,7 +940,8 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
     const onTimeUpdate = () => {
       setTime(audio.currentTime);
       if (!audio.paused) {
-        syncScoreToAudio(audio.currentTime, manualBpmRef.current);
+        syncScoreToAudio(audio.currentTime);
+        tryAutoFinishAtExerciseEnd(audio.currentTime);
       }
     };
     const onLoadedMetadata = () => {
@@ -556,8 +950,7 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
       applyVolumeGain(volumeSliderPercent);
     };
     const onEnded = () => {
-      setIsPlaying(false);
-      resetPlaybackVisuals();
+      finishPlayback('complete');
     };
     const onPause = () => setIsPlaying(false);
     const onPlay = () => setIsPlaying(true);
@@ -579,7 +972,15 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('play', onPlay);
     };
-  }, [applyVolumeGain, ensureBackingAudioGraph, resetPlaybackVisuals, syncScoreToAudio, volumeSliderPercent]);
+  }, [
+    applyVolumeGain,
+    ensureBackingAudioGraph,
+    finishPlayback,
+    resetPlaybackVisuals,
+    syncScoreToAudio,
+    tryAutoFinishAtExerciseEnd,
+    volumeSliderPercent,
+  ]);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -588,14 +989,15 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
     const loop = () => {
       const audio = audioRef.current;
       if (audio && !audio.paused) {
-        syncScoreToAudio(audio.currentTime, manualBpmRef.current);
+        syncScoreToAudio(audio.currentTime);
+        tryAutoFinishAtExerciseEnd(audio.currentTime);
       }
       frame = requestAnimationFrame(loop);
     };
 
     frame = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frame);
-  }, [isPlaying, syncScoreToAudio]);
+  }, [isPlaying, syncScoreToAudio, tryAutoFinishAtExerciseEnd]);
 
   useEffect(
     () => () => {
@@ -684,8 +1086,87 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
         <div className="musicxml-playalong-heading">
           <h2 className="musicxml-playalong-title">{exercise.title}</h2>
           <p className="musicxml-playalong-meta">{exercise.subtitle}</p>
+          {isKitPractice && (
+            <p className="musicxml-playalong-kit-badge" role="status">
+              Practice with kit
+              {isMidiConnected && selectedInputName ? ` · ${selectedInputName}` : ''}
+            </p>
+          )}
         </div>
       </header>
+
+      {isKitPractice && midiSupported && !isMidiConnected && scoreStatus === 'ready' && (
+        <p className="musicxml-playalong-kit-hint" role="status">
+          Connect your e-drum kit on the Connect MIDI page, then press Play to practice along and
+          get timing feedback.
+        </p>
+      )}
+
+      {isKitPractice && scoreStatus === 'ready' && (
+        <p className="musicxml-playalong-kit-legend" role="note">
+          Live timing colors:{' '}
+          <span className="musicxml-playalong-kit-legend-item musicxml-playalong-kit-legend-item--ontime">
+            green = on time
+          </span>
+          <span className="musicxml-playalong-kit-legend-sep" aria-hidden="true">
+            ·
+          </span>
+          <span className="musicxml-playalong-kit-legend-item musicxml-playalong-kit-legend-item--close">
+            orange = close
+          </span>
+          <span className="musicxml-playalong-kit-legend-sep" aria-hidden="true">
+            ·
+          </span>
+          <span className="musicxml-playalong-kit-legend-item musicxml-playalong-kit-legend-item--miss">
+            red = missed
+          </span>
+        </p>
+      )}
+
+      {practiceScore && (
+        <div
+          className="musicxml-playalong-practice-results"
+          role="region"
+          aria-label="Practice timing results"
+        >
+          <h3 className="musicxml-playalong-practice-results-title">Your timing</h3>
+          <p className="musicxml-playalong-practice-results-summary">
+            <strong>{practiceScore.accuracyPercent}%</strong> on time ·{' '}
+            {practiceScore.onTime}/{practiceScore.totalSteps} notes
+          </p>
+          <ul className="musicxml-playalong-practice-results-breakdown">
+            <li>
+              <span className="musicxml-playalong-grade musicxml-playalong-grade--ontime">On time</span>
+              {practiceScore.onTime}
+            </li>
+            <li>
+              <span className="musicxml-playalong-grade musicxml-playalong-grade--early">Early</span>
+              {practiceScore.early}
+            </li>
+            <li>
+              <span className="musicxml-playalong-grade musicxml-playalong-grade--late">Late</span>
+              {practiceScore.late}
+            </li>
+            <li>
+              <span className="musicxml-playalong-grade musicxml-playalong-grade--miss">Missed</span>
+              {practiceScore.missed}
+            </li>
+            {practiceScore.extraHits > 0 && (
+              <li>
+                <span className="musicxml-playalong-grade musicxml-playalong-grade--extra">Extra hits</span>
+                {practiceScore.extraHits}
+              </li>
+            )}
+          </ul>
+          <button
+            type="button"
+            className="musicxml-playalong-practice-results-dismiss"
+            onClick={() => setPracticeScore(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <div
         className="musicxml-playalong-progress"
@@ -699,6 +1180,31 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
       </div>
 
       <div ref={scoreViewportRef} className="musicxml-playalong-score-viewport">
+        {isCountingIn && (
+          <div
+            className="musicxml-playalong-count-in"
+            role="status"
+            aria-live="polite"
+            aria-label={`Count-in beat ${countInBeat} of ${PLAY_ALONG_COUNT_IN_BEATS}`}
+          >
+            <p className="musicxml-playalong-count-in-label">Count-in</p>
+            <div className="musicxml-playalong-count-in-dots" aria-hidden="true">
+              {Array.from({ length: PLAY_ALONG_COUNT_IN_BEATS }, (_, index) => {
+                const beatNumber = index + 1;
+                const isActive = beatNumber <= countInBeat;
+                const isDownbeat = beatNumber === 1 && isActive;
+                return (
+                  <span
+                    key={beatNumber}
+                    className={`musicxml-playalong-count-in-dot${isActive ? ' musicxml-playalong-count-in-dot--active' : ''}${isDownbeat ? ' musicxml-playalong-count-in-dot--downbeat' : ''}`}
+                  />
+                );
+              })}
+            </div>
+            <p className="musicxml-playalong-count-in-beat">{countInBeat}</p>
+            <p className="musicxml-playalong-count-in-hint">Synced with metronome · exercise starts on the next beat</p>
+          </div>
+        )}
         {scoreStatus === 'loading' && (
           <p className="musicxml-playalong-score-status" role="status">
             Loading score…
@@ -751,12 +1257,12 @@ export const MusicXmlPlayAlong: React.FC<MusicXmlPlayAlongProps> = ({
         <div className="musicxml-playalong-controls-center">
           <button
             type="button"
-            className={`musicxml-playalong-transport-btn musicxml-playalong-transport-btn--toggle${isPlaying ? ' musicxml-playalong-transport-btn--stop' : ' musicxml-playalong-transport-btn--play'}`}
+            className={`musicxml-playalong-transport-btn musicxml-playalong-transport-btn--toggle${isTransportActive ? ' musicxml-playalong-transport-btn--stop' : ' musicxml-playalong-transport-btn--play'}`}
             onClick={togglePlayback}
             disabled={scoreStatus !== 'ready'}
-            aria-label={isPlaying ? 'Stop backing track' : 'Play backing track'}
+            aria-label={isTransportActive ? 'Stop backing track' : 'Play backing track'}
           >
-            {isPlaying ? 'Stop' : 'Play'}
+            {isCountingIn ? '…' : isTransportActive ? 'Stop' : 'Play'}
           </button>
         </div>
 

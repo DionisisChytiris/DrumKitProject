@@ -19,4 +19,11 @@ export interface PlayAlongExerciseDefinition {
   defaultBpm?: number;
   /** Seconds to nudge score sync vs audio (negative = score leads) */
   playbackOffsetSeconds?: number;
+  /**
+   * When true, MIDI snare hits are recorded during playback and graded at the end.
+   * Start with snare-only exercises; expand later.
+   */
+  kitPractice?: boolean;
+  /** Drum id to grade in kit practice (default `snare`). */
+  kitPracticeDrumId?: string;
 }

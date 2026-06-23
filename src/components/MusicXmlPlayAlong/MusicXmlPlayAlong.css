@@ -368,6 +368,7 @@
 }
 
 .musicxml-playalong-score-viewport {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -379,6 +380,88 @@
   align-items: center;
   justify-content: center;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.musicxml-playalong-count-in {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  padding: 1.5rem;
+  border-radius: inherit;
+  background: rgba(10, 12, 16, 0.72);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+.musicxml-playalong--light .musicxml-playalong-count-in {
+  background: rgba(246, 244, 240, 0.82);
+}
+
+.musicxml-playalong-count-in-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-primary-light, #8fd694);
+}
+
+.musicxml-playalong-count-in-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+}
+
+.musicxml-playalong-count-in-dot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid var(--border-control);
+  background: transparent;
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.musicxml-playalong-count-in-dot--active {
+  transform: scale(1.15);
+  background: var(--accent-primary-40);
+  border-color: var(--accent-primary-65);
+  box-shadow: 0 0 14px var(--accent-primary-40);
+}
+
+.musicxml-playalong-count-in-dot--downbeat.musicxml-playalong-count-in-dot--active {
+  width: 1.15rem;
+  height: 1.15rem;
+  background: var(--accent-primary-65);
+  border-color: var(--accent-primary-80);
+  box-shadow: 0 0 18px var(--accent-primary-65);
+}
+
+.musicxml-playalong-count-in-beat {
+  margin: 0;
+  font-size: 3.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.musicxml-playalong-count-in-hint {
+  margin: 0;
+  max-width: 18rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
 }
 
 .musicxml-playalong--light .musicxml-playalong-score-viewport {
@@ -413,6 +496,147 @@
   height: auto !important;
   max-width: 100%;
   max-height: 100%;
+}
+
+.musicxml-playalong-kit-badge {
+  margin: 0;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--accent-green);
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(76, 175, 80, 0.35);
+  border-radius: 999px;
+}
+
+.musicxml-playalong-kit-hint {
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px solid rgba(255, 152, 0, 0.28);
+  border-radius: 8px;
+}
+
+.musicxml-playalong-kit-legend {
+  margin: 0 0 0.65rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.musicxml-playalong-kit-legend-item--ontime {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.musicxml-playalong-kit-legend-item--close {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.musicxml-playalong-kit-legend-item--miss {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.musicxml-playalong-kit-legend-sep {
+  margin: 0 0.35rem;
+  opacity: 0.55;
+}
+
+.musicxml-playalong-practice-results {
+  margin-bottom: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.28);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.musicxml-playalong-practice-results-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.musicxml-playalong-practice-results-summary {
+  margin: 0 0 0.65rem;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.musicxml-playalong-practice-results-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.musicxml-playalong-practice-results-breakdown li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.musicxml-playalong-grade {
+  display: inline-block;
+  min-width: 4.5rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
+}
+
+.musicxml-playalong-grade--ontime {
+  color: #1b5e20;
+  background: rgba(76, 175, 80, 0.22);
+}
+
+.musicxml-playalong-grade--early {
+  color: #e65100;
+  background: rgba(255, 152, 0, 0.18);
+}
+
+.musicxml-playalong-grade--late {
+  color: #bf360c;
+  background: rgba(255, 87, 34, 0.16);
+}
+
+.musicxml-playalong-grade--miss {
+  color: #b71c1c;
+  background: rgba(244, 67, 54, 0.14);
+}
+
+.musicxml-playalong-grade--extra {
+  color: var(--text-muted);
+  background: rgba(184, 196, 212, 0.12);
+}
+
+.musicxml-playalong-practice-results-dismiss {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.musicxml-playalong-practice-results-dismiss:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 @media (max-width: 720px) {

@@ -259,47 +259,6 @@ const MetronomeDisplay: React.FC = () => {
             const config = getSubdivisionConfig(subdivision, timeSignature, timeSignatureDenom);
             dispatch(setIsPlaying(true));
             setBeat(0);
-            
-            // Play first click immediately
-            if (audioContextRef.current) {
-                const audioContext = audioContextRef.current;
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-
-                let frequency = 800;
-                let oscillatorType: OscillatorType = 'sine';
-                
-                switch (clickSound) {
-                    case 'tick':
-                        oscillatorType = 'sine';
-                        break;
-                    case 'beep':
-                        oscillatorType = 'square';
-                        frequency *= 1.2;
-                        break;
-                    case 'wood':
-                        oscillatorType = 'sawtooth';
-                        frequency *= 0.8;
-                        break;
-                    case 'metallic':
-                        oscillatorType = 'triangle';
-                        frequency *= 1.5;
-                        break;
-                }
-
-                oscillator.frequency.value = frequency;
-                oscillator.type = oscillatorType;
-
-                const finalVolume = 0.3 * volume;
-                gainNode.gain.setValueAtTime(finalVolume, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.1);
-            }
 
             const interval = setInterval(() => {
                 setBeat((prevBeat) => {
@@ -310,7 +269,7 @@ const MetronomeDisplay: React.FC = () => {
 
             intervalRef.current = interval;
         }
-    }, [isPlaying, bpm, subdivision, timeSignature, timeSignatureDenom, volume, clickSound, dispatch]);
+    }, [isPlaying, bpm, subdivision, timeSignature, timeSignatureDenom, dispatch]);
 
     // Update interval when settings change
     useEffect(() => {

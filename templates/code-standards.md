@@ -152,8 +152,8 @@
 - `src/assets/` — Bundled images and static frontend assets
 - `public/` — Publicly served media files such as drum samples and large assets
 - `src/screens/styles/` — Screen-specific styling files
-- `src/hooks/` — Shared reusable React hooks
-- `src/services/` — Future backend or integration service layers
+- `src/hooks/` — Shared reusable React hooks (`useMidiInput`, play-along count-in, metronome clicks)
+- `src/services/` — Reserved for future backend or integration service layers
 
 ---
 

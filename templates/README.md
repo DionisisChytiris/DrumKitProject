@@ -34,7 +34,7 @@ These come up often enough that it is worth listing them once. Each is intention
 - No backend, no Node server, no REST / GraphQL API
 - No database, no ORM, no cloud file storage
 - No real authentication — auth is a `localStorage` flag accepting fixed demo credentials
-- No working MIDI hardware integration (the Connect MIDI screen is a placeholder)
+- Web MIDI connect + Practice pad playback (General MIDI default map). Play-along MIDI scoring is not implemented yet.
 - No service worker, PWA manifest, or offline support
 - No Tailwind, CSS Modules, styled-components, or any CSS-in-JS
 - No UI component library (no shadcn/ui, Material UI, Chakra, Radix, etc.)
